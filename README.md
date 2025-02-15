@@ -1,16 +1,11 @@
-# test1
+# App
 
-A new Flutter project.
+o projeto que está no repositório é um app simples feito em flutter para conhecermos a plataforma.
 
-## Getting Started
+## Brainstorm de ideias para o projeto
 
-This project is a starting point for a Flutter application.
+Uma aplicação de troca e reutilização de objetos, onde os utilizadores podem trocar roupa, eletrónicos ou móveis, por períodos de tempo definidos. Pode incluir gamificação para incentivar a reutilização.
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- product vision (For, Who, The, Is a, That, Unlike, Our product):
+- initial list of high-level features: chat entre os envolvidos na troca, visualização de fotos do produto, review do processo (troca, estado do item)
+- initial list of dependencies:
