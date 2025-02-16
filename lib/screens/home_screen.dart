@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'counter_screen.dart';
-import 'settings_screen.dart';
+import 'add_item_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -16,19 +15,10 @@ class HomeScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => CounterScreen()),
+                  MaterialPageRoute(builder: (context) => AddItemScreen()),
                 );
               },
-              child: const Text('Go to Counter Screen'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => SettingsScreen()),
-                );
-              },
-              child: const Text('Go to Settings'),
+              child: const Text('Add New Item'),
             ),
           ],
         ),
