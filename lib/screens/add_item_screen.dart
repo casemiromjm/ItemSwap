@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:test1/screens/home_screen.dart';
+import 'package:firebase_database/firebase_database.dart'; // Para usar Realtime Database
 import 'dart:io';
-import 'map_screen.dart';
+import 'dart:convert';  // Para usar base64
 import 'package:latlong2/latlong.dart';
+import 'home_screen.dart';
+import 'map_screen.dart';
+import 'package:image/image.dart' as img;  // Para manipular imagens
 
 class AddItemScreen extends StatefulWidget {
   @override
@@ -20,27 +23,27 @@ class _AddItemScreenState extends State<AddItemScreen> {
   TextStyle color_white = TextStyle(color: Colors.white);
 
   final List<String> _itemTypes = [
-  'Art & Decor',
-  'Baby Products',
-  'Books',
-  'Clothing',
-  'Collectibles',
-  'Electronics',
-  'Food & Beverages',
-  'Furniture',
-  'Garden & Outdoor',
-  'Health & Beauty',
-  'Home Appliances',
-  'Industrial Equipment',
-  'Jewelry & Accessories',
-  'Musical Instruments',
-  'Office Supplies',
-  'Pet Supplies',
-  'Sports Equipment',
-  'Tools & Hardware',
-  'Toys & Games',
-  'Transports',
-  'Other',
+    'Art & Decor',
+    'Baby Products',
+    'Books',
+    'Clothing',
+    'Collectibles',
+    'Electronics',
+    'Food & Beverages',
+    'Furniture',
+    'Garden & Outdoor',
+    'Health & Beauty',
+    'Home Appliances',
+    'Industrial Equipment',
+    'Jewelry & Accessories',
+    'Musical Instruments',
+    'Office Supplies',
+    'Pet Supplies',
+    'Sports Equipment',
+    'Tools & Hardware',
+    'Toys & Games',
+    'Transports',
+    'Other',
   ];
 
   Future<void> _pickImage() async {
@@ -67,19 +70,57 @@ class _AddItemScreenState extends State<AddItemScreen> {
     }
   }
 
-  void _submitItem() {
+  Future<String> _convertImageToBase64(File imageFile) async {
+    // Carregar a imagem como bytes
+    img.Image? image = img.decodeImage(await imageFile.readAsBytes());
+    if (image != null) {
+      // Converter a imagem em base64
+      List<int> bytes = img.encodeJpg(image);
+      return base64Encode(bytes);
+    }
+    throw Exception('Falha ao converter imagem para base64');
+  }
+
+  Future<void> _submitItem() async {
     if (_selectedType != null &&
         _nameController.text.isNotEmpty &&
-        _image != null &&
         _descriptionController.text.isNotEmpty &&
         _selectedLocation != null) {
-      Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => HomeScreen()),
-                );
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Item submitted successfully!')),
-      );
+      try {
+        // Se a imagem for selecionada, converter para base64
+        String imageUrl = '';
+        if (_image != null) {
+          imageUrl = await _convertImageToBase64(_image!);
+        }
+
+        // Salvar item no Realtime Database
+        DatabaseReference reference = FirebaseDatabase.instance.ref().child('items');
+        await reference.push().set({
+          'name': _nameController.text,
+          'description': _descriptionController.text,
+          'type': _selectedType,
+          'imageUrl': imageUrl, // Imagem convertida em base64
+          'location': {
+            'latitude': _selectedLocation!.latitude,
+            'longitude': _selectedLocation!.longitude,
+          },
+          'timestamp': DateTime.now().toString(),
+        });
+
+        // Navegar para a HomeScreen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomeScreen()),
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Item submitted successfully!')),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${e.toString()}')),
+        );
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill in all fields')),
@@ -99,11 +140,11 @@ class _AddItemScreenState extends State<AddItemScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Item Type Dropdown
-              Text('Select Item Type:', style: color_white.copyWith(fontSize: 20),),
+              Text('Select Item Type:', style: color_white.copyWith(fontSize: 20)),
               DropdownButton<String>(
                 value: _selectedType,
                 isExpanded: true,
-                hint: Text('Choose type', style: color_white,),
+                hint: Text('Choose type', style: color_white),
                 style: color_white,
                 dropdownColor: const Color.fromARGB(255, 52, 83, 130),
                 items: _itemTypes.map((type) {
@@ -118,53 +159,53 @@ class _AddItemScreenState extends State<AddItemScreen> {
               const SizedBox(height: 10),
 
               // Item Name Field
-              Text('\nType the name of the item:', style: color_white.copyWith(fontSize: 20),),
+              Text('\nType the name of the item:', style: color_white.copyWith(fontSize: 20)),
               TextField(
                 controller: _nameController,
-                decoration: InputDecoration(border: OutlineInputBorder(), hintText: 'Enter item name', hintStyle: color_white,),
+                decoration: InputDecoration(border: OutlineInputBorder(), hintText: 'Enter item name', hintStyle: color_white),
                 maxLength: 20,
                 style: color_white,
               ),
               const SizedBox(height: 10),
 
               // Image Upload
-                Text('\nUpload an image of the item:', style: color_white.copyWith(fontSize: 20),),
-                _image != null
+              Text('\nUpload an image of the item:', style: color_white.copyWith(fontSize: 20)),
+              _image != null
                   ? Column(
-                    children: [
-                      Image.file(
-                        _image!,
-                        height: 150,
-                        width: 150,
-                        fit: BoxFit.cover,
-                      ),
-                    const SizedBox(height: 10),
-                    ElevatedButton.icon(
+                      children: [
+                        Image.file(
+                          _image!,
+                          height: 150,
+                          width: 150,
+                          fit: BoxFit.cover,
+                        ),
+                        const SizedBox(height: 10),
+                        ElevatedButton.icon(
+                          onPressed: _pickImage,
+                          icon: const Icon(Icons.image),
+                          label: Text('Change Image'),
+                        ),
+                      ],
+                    )
+                  : ElevatedButton.icon(
                       onPressed: _pickImage,
                       icon: const Icon(Icons.image),
-                      label: Text('Change Image'),  // Change button label
+                      label: Text('Select Image'),
                     ),
-                  ],
-                )
-              : ElevatedButton.icon(
-                onPressed: _pickImage,
-                icon: const Icon(Icons.image),
-                label: Text('Select Image'),
-              ),
-              
+
               // Description Field
-              Text('\nType a description of the item:', style: color_white.copyWith(fontSize: 20),),
+              Text('\nType a description of the item:', style: color_white.copyWith(fontSize: 20)),
               TextField(
                 controller: _descriptionController,
                 maxLines: 10,
-                decoration: InputDecoration(border: OutlineInputBorder(), hintText: 'Enter description', hintStyle: color_white,),
+                decoration: InputDecoration(border: OutlineInputBorder(), hintText: 'Enter description', hintStyle: color_white),
                 maxLength: 500,
                 style: color_white,
               ),
               const SizedBox(height: 10),
 
-              // Location Dropdown
-              Text('\nChoose the location of the item:', style: color_white.copyWith(fontSize: 20),),
+              // Location Button
+              Text('\nChoose the location of the item:', style: color_white.copyWith(fontSize: 20)),
               ElevatedButton.icon(
                 onPressed: _pickLocation,
                 icon: const Icon(Icons.map),

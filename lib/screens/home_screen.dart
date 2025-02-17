@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'add_item_screen.dart';
+import 'search_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -19,6 +20,16 @@ class HomeScreen extends StatelessWidget {
                 );
               },
               child: const Text('Add New Item'),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SearchScreen()),
+                );
+              },
+              child: const Text('Search Items'),
             ),
           ],
         ),
