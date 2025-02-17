@@ -70,22 +70,29 @@ class _AddItemScreenState extends State<AddItemScreen> {
     }
   }
 
-  Future<String> _convertImageToBase64(File imageFile) async {
+  Future<String> _convertImageToBase64(File imageFile, {int maxWidth = 300, int quality = 40}) async {
     // Carregar a imagem como bytes
     img.Image? image = img.decodeImage(await imageFile.readAsBytes());
+
     if (image != null) {
-      // Converter a imagem em base64
-      List<int> bytes = img.encodeJpg(image);
+      // Redimensionar a imagem para a largura máxima especificada, mantendo a proporção
+      img.Image resizedImage = img.copyResize(image, width: maxWidth);
+
+      // Comprimir a imagem em JPG com a qualidade definida
+      List<int> bytes = img.encodeJpg(resizedImage, quality: quality);
+
       return base64Encode(bytes);
     }
     throw Exception('Falha ao converter imagem para base64');
   }
 
+  final RegExp validNameRegExp = RegExp(r'[A-Za-zÀ-ÖØ-öø-ÿ]');
+
   Future<void> _submitItem() async {
     if (_selectedType != null &&
-        _nameController.text.isNotEmpty &&
-        _descriptionController.text.isNotEmpty &&
-        _selectedLocation != null) {
+      validNameRegExp.hasMatch(_nameController.text) && // Pelo menos uma letra válida
+      _descriptionController.text.isNotEmpty &&
+      _selectedLocation != null) {
       try {
         // Se a imagem for selecionada, converter para base64
         String imageUrl = '';
