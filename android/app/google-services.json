@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "383064151378",
+    "firebase_url": "https://itemswap-5af05-default-rtdb.firebaseio.com",
     "project_id": "itemswap-5af05",
     "storage_bucket": "itemswap-5af05.firebasestorage.app"
   },
