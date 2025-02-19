@@ -67,6 +67,35 @@ To learn more about how to write a good product vision, please see:
 * [20 Inspiring Vision Statement Examples (2019 Updated), by lifehack.org](https://www.lifehack.org/articles/work/20-sample-vision-statement-for-the-new-startup.html)
 -->
 
+**Vision:**
+Transform consumption into a sustainable and collaborative experience, where people can exchange, reuse, and share everyday items (e.g, clothing, electronics, tools and furniture) promoting a more conscious lifestyle and reducing waste.
+
+**Mission:**
+To create an user-friendly and engaging platform that connects people to exchange items for defined periods, encouraging reuse and the circular economy. Through gamification and rewards, we aim to inspire users to adopt more sustainable habits while building a community that values sharing and collaboration.
+
+**Key Objectives:**
+
+- Sustainability: Reduce waste and excessive consumption by promoting the reuse of items.
+- Circular Economy: Facilitate the circulation of used products, extending their lifecycle.
+- Community: Build a network of users who share values of conscious consumption and collaboration.
+- Convenience: Provide a simple and secure experience for exchanging and borrowing items.
+
+**Values:**
+
+- Sustainability: Prioritize positive environmental impact.
+- Collaboration: Foster exchange and sharing among users.
+- Innovation: Use technology and gamification to create a unique experience.
+- Trust: Ensure transparency and security in transactions.
+
+**Differentiators:**
+
+- Gamification system with challenges, points, ranking, badges, and rewards for participation in exchanges and reuse.
+- Flexible and customizable exchange periods.
+- Active community with user reviews and recommendations.
+- Measurable environmental impact, showing how much users are contributing to waste reduction.
+
+**Motto:**
+"Swap, reuse, transform – together, we can create a more sustainable future, one item at a time."
 
 ### Features and Assumptions
 <!-- 
