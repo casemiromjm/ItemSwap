@@ -3,6 +3,8 @@ import 'add_item_screen.dart';
 import 'search_screen.dart';
 
 class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

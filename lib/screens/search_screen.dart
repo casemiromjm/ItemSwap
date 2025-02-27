@@ -6,6 +6,8 @@ import 'package:latlong2/latlong.dart'; // Para calcular distâncias
 import 'package:diacritic/diacritic.dart'; // Para remover acentos
 
 class SearchScreen extends StatefulWidget {
+  const SearchScreen({super.key});
+
   @override
   _SearchScreenState createState() => _SearchScreenState();
 }

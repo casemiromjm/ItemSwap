@@ -12,6 +12,8 @@ import 'package:image/image.dart' as img; // Para manipular imagens
 import 'package:file_picker/file_picker.dart';
 
 class AddItemScreen extends StatefulWidget {
+  const AddItemScreen({super.key});
+
   @override
   _AddItemScreenState createState() => _AddItemScreenState();
 }
