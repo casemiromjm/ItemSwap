@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_database/firebase_database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+//import 'package:firebase_database/firebase_database.dart';
 import 'dart:convert'; // Para usar base64
 import 'map_screen.dart';
 import 'package:latlong2/latlong.dart'; // Para calcular distâncias
@@ -25,7 +26,8 @@ class _SearchScreenState extends State<SearchScreen> {
     'Transports', 'Other',
   ];
 
-  final DatabaseReference _itemsRef = FirebaseDatabase.instance.ref('items');
+  //final DatabaseReference _itemsRef = FirebaseDatabase.instance.ref('items');
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance; 
   int _itemsToLoad = 10;
 
   Image _getImageFromBase64(String base64String) {
@@ -124,8 +126,8 @@ class _SearchScreenState extends State<SearchScreen> {
             const SizedBox(height: 20),
 
             Expanded(
-              child: StreamBuilder<DatabaseEvent>(
-                stream: _itemsRef.onValue,
+              child: StreamBuilder<QuerySnapshot>(
+                stream: _firestore.collection('items').snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
                     return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.white)));
@@ -134,43 +136,45 @@ class _SearchScreenState extends State<SearchScreen> {
                     return Center(child: CircularProgressIndicator());
                   }
 
-                  if (!snapshot.hasData || snapshot.data!.snapshot.value == null) {
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                     return Center(
                       child: Text('No items found.', style: TextStyle(color: Colors.white)),
                     );
                   }
 
-                  Map<dynamic, dynamic> allItems = snapshot.data!.snapshot.value as Map<dynamic, dynamic>;
-                  List<MapEntry<dynamic, dynamic>> filteredItems = allItems.entries.toList();
+                  //Map<dynamic, dynamic> allItems = snapshot.data!.snapshot.value as Map<dynamic, dynamic>;
+                  //List<MapEntry<dynamic, dynamic>> filteredItems = allItems.entries.toList();
+                  List<QueryDocumentSnapshot> filteredItems = snapshot.data!.docs;
 
                   if (_selectedType != "All") {
-                    filteredItems = filteredItems.where((entry) => entry.value['type'] == _selectedType).toList();
+                    filteredItems = filteredItems.where((doc) => doc['type'] == _selectedType).toList();
                   }
 
                   if (_sortOption == "location" && _selectedLocation != null) {
                     filteredItems.sort((a, b) {
-                      LatLng itemLocationA = LatLng(a.value['location']['latitude'], a.value['location']['longitude']);
-                      LatLng itemLocationB = LatLng(b.value['location']['latitude'], b.value['location']['longitude']);
+                      LatLng itemLocationA = LatLng(a['location']['latitude'], a['location']['longitude']);
+                      LatLng itemLocationB = LatLng(b['location']['latitude'], b['location']['longitude']);
                       double distanceA = _calculateDistance(itemLocationA, _selectedLocation!);
                       double distanceB = _calculateDistance(itemLocationB, _selectedLocation!);
                       return distanceA.compareTo(distanceB);
                     });
                   } else if (_sortOption == "time") {
                     filteredItems.sort((a, b) {
-                      return (b.value['timestamp'] ?? 0).compareTo(a.value['timestamp'] ?? 0);
+                      return (b['timestamp'] ?? 0).compareTo(a['timestamp'] ?? 0);
                     });
                   } else if (_sortOption == "name") {
                     filteredItems.sort((a, b) {
-                      String nameA = _normalizeName(a.value['name'] ?? '');
-                      String nameB = _normalizeName(b.value['name'] ?? '');
+                      String nameA = _normalizeName(a['name'] ?? '');
+                      String nameB = _normalizeName(b['name'] ?? '');
                       return nameA.compareTo(nameB);
                     });
                   }
 
-                  List<MapEntry<dynamic, dynamic>> itemsToShow = filteredItems.take(_itemsToLoad).toList();
+                  //List<MapEntry<dynamic, dynamic>> itemsToShow = filteredItems.take(_itemsToLoad).toList();
+                  List<QueryDocumentSnapshot> itemsToShow = filteredItems.take(_itemsToLoad).toList();
 
-                  List<Widget> itemWidgets = itemsToShow.map((entry) {
-                    var item = entry.value as Map<dynamic, dynamic>;
+                  List<Widget> itemWidgets = itemsToShow.map((doc) {
+                    var item = doc.data() as Map<String, dynamic>;
                     return Card(
                       color: Colors.white,
                       child: ListTile(

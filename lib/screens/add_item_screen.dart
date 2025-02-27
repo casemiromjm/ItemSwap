@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:image_picker/image_picker.dart';
-import 'package:firebase_database/firebase_database.dart'; // Para usar Realtime Database
+//import 'package:firebase_database/firebase_database.dart'; // Para usar Realtime Database
+import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore Import
 import 'dart:io';
 import 'dart:convert'; // Para usar base64
+import 'dart:typed_data';
 import 'package:latlong2/latlong.dart';
 import 'home_screen.dart';
 import 'map_screen.dart';
@@ -63,11 +65,12 @@ class _AddItemScreenState extends State<AddItemScreen> {
         // Get the selected file
         final file = result.files.single;
 
-        // Convert the image to Base64
-        final imageBase64 = base64Encode(file.bytes!);
+        // Compress the image before displaying
+        final compressedImageBase64 = await _compressImageFile(file);
 
         setState(() {
-          _imageBase64 = imageBase64;
+          _imageBase64 =
+              compressedImageBase64; // Store the compressed base64 string
         });
       }
     } else {
@@ -102,52 +105,51 @@ class _AddItemScreenState extends State<AddItemScreen> {
     }
   }
 
-  // Compress the picked image on mobile (File type)
-  Future<File> _compressImageFile(
-    File imageFile, {
-    int maxWidth = 150,
-    int quality = 40,
-  }) async {
-    // Load the image
-    img.Image? image = img.decodeImage(await imageFile.readAsBytes());
-
-    if (image != null) {
-      // Resize the image while maintaining the aspect ratio
-      img.Image resizedImage = img.copyResize(image, width: maxWidth);
-
-      // Compress the image in JPG format
-      List<int> compressedBytes = img.encodeJpg(resizedImage, quality: quality);
-
-      // Create a new File with the compressed image bytes
-      return await imageFile.writeAsBytes(compressedBytes);
-    } else {
-      throw Exception('Failed to compress image');
-    }
-  }
-
-  Future<String> _convertImageToBase64(
-    File imageFile, {
+  // Compress the picked image for both mobile and web
+  Future<dynamic> _compressImageFile(
+    dynamic imageFile, {
     int maxWidth = 150,
     int quality = 40,
   }) async {
     if (kIsWeb) {
-      // Para Web, usa os bytes da imagem como Base64
-      final bytes = await imageFile.readAsBytes();
-      return base64Encode(bytes); // Retorna a imagem em Base64 diretamente
+      // Web-specific image handling (using Uint8List for web)
+      final bytes = imageFile.bytes!;
+      img.Image? image = img.decodeImage(Uint8List.fromList(bytes));
+
+      if (image != null) {
+        // Resize the image while maintaining the aspect ratio
+        img.Image resizedImage = img.copyResize(image, width: maxWidth);
+
+        // Compress the image in JPG format
+        List<int> compressedBytes = img.encodeJpg(
+          resizedImage,
+          quality: quality,
+        );
+
+        // Return the compressed image bytes as base64
+        return base64Encode(compressedBytes);
+      } else {
+        throw Exception('Failed to compress image');
+      }
     } else {
-      // Para Android/iOS, mantém a lógica de redimensionamento
+      // Mobile/Desktop-specific image handling (using File)
       img.Image? image = img.decodeImage(await imageFile.readAsBytes());
 
       if (image != null) {
-        // Redimensionar a imagem para a largura máxima especificada, mantendo a proporção
+        // Resize the image while maintaining the aspect ratio
         img.Image resizedImage = img.copyResize(image, width: maxWidth);
 
-        // Comprimir a imagem em JPG com a qualidade definida
-        List<int> bytes = img.encodeJpg(resizedImage, quality: quality);
+        // Compress the image in JPG format
+        List<int> compressedBytes = img.encodeJpg(
+          resizedImage,
+          quality: quality,
+        );
 
-        return base64Encode(bytes); // Retorna a imagem convertida em Base64
+        // Return the compressed file
+        return await imageFile.writeAsBytes(compressedBytes);
+      } else {
+        throw Exception('Failed to compress image');
       }
-      throw Exception('Falha ao converter imagem para base64');
     }
   }
 
@@ -164,16 +166,13 @@ class _AddItemScreenState extends State<AddItemScreen> {
         // Se a imagem for selecionada, converter para base64
         String imageUrl = '';
         if (_image != null) {
-          imageUrl = await _convertImageToBase64(_image!);
+          imageUrl = base64Encode(_image as List<int>);
         } else if (_imageBase64 != null) {
           imageUrl = _imageBase64!; // Para a Web, usa a imagem em base64
         }
 
-        // Salvar item no Realtime Database
-        DatabaseReference reference = FirebaseDatabase.instance.ref().child(
-          'items',
-        );
-        await reference.push().set({
+        // Salvar item no Firestore
+        await FirebaseFirestore.instance.collection('items').add({
           'name': _nameController.text,
           'description': _descriptionController.text,
           'type': _selectedType,
@@ -182,7 +181,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
             'latitude': _selectedLocation!.latitude,
             'longitude': _selectedLocation!.longitude,
           },
-          'timestamp': DateTime.now().toString(),
+          'timestamp': FieldValue.serverTimestamp(), // Firestore timestamp
         });
 
         // Navegar para a HomeScreen
