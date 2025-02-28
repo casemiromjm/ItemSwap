@@ -24,7 +24,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   String? _selectedType;
-  File? _image;
+  //File? _image;
   String? _imageBase64; // Para armazenar a imagem em base64 na Web
   LatLng? _selectedLocation;
 
@@ -66,11 +66,10 @@ class _AddItemScreenState extends State<AddItemScreen> {
         final file = result.files.single;
 
         // Compress the image before displaying
-        final compressedImageBase64 = await _compressImageFile(file);
+        final compressedImageBase64 = await _compressImageFile(file.bytes!);
 
         setState(() {
-          _imageBase64 =
-              compressedImageBase64; // Store the compressed base64 string
+          _imageBase64 = compressedImageBase64;
         });
       }
     } else {
@@ -79,14 +78,10 @@ class _AddItemScreenState extends State<AddItemScreen> {
       final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
       if (pickedFile != null) {
+        final bytes = await File(pickedFile.path).readAsBytes();
+        final compressedImageBase64 = await _compressImageFile(bytes);
         setState(() {
-          _image = File(pickedFile.path); // Mobile/Desktop file handling
-        });
-
-        // Compress the image before displaying
-        final compressedImage = await _compressImageFile(_image!);
-        setState(() {
-          _image = compressedImage;
+          _imageBase64 = compressedImageBase64;
         });
       }
     }
@@ -106,50 +101,26 @@ class _AddItemScreenState extends State<AddItemScreen> {
   }
 
   // Compress the picked image for both mobile and web
-  Future<dynamic> _compressImageFile(
-    dynamic imageFile, {
-    int maxWidth = 150,
-    int quality = 40,
+  Future<String> _compressImageFile(
+    Uint8List imageBytes, {
+    int maxWidth = 200,
+    int maxHeight = 200,
+    int quality = 30,
   }) async {
-    if (kIsWeb) {
-      // Web-specific image handling (using Uint8List for web)
-      final bytes = imageFile.bytes!;
-      img.Image? image = img.decodeImage(Uint8List.fromList(bytes));
+    img.Image? image = img.decodeImage(imageBytes);
 
-      if (image != null) {
-        // Resize the image while maintaining the aspect ratio
-        img.Image resizedImage = img.copyResize(image, width: maxWidth);
+    if (image != null) {
+      img.Image resizedImage = img.copyResize(
+        image,
+        width: maxWidth,
+        height: maxHeight,
+      );
 
-        // Compress the image in JPG format
-        List<int> compressedBytes = img.encodeJpg(
-          resizedImage,
-          quality: quality,
-        );
+      List<int> compressedBytes = img.encodeJpg(resizedImage, quality: quality);
 
-        // Return the compressed image bytes as base64
-        return base64Encode(compressedBytes);
-      } else {
-        throw Exception('Failed to compress image');
-      }
+      return base64Encode(compressedBytes);
     } else {
-      // Mobile/Desktop-specific image handling (using File)
-      img.Image? image = img.decodeImage(await imageFile.readAsBytes());
-
-      if (image != null) {
-        // Resize the image while maintaining the aspect ratio
-        img.Image resizedImage = img.copyResize(image, width: maxWidth);
-
-        // Compress the image in JPG format
-        List<int> compressedBytes = img.encodeJpg(
-          resizedImage,
-          quality: quality,
-        );
-
-        // Return the compressed file
-        return await imageFile.writeAsBytes(compressedBytes);
-      } else {
-        throw Exception('Failed to compress image');
-      }
+      throw Exception('Failed to compress image');
     }
   }
 
@@ -165,9 +136,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
       try {
         // Se a imagem for selecionada, converter para base64
         String imageUrl = '';
-        if (_image != null) {
-          imageUrl = base64Encode(_image as List<int>);
-        } else if (_imageBase64 != null) {
+        if (_imageBase64 != null) {
           imageUrl = _imageBase64!; // Para a Web, usa a imagem em base64
         }
 
@@ -261,22 +230,15 @@ class _AddItemScreenState extends State<AddItemScreen> {
                 '\nUpload an image of the item:',
                 style: color_white.copyWith(fontSize: 20),
               ),
-              _image != null || _imageBase64 != null
+              _imageBase64 != null
                   ? Column(
                     children: [
-                      kIsWeb
-                          ? Image.memory(
-                            base64Decode(_imageBase64!),
-                            height: 150,
-                            width: 150,
-                            fit: BoxFit.cover,
-                          )
-                          : Image.file(
-                            _image!,
-                            height: 150,
-                            width: 150,
-                            fit: BoxFit.cover,
-                          ),
+                      Image.memory(
+                        base64Decode(_imageBase64!),
+                        height: 200,
+                        width: 200,
+                        fit: BoxFit.contain,
+                      ),
                       const SizedBox(height: 10),
                       ElevatedButton.icon(
                         onPressed: _pickImage,
