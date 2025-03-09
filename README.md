@@ -107,8 +107,9 @@ To learn more about how to write a good product vision, please see:
 
 ### Features and Assumptions
 
+<!-- features -->
 #### **1. Item Posting**
-- Users can easily upload items they no longer need by filling out a simple form with essential details: type of item, name, description, image, location (latitude and longitude). This helps others find items in their area.
+- Users can easily upload photos of the items they no longer need by filling out a simple form with essential details: type of item, name, description, image, location (latitude and longitude). This helps others find items in their area.
 - **Types of items**: 
    Art & Decor,
   Baby Products,
@@ -130,7 +131,7 @@ To learn more about how to write a good product vision, please see:
   Tools & Hardware,
   Toys & Games,
   Transports,
-  Other,
+  Other.
 
 #### **2. Search and Browse**  
 - Users can search for items they need by type, keyword, location, or simply by time.
@@ -168,8 +169,6 @@ Indicate an  initial/tentative list of high-level features - high-level capabili
 
 Optionally, indicate an initial/tentative list of assumptions that you are doing about the app and dependencies of the app to other systems.
 -->
-
-<!-- features -->
 
 <!-- assumptions/dependencies -->
 
@@ -225,8 +224,14 @@ As a user, I want to rate my overall experience with the provider, so that I can
 #### User Story 3: Save Meeting Details
 As a user, I want to save meeting details (time and location of the exchange), so that I can keep track of future meetings with other users.
 
-#### User Story 4: Record Borrowed/Lent Items
-As a user, I want to have a section that records all the items I've borrowed/lent, so that I can easily keep track of the items I have exchanged.
+#### User Story 4: Record Swapped Items
+As a user, I want to have a section that records all the items I've swapped, so that I can easily keep track of the items I have exchanged.
+
+#### User Story 5: Home Page
+As a user, I want to land on a homepage that makes it possible to manage my profile and my items and gather general information.
+
+#### User Story 6: Chat
+As a user, I want to have a chat, so that I can communicate with other users for changing items.
 
 ### Domain model
 
