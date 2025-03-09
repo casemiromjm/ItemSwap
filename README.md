@@ -57,65 +57,6 @@ ItemSwap is a social impact app that aims to reduce waste, promote sustainabilit
 - **Environmentally-conscious users**: Individuals looking to reduce their consumption and make more sustainable choices.  
 - **General public**: Anyone with unused items at home looking to make a positive impact by donating them.
 
----
-
-#### **Core Features:**
-
-##### **1. Item Posting**
-- Users can easily upload items they no longer need by filling out a simple form with essential details: type of item, name, description, image, location (latitude and longitude). This helps others find items in their area.
-- **Types of items**: 
-   Art & Decor,
-  Baby Products,
-  Books,
-  Clothing,
-  Collectibles,
-  Electronics,
-  Food & Beverages,
-  Furniture,
-  Garden & Outdoor,
-  Health & Beauty,
-  Home Appliances,
-  Industrial Equipment,
-  Jewelry & Accessories,
-  Musical Instruments,
-  Office Supplies,
-  Pet Supplies,
-  Sports Equipment,
-  Tools & Hardware,
-  Toys & Games,
-  Transports,
-  Other,
-
-##### **2. Search and Browse**  
-- Users can search for items they need by type, keyword, location, or simply by time.
-- A powerful search functionality ensures users can find what they’re looking for.
-
-##### **3. Chat and Communication**  
-- When a user finds an item they want, they can initiate a chat with the item’s owner to discuss the details, such as condition, availability, and logistics.
-- The chat function ensures safe and easy communication between users to coordinate the exchange of items.
-
-##### **4. Item Swapped**  
-- Once a successful exchange is made, both parties mark the item as "swapped." This removes the item from the database, ensuring it’s no longer available for others and maintaining the integrity of the system.
-- Both parties are notified when the swap is completed.
-
-##### **5. User Profiles**  
-- Each user has a profile where they can customize their picture, username, and password. This fosters trust within the community.
-- A **transaction history** displays the number of items they’ve given and received, showcasing their activity and contribution to the platform.
-
-##### **6. Sustainability and Social Impact**  
-- ItemSwap emphasizes eco-friendliness by promoting the reuse of goods instead of sending them to landfills. The app's design highlights the importance of reducing waste and reusing items to help the environment.
-
-##### **7. Free Transactions**  
-- All transactions within ItemSwap are completely free. There are no costs involved, ensuring that everyone has equal access to the items they need, regardless of their financial situation. This supports people who cannot afford to buy new goods.
-
-##### **8. Location-based Services**  
-- Location features allow users to search for items within a certain radius of their location. This makes the exchange process easier and more feasible for people to arrange meetups or deliveries locally.
-
-##### **9. Notifications and Alerts**  
-- Users receive notifications when they receive a message in the chat. Notifications help keep the process active and engaging.
-
----
-
 #### **Value Proposition:**
 
 ##### **For Users**  
@@ -165,6 +106,60 @@ To learn more about how to write a good product vision, please see:
 -->
 
 ### Features and Assumptions
+
+#### **1. Item Posting**
+- Users can easily upload items they no longer need by filling out a simple form with essential details: type of item, name, description, image, location (latitude and longitude). This helps others find items in their area.
+- **Types of items**: 
+   Art & Decor,
+  Baby Products,
+  Books,
+  Clothing,
+  Collectibles,
+  Electronics,
+  Food & Beverages,
+  Furniture,
+  Garden & Outdoor,
+  Health & Beauty,
+  Home Appliances,
+  Industrial Equipment,
+  Jewelry & Accessories,
+  Musical Instruments,
+  Office Supplies,
+  Pet Supplies,
+  Sports Equipment,
+  Tools & Hardware,
+  Toys & Games,
+  Transports,
+  Other,
+
+#### **2. Search and Browse**  
+- Users can search for items they need by type, keyword, location, or simply by time.
+- A powerful search functionality ensures users can find what they’re looking for.
+
+#### **3. Chat and Communication**  
+- When a user finds an item they want, they can initiate a chat with the item’s owner to discuss the details, such as condition, availability, and logistics.
+- The chat function ensures safe and easy communication between users to coordinate the exchange of items.
+
+#### **4. Item Swapped**  
+- Once a successful exchange is made, both parties mark the item as "swapped." This removes the item from the database, ensuring it’s no longer available for others and maintaining the integrity of the system.
+- Both parties are notified when the swap is completed.
+
+#### **5. User Profiles**  
+- Each user has a profile where they can customize their picture, username, and password. This fosters trust within the community.
+- A **transaction history** displays the number of items they’ve given and received, showcasing their activity and contribution to the platform.
+
+#### **6. Sustainability and Social Impact**  
+- ItemSwap emphasizes eco-friendliness by promoting the reuse of goods instead of sending them to landfills. The app's design highlights the importance of reducing waste and reusing items to help the environment.
+
+#### **7. Free Transactions**  
+- All transactions within ItemSwap are completely free. There are no costs involved, ensuring that everyone has equal access to the items they need, regardless of their financial situation. This supports people who cannot afford to buy new goods.
+
+#### **8. Location-based Services**  
+- Location features allow users to search for items within a certain radius of their location. This makes the exchange process easier and more feasible for people to arrange meetups or deliveries locally.
+
+#### **9. Notifications and Alerts**  
+- Users receive notifications when they receive a message in the chat. Notifications help keep the process active and engaging.
+
 <!-- 
 Indicate an  initial/tentative list of high-level features - high-level capabilities or desired services of the system that are necessary to deliver benefits to the users.
  - Feature XPTO - a few words to briefly describe the feature
@@ -175,16 +170,13 @@ Optionally, indicate an initial/tentative list of assumptions that you are doing
 -->
 
 <!-- features -->
-- Chat feature for participants -> A chat feature that allows participants to discuss additional details or clarify information
-- Product photos and description -> A section where the owner can describe the product's condition, supported by text and photos
-- Process rating system -> Allows users to rate aspects such as the product's condition and their experience with the provider
-- Save meeting details -> A feature to save the location and time of the meeting
-- Countdown tracker for returns -> A timer to track the deadline for returning the borrowed item
-- Borrowing history tab -> A section to keep a record of all borrowed items
 
 <!-- assumptions/dependencies -->
 
 ### Elevator Pitch
+
+ItemSwap is the ultimate app for giving and getting completely for free! It’s where you can list things you no longer need, from clothes to gadgets, and share them with others in your community. Simply upload your item with a name, description, picture, and location. If someone finds something they want, they can chat with you and click ‘Item Swapped’ once it’s done. Your items stay out of landfills, and people in need get access to things they might not be able to afford. With ItemSwap, it’s all about sustainability, accessibility, and building a world where sharing is the norm. No money, no hassle, just a simple swap
+
 <!-- 
 Draft a small text to help you quickly introduce and describe your product in a short time (lift travel time ~90 seconds) and a few words (~800 characters), a technique usually known as elevator pitch.
 
