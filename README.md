@@ -47,6 +47,103 @@ Business modeling in software development involves defining the product's vision
 
 ### Product Vision
 
+#### **Overview**  
+ItemSwap is a social impact app that aims to reduce waste, promote sustainability, and help people in need by facilitating the free exchange of items. It allows users to donate items they no longer need, browse for items they could benefit from, and connect with others to exchange goods. ItemSwap ensures that goods are reused, reducing the environmental impact of consumer culture and providing access to essentials for those who may not be able to afford them.
+
+---
+
+#### **Target Audience**  
+- **Individuals in need**: People who can’t afford to buy new items but require specific goods.  
+- **Environmentally-conscious users**: Individuals looking to reduce their consumption and make more sustainable choices.  
+- **General public**: Anyone with unused items at home looking to make a positive impact by donating them.
+
+---
+
+#### **Core Features:**
+
+##### **1. Item Posting**
+- Users can easily upload items they no longer need by filling out a simple form with essential details: type of item, name, description, image, location (latitude and longitude). This helps others find items in their area.
+- **Types of items**: 
+   Art & Decor,
+  Baby Products,
+  Books,
+  Clothing,
+  Collectibles,
+  Electronics,
+  Food & Beverages,
+  Furniture,
+  Garden & Outdoor,
+  Health & Beauty,
+  Home Appliances,
+  Industrial Equipment,
+  Jewelry & Accessories,
+  Musical Instruments,
+  Office Supplies,
+  Pet Supplies,
+  Sports Equipment,
+  Tools & Hardware,
+  Toys & Games,
+  Transports,
+  Other,
+
+##### **2. Search and Browse**  
+- Users can search for items they need by type, keyword, location, or simply by time.
+- A powerful search functionality ensures users can find what they’re looking for.
+
+##### **3. Chat and Communication**  
+- When a user finds an item they want, they can initiate a chat with the item’s owner to discuss the details, such as condition, availability, and logistics.
+- The chat function ensures safe and easy communication between users to coordinate the exchange of items.
+
+##### **4. Item Swapped**  
+- Once a successful exchange is made, both parties mark the item as "swapped." This removes the item from the database, ensuring it’s no longer available for others and maintaining the integrity of the system.
+- Both parties are notified when the swap is completed.
+
+##### **5. User Profiles**  
+- Each user has a profile where they can customize their picture, username, and password. This fosters trust within the community.
+- A **transaction history** displays the number of items they’ve given and received, showcasing their activity and contribution to the platform.
+
+##### **6. Sustainability and Social Impact**  
+- ItemSwap emphasizes eco-friendliness by promoting the reuse of goods instead of sending them to landfills. The app's design highlights the importance of reducing waste and reusing items to help the environment.
+
+##### **7. Free Transactions**  
+- All transactions within ItemSwap are completely free. There are no costs involved, ensuring that everyone has equal access to the items they need, regardless of their financial situation. This supports people who cannot afford to buy new goods.
+
+##### **8. Location-based Services**  
+- Location features allow users to search for items within a certain radius of their location. This makes the exchange process easier and more feasible for people to arrange meetups or deliveries locally.
+
+##### **9. Notifications and Alerts**  
+- Users receive notifications when they receive a message in the chat. Notifications help keep the process active and engaging.
+
+---
+
+#### **Value Proposition:**
+
+##### **For Users**  
+ItemSwap gives people the chance to give back to their communities by donating unused goods and helps them find things they need for free. Users can feel good about the positive impact they’re making on the environment and the lives of others.
+   
+##### **For Society**  
+The app fosters a culture of generosity and sustainability. It gives people an easy way to contribute to a circular economy, reducing waste and giving new life to items that would otherwise end up in landfills.
+
+##### **For the Environment**  
+By ensuring that goods are reused, ItemSwap helps prevent the wasteful disposal of items, reducing pollution, lowering carbon footprints, and conserving resources.
+
+---
+
+#### **Long-term Vision:**
+
+##### **Global Expansion**  
+ItemSwap aims to expand globally, building a worldwide community of users who share their items for free, with the potential to partner with organizations and governments for larger-scale impact.
+   
+##### **Expanded Services**  
+Future features could include partnerships with local charities, integration with recycling programs, and the option to coordinate item swaps at community centers or through local events.
+
+##### **Improved Accessibility**  
+As ItemSwap grows, the platform can introduce additional accessibility features, such as language translations, assistance for users with disabilities, and further development to enhance the experience for people in various economic situations.
+
+---
+
+ItemSwap’s vision is to create a more sustainable world where everyone has access to the resources they need, and where every item finds a second life, reducing waste and making a real difference in people's lives.
+
 <!-- 
 Start by defining a clear and concise vision for your app, to help members of the team, contributors, and users into focusing their often disparate views into a concise, visual, and short textual form. 
 
@@ -66,36 +163,6 @@ To learn more about how to write a good product vision, please see:
 * [How to write a vision, by dummies.com](https://www.dummies.com/business/marketing/branding/how-to-write-vision-and-mission-statements-for-your-brand/)
 * [20 Inspiring Vision Statement Examples (2019 Updated), by lifehack.org](https://www.lifehack.org/articles/work/20-sample-vision-statement-for-the-new-startup.html)
 -->
-
-**Vision:**
-Transform consumption into a sustainable and collaborative experience, where people can exchange, reuse, and share everyday items (e.g, clothing, electronics, tools and furniture) promoting a more conscious lifestyle and reducing waste.
-
-**Mission:**
-To create an user-friendly and engaging platform that connects people to exchange items for defined periods, encouraging reuse and the circular economy. Through gamification and rewards, we aim to inspire users to adopt more sustainable habits while building a community that values sharing and collaboration.
-
-**Key Objectives:**
-
-- Sustainability: Reduce waste and excessive consumption by promoting the reuse of items.
-- Circular Economy: Facilitate the circulation of used products, extending their lifecycle.
-- Community: Build a network of users who share values of conscious consumption and collaboration.
-- Convenience: Provide a simple and secure experience for exchanging and borrowing items.
-
-**Values:**
-
-- Sustainability: Prioritize positive environmental impact.
-- Collaboration: Foster exchange and sharing among users.
-- Innovation: Use technology and gamification to create a unique experience.
-- Trust: Ensure transparency and security in transactions.
-
-**Differentiators:**
-
-- Gamification system with challenges, points, ranking, badges, and rewards for participation in exchanges and reuse.
-- Flexible and customizable exchange periods.
-- Active community with user reviews and recommendations.
-- Measurable environmental impact, showing how much users are contributing to waste reduction.
-
-**Motto:**
-"Swap, reuse, transform – together, we can create a more sustainable future, one item at a time."
 
 ### Features and Assumptions
 <!-- 
@@ -159,6 +226,8 @@ At the end, it is good to add a rough indication of the value of the user story 
 -->
 
 ### Domain model
+
+![domain model](documentation/domain_model.png)
 
 <!-- 
 To better understand the context of the software system, it is useful to have a simple UML class diagram with all and only the key concepts (names, attributes) and relationships involved of the problem domain addressed by your app. 
