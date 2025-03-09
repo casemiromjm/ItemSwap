@@ -224,6 +224,17 @@ For each user story you should write also the acceptance tests (textually in [Gh
 At the end, it is good to add a rough indication of the value of the user story to the customers (e.g. [MoSCoW](https://en.wikipedia.org/wiki/MoSCoW_method) method) and the team should add an estimation of the effort to implement it, for example, using points in a kind-of-a Fibonnacci scale (1,2,3,5,8,13,20,40, no idea).
 
 -->
+#### User Story 1: Upload Product Description
+As a user, I want to upload a description of the product, so that I can provide detailed information about the product I am lending.
+
+#### User Story 2: Rate Overall Experience with Provider
+As a user, I want to rate my overall experience with the provider, so that I can provide feedback on the service for future users.
+
+#### User Story 3: Save Meeting Details
+As a user, I want to save meeting details (time and location of the exchange), so that I can keep track of future meetings with other users.
+
+#### User Story 4: Record Borrowed/Lent Items
+As a user, I want to have a section that records all the items I've borrowed/lent, so that I can easily keep track of the items I have exchanged.
 
 ### Domain model
 
