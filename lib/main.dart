@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:test1/screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'firebase_options.dart';
 
@@ -17,7 +18,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Navigation',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: HomeScreen(),
+      home: LoginScreen(), //inicia neste screen
     );
   }
 }
