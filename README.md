@@ -227,20 +227,13 @@ As a user, I want to add an item with its name, description, image, location, an
 #### User Story 4: Search and Filters
 As a user, I want to search for items by name, filter by type and date of posting, and see nearby items first so that I can quickly find what I need in a convenient location.
 
-#### User Story 5: Home Page
-As a user, I want to land on a homepage that makes it possible to manage my profile and my items and gather general information.
-
-#### User Story 6.: Tracking Items Given & Received
-As a user, I want to see a section displaying the number of items I have given and received so that I can track my contributions and benefits from the app.
-#### User Story 6: Contacts
-As a user, I want to be able to access a certain chat with another user
-
+#### User Story 5: Chat System (Requesting Items and Communication)
+As a user, I want to start a chat with an item’s owner, exchange messages, and view a list of my recent chats so that I can communicate about an item exchange efficiently.
 ![Contacts Mockup](documentation/mockups/Contacts.jpg)
-
-#### User Story 7: Chat
-As a user, I want to have a chat, so that I can communicate with other users for changing items.
-
 ![Chat Mockup](documentation/mockups/Chat.jpg)
+
+#### User Story 6: Tracking Items Given & Received
+As a user, I want to see a section displaying the number of items I have given and received so that I can track my contributions and benefits from the app.
 
 ### Domain model
 
