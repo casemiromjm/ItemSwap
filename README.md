@@ -215,23 +215,23 @@ For each user story you should write also the acceptance tests (textually in [Gh
 At the end, it is good to add a rough indication of the value of the user story to the customers (e.g. [MoSCoW](https://en.wikipedia.org/wiki/MoSCoW_method) method) and the team should add an estimation of the effort to implement it, for example, using points in a kind-of-a Fibonnacci scale (1,2,3,5,8,13,20,40, no idea).
 
 -->
-#### User Story 1: Upload Product Description
-As a user, I want to upload a description of the product, so that I can provide detailed information about the product I am lending.
+#### User Story 1: User Authentication and Profile Management
+As a user, I want to create an account with a username, profile picture, and password, log in securely, and update my profile details so that I can access my account, manage my information, and track the number of items I have given and received.
 
-#### User Story 2: Rate Overall Experience with Provider
-As a user, I want to rate my overall experience with the provider, so that I can provide feedback on the service for future users.
+#### User Story 2: Main Page (Navigation and Features)
+As a user, I want a main page with a mean to access my recent chats, change my profile, search for items, and view the items I have given so that I can easily navigate the app and access important features.
 
-#### User Story 3: Save Meeting Details
-As a user, I want to save meeting details (time and location of the exchange), so that I can keep track of future meetings with other users.
+#### User Story 3: Adding and Removing Items
+As a user, I want to add an item with its name, description, image, location, and type, and later remove it from the database either by marking it as swapped or deleting it manually so that I have full control over the items I share and can keep the item list up to date.
 
-#### User Story 4: Record Swapped Items
-As a user, I want to have a section that records all the items I've swapped, so that I can easily keep track of the items I have exchanged.
+#### User Story 4: Search and Filters
+As a user, I want to search for items by name, filter by type and date of posting, and see nearby items first so that I can quickly find what I need in a convenient location.
 
-#### User Story 5: Home Page
-As a user, I want to land on a homepage that makes it possible to manage my profile and my items and gather general information.
+#### User Story 5: Chat System (Requesting Items & Communication)
+As a user, I want to start a chat with an item’s owner, exchange messages, and view a list of my recent chats so that I can communicate about an item exchange efficiently.
 
-#### User Story 6: Chat
-As a user, I want to have a chat, so that I can communicate with other users for changing items.
+#### User Story 6.: Tracking Items Given & Received
+As a user, I want to see a section displaying the number of items I have given and received so that I can track my contributions and benefits from the app.
 
 ### Domain model
 
