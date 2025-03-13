@@ -233,7 +233,7 @@ As a user, I want to start a chat with an item’s owner, exchange messages, and
   <img src=documentation/mockups/Contacts.jpg/>
 </p>
 <p align="center" justify="center">
-  <img src=documentation/mockups/Chat.jpg/>
+  <img src=documentation/mockups/Chat1.jpg/>
 </p>
 
 #### User Story 6: Tracking Items Given & Received
