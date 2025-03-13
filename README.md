@@ -232,14 +232,9 @@ As a user, I want to start a chat with an item’s owner, exchange messages, and
 <p align="center" justify="center">
   <img src=documentation/mockups/Contacts.jpg/>
 </p>
-
 <p align="center" justify="center">
   <img src=documentation/mockups/Chat.jpg/>
 </p>
-
-<!--![Contacts Mockup](documentation/mockups/Contacts.jpg)
-
-![Chat Mockup](documentation/mockups/Chat.jpg)-->
 
 #### User Story 6: Tracking Items Given & Received
 As a user, I want to see a section displaying the number of items I have given and received so that I can track my contributions and benefits from the app.
