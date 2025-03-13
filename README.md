@@ -233,12 +233,12 @@ As a user, I want to land on a homepage that makes it possible to manage my prof
 #### User Story 6: Contacts
 As a user, I want to be able to access a certain chat with another user
 
-![Contacts Mockup](documentation/mockups/Contacts.png)
+![Contacts Mockup](documentation/mockups/Contacts.jpeg)
 
 #### User Story 7: Chat
 As a user, I want to have a chat, so that I can communicate with other users for changing items.
 
-![Chat Mockup](documentation/mockups/Chat.png)
+![Chat Mockup](documentation/mockups/Chat.jpeg)
 
 ### Domain model
 
