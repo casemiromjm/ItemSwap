@@ -229,8 +229,17 @@ As a user, I want to search for items by name, filter by type and date of postin
 
 #### User Story 5: Chat System (Requesting Items and Communication)
 As a user, I want to start a chat with an item’s owner, exchange messages, and view a list of my recent chats so that I can communicate about an item exchange efficiently.
-![Contacts Mockup](documentation/mockups/Contacts.jpg)
-![Chat Mockup](documentation/mockups/Chat.jpg)
+<p align="center" justify="center">
+  <img src=documentation/mockups/Contacts.jpg/>
+</p>
+
+<p align="center" justify="center">
+  <img src=documentation/mockups/Chat.jpg/>
+</p>
+
+<!--![Contacts Mockup](documentation/mockups/Contacts.jpg)
+
+![Chat Mockup](documentation/mockups/Chat.jpg)-->
 
 #### User Story 6: Tracking Items Given & Received
 As a user, I want to see a section displaying the number of items I have given and received so that I can track my contributions and benefits from the app.
