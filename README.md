@@ -229,6 +229,9 @@ As a user, I want to add an item with its name, description, image, location, an
 
 #### User Story 4: Search and Filters
 As a user, I want to search for items by name, filter by type and date of posting, and see nearby items first so that I can quickly find what I need in a convenient location.
+<p align="center" justify="center">
+  <img src=documentation/mockups/user_story_4.gif/>
+</p>
 
 #### User Story 5: Chat System (Requesting Items and Communication)
 As a user, I want to start a chat with an item’s owner, exchange messages, and view a list of my recent chats so that I can communicate about an item exchange efficiently.
@@ -236,7 +239,7 @@ As a user, I want to start a chat with an item’s owner, exchange messages, and
   <img src=documentation/mockups/Contacts.jpg/>
 </p>
 <p align="center" justify="center">
-  <img src=documentation/mockups/Chat.jpg/>
+  <img src=documentation/mockups/Chat1.jpg/>
 </p>
 
 #### User Story 6: Tracking Items Given & Received
