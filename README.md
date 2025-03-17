@@ -224,7 +224,7 @@ As a user, I want a main page with a mean to access my recent chats, change my p
 #### User Story 3: Adding and Removing Items
 As a user, I want to add an item with its name, description, image, location, and type, and later remove it from the database either by marking it as swapped or deleting it manually so that I have full control over the items I share and can keep the item list up to date.
 <p align="center" justify="center">
-  <img src=documentation/mockups/Mokup_add_item.png/>
+  <img src=documentation/mockups/user_story_3.png/>
 </p>
 
 #### User Story 4: Search and Filters
