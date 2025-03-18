@@ -36,6 +36,7 @@ dependencies:
   latlong2: ^0.9.1
   firebase_core: ^3.11.0
   firebase_database: ^11.3.2
+  firebase_auth: ^5.5.1
   cloud_firestore: ^5.6.5
   provider: ^6.0.4
   image: ^4.5.2
@@ -61,6 +62,8 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  assets:
+   - images/
   fonts:
     - family: Roboto
       fonts:

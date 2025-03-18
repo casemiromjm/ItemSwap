@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'add_item_screen.dart';
 import 'search_screen.dart';
+import 'welcome_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -33,6 +34,18 @@ class HomeScreen extends StatelessWidget {
               },
               child: const Text('Search Items'),
             ),
+            //
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => WelcomeScreen()),
+                );
+              },
+              child: const Text('Welcome'),
+            ),
+            //
           ],
         ),
       ),
