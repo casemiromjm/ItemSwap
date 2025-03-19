@@ -1,17 +1,12 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:image_picker/image_picker.dart';
 //import 'package:firebase_database/firebase_database.dart'; // Para usar Realtime Database
 import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore Import
-import 'dart:io';
 import 'dart:convert'; // Para usar base64
-import 'dart:typed_data';
 import 'package:latlong2/latlong.dart';
 import 'home_screen.dart';
 import 'map_screen.dart';
-import 'package:image/image.dart' as img; // Para manipular imagens
-// Web-specific imports (file_picker for web file picking)
-import 'package:file_picker/file_picker.dart';
+import 'image_handler.dart';
 
 class AddItemScreen extends StatefulWidget {
   const AddItemScreen({super.key});
@@ -54,37 +49,13 @@ class _AddItemScreenState extends State<AddItemScreen> {
     'Other',
   ];
 
+  // Function to pick image
   Future<void> _pickImage() async {
-    if (kIsWeb) {
-      // Web-specific image picking code using file_picker
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.image,
-      );
-
-      if (result != null) {
-        // Get the selected file
-        final file = result.files.single;
-
-        // Compress the image before displaying
-        final compressedImageBase64 = await _compressImageFile(file.bytes!);
-
-        setState(() {
-          _imageBase64 = compressedImageBase64;
-        });
-      }
-    } else {
-      // Mobile/Desktop-specific image picking code using image_picker
-      final picker = ImagePicker();
-      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
-      if (pickedFile != null) {
-        final bytes = await File(pickedFile.path).readAsBytes();
-        final compressedImageBase64 = await _compressImageFile(bytes);
-        setState(() {
-          _imageBase64 = compressedImageBase64;
-        });
-      }
-    }
+    await pickImage((compressedImageBase64) {
+      setState(() {
+        _imageBase64 = compressedImageBase64;
+      });
+    });
   }
 
   Future<void> _pickLocation() async {
@@ -100,60 +71,41 @@ class _AddItemScreenState extends State<AddItemScreen> {
     }
   }
 
-  // Compress the picked image for both mobile and web
-  Future<String> _compressImageFile(
-    Uint8List imageBytes, {
-    int maxWidth = 200,
-    int maxHeight = 200,
-    int quality = 30,
-  }) async {
-    img.Image? image = img.decodeImage(imageBytes);
-
-    if (image != null) {
-      img.Image resizedImage = img.copyResize(
-        image,
-        width: maxWidth,
-        height: maxHeight,
-      );
-
-      List<int> compressedBytes = img.encodeJpg(resizedImage, quality: quality);
-
-      return base64Encode(compressedBytes);
-    } else {
-      throw Exception('Failed to compress image');
-    }
-  }
-
   final RegExp validNameRegExp = RegExp(r'[A-Za-zÀ-ÖØ-öø-ÿ]');
 
   Future<void> _submitItem() async {
+    // Get the current logged-in user
+    User? currentUser = FirebaseAuth.instance.currentUser;
+
     if (_selectedType != null &&
         validNameRegExp.hasMatch(
           _nameController.text,
         ) && // Pelo menos uma letra válida
         _descriptionController.text.isNotEmpty &&
-        _selectedLocation != null) {
+        _selectedLocation != null &&
+        currentUser != null) {
       try {
-        // Se a imagem for selecionada, converter para base64
+        // If an image is selected, convert to base64
         String imageUrl = '';
         if (_imageBase64 != null) {
-          imageUrl = _imageBase64!; // Para a Web, usa a imagem em base64
+          imageUrl = _imageBase64!; // For the web, use base64 image
         }
 
-        // Salvar item no Firestore
+        // Save item to Firestore with the owner's ID (currentUser.uid)
         await FirebaseFirestore.instance.collection('items').add({
           'name': _nameController.text,
           'description': _descriptionController.text,
           'type': _selectedType,
-          'imageUrl': imageUrl, // Imagem convertida em base64
+          'imageUrl': imageUrl, // Base64 encoded image
           'location': {
             'latitude': _selectedLocation!.latitude,
             'longitude': _selectedLocation!.longitude,
           },
           'timestamp': FieldValue.serverTimestamp(), // Firestore timestamp
+          'ownerId': currentUser.uid, // Link to the current user's UID
         });
 
-        // Navegar para a HomeScreen
+        // Navigate to the HomeScreen
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => HomeScreen()),
