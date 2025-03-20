@@ -296,6 +296,11 @@ In this subsection please describe which feature, or part of it, you have implem
 At this phase, instead of a complete user story, you can simply implement a small part of a feature that demonstrates thay you can use the technology, for example, show a screen with the app credits (name and authors).
 -->
 
+- Can sign up account
+- Can login with an account
+- Can add an item to sale (choose type; type name of the item; upload image of the item; description of item; lcoation of the item)
+- Can search for an item (search by type, publication time, location and name)
+
 ## Project management
 <!--
 Software project management is the art and science of planning and leading software projects, in which software projects are planned, implemented, monitored and controlled.
