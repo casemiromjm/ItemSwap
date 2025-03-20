@@ -1,0 +1,14 @@
+@startuml Logical Architecture
+
+package "App" {
+    [User Interface] ..> [Business Logic]
+}
+
+package "External Services" {
+
+    database "Firebase"
+}
+
+[Business Logic] .right.> Firebase
+
+@enduml

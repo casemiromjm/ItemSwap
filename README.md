@@ -274,6 +274,8 @@ Example of _UML package diagram_ showing a _logical view_ of the Eletronic Ticke
 ![LogicalView](https://user-images.githubusercontent.com/9655877/160585416-b1278ad7-18d7-463c-b8c6-afa4f7ac7639.png)
 -->
 
+![LogicalArchitecture](documentation/logical_architecture/logical_architecture.svg)
+
 
 ### Physical architecture
 <!--
@@ -285,6 +287,8 @@ Example of _UML deployment diagram_ showing a _deployment view_ of the Eletronic
 
 ![DeploymentView](https://user-images.githubusercontent.com/9655877/160592491-20e85af9-0758-4e1e-a704-0db1be3ee65d.png)
 -->
+
+![PhysicalArchitecture](documentation/physical_architecture/physical_architecture.svg)
 
 
 ### Vertical prototype
