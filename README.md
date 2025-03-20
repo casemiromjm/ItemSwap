@@ -290,6 +290,8 @@ Example of _UML deployment diagram_ showing a _deployment view_ of the Eletronic
 
 ![PhysicalArchitecture](documentation/physical_architecture/physical_architecture.svg)
 
+**Obs:** The many to one association is spaced on the diagram because plantUML was not able to render it correctly.
+
 
 ### Vertical prototype
 <!--
@@ -300,9 +302,9 @@ In this subsection please describe which feature, or part of it, you have implem
 At this phase, instead of a complete user story, you can simply implement a small part of a feature that demonstrates thay you can use the technology, for example, show a screen with the app credits (name and authors).
 -->
 
-- Can sign up account
+- Can create an account
 - Can login with an account
-- Can add an item to sale (choose type; type name of the item; upload image of the item; description of item; location of the item)
+- Can announce an item (choose type; type name of the item; upload image of the item; description of item; location of the item)
 - Can search for an item (search by type, publication time, location and name)
 
 ## Project management
