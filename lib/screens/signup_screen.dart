@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'image_handler.dart';
+import 'home_screen.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -12,22 +13,18 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
-  final TextEditingController _emailController =
-      TextEditingController(); // Email controller
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
   String? _imageBase64;
-  bool _isPasswordVisible = false; // Track password visibility
-  bool _isLoading = false; // Track the loading state
+  bool _isPasswordVisible = false;
+  bool _isLoading = false;
   String _errorMessage = '';
 
-  // Firebase Auth instance
   final FirebaseAuth _auth = FirebaseAuth.instance;
-
-  // Firebase Firestore instance
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Function to pick image
   Future<void> _pickImage() async {
     await pickImage((compressedImageBase64) {
       setState(() {
@@ -36,12 +33,12 @@ class _SignupScreenState extends State<SignupScreen> {
     });
   }
 
-  // Function to send verification email and create user if verified
   Future<void> _signUp() async {
     if (_usernameController.text.isEmpty ||
         _passwordController.text.isEmpty ||
         _imageBase64 == null ||
-        _emailController.text.isEmpty) {
+        _emailController.text.isEmpty ||
+        _descriptionController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill in all fields')),
       );
@@ -50,18 +47,16 @@ class _SignupScreenState extends State<SignupScreen> {
 
     setState(() {
       _isLoading = true;
-      _errorMessage = ''; // Reset error message
+      _errorMessage = '';
     });
 
     try {
-      // Create user using FirebaseAuth with email
       UserCredential userCredential = await _auth
           .createUserWithEmailAndPassword(
-            email: _emailController.text, // Use the email entered by the user
+            email: _emailController.text,
             password: _passwordController.text,
           );
 
-      // Send verification email
       await userCredential.user!.sendEmailVerification();
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -70,12 +65,10 @@ class _SignupScreenState extends State<SignupScreen> {
         ),
       );
 
-      // After sending email, allow user to check verification status manually
       setState(() {
         _isLoading = false;
       });
 
-      // You can guide the user here to check their email and manually refresh
       _showVerificationDialog(userCredential.user!);
     } on FirebaseAuthException catch (e) {
       setState(() {
@@ -85,7 +78,6 @@ class _SignupScreenState extends State<SignupScreen> {
     }
   }
 
-  // Show a dialog asking the user to check their email and refresh the status
   void _showVerificationDialog(User user) {
     showDialog(
       context: context,
@@ -99,11 +91,9 @@ class _SignupScreenState extends State<SignupScreen> {
               const SizedBox(height: 10),
               ElevatedButton(
                 onPressed: () async {
-                  // Reload the user and check email verification status
                   await user.reload();
                   User? updatedUser = _auth.currentUser;
 
-                  // Make sure the user is reloaded correctly
                   if (updatedUser != null && updatedUser.emailVerified) {
                     Navigator.of(context).pop();
                     _createUserInFirestore(updatedUser);
@@ -127,18 +117,22 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  // Function to save user to Firestore
   Future<void> _createUserInFirestore(User user) async {
     String userId = user.uid;
 
-    // Save user data to Firestore, including userCreatedCount
     await _firestore.collection('users').doc(userId).set({
       'username': _usernameController.text,
       'image': _imageBase64,
+      'description': _descriptionController.text,
       'created_at': Timestamp.now(),
       'items_given': 0,
       'items_received': 0,
     });
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => HomeScreen()),
+    );
 
     ScaffoldMessenger.of(
       context,
@@ -179,9 +173,22 @@ class _SignupScreenState extends State<SignupScreen> {
                             : null,
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
                 TextField(
-                  controller: _emailController, // Email input field
+                  maxLength: 100,
+                  maxLines: 3,
+                  controller: _descriptionController,
+                  decoration: const InputDecoration(
+                    labelText: 'Description',
+                    labelStyle: TextStyle(color: Colors.white),
+                    border: OutlineInputBorder(),
+                  ),
+                  style: const TextStyle(color: Colors.white),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _emailController,
+                  maxLength: 300,
                   decoration: const InputDecoration(
                     labelText: 'Email',
                     labelStyle: TextStyle(color: Colors.white),
@@ -202,8 +209,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 TextField(
                   maxLength: 15,
                   controller: _passwordController,
-                  obscureText:
-                      !_isPasswordVisible, // Toggle password visibility
+                  obscureText: !_isPasswordVisible,
                   decoration: InputDecoration(
                     labelText: 'Password',
                     labelStyle: const TextStyle(color: Colors.white),
@@ -225,10 +231,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 ),
                 const SizedBox(height: 30),
                 ElevatedButton(
-                  onPressed:
-                      _isLoading
-                          ? null
-                          : _signUp, // Disable button while loading
+                  onPressed: _isLoading ? null : _signUp,
                   child:
                       _isLoading
                           ? const CircularProgressIndicator()
