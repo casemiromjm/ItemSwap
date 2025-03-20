@@ -223,24 +223,15 @@ As a user, I want a main page with a mean to access my recent chats, change my p
 
 #### User Story 3: Adding and Removing Items
 As a user, I want to add an item with its name, description, image, location, and type, and later remove it from the database either by marking it as swapped or deleting it manually so that I have full control over the items I share and can keep the item list up to date.
-<p align="center" justify="center">
-  <img src=documentation/mockups/user_story_3.png/>
-</p>
 
 #### User Story 4: Search and Filters
 As a user, I want to search for items by name, filter by type and date of posting, and see nearby items first so that I can quickly find what I need in a convenient location.
 <p align="center" justify="center">
-  <img src=documentation/mockups/user_story_4.gif/>
+  <img src=documentation/mockups/user_story_4/user_story_4.gif/>
 </p>
 
 #### User Story 5: Chat System (Requesting Items and Communication)
 As a user, I want to start a chat with an item’s owner, exchange messages, and view a list of my recent chats so that I can communicate about an item exchange efficiently.
-<p align="center" justify="center">
-  <img src=documentation/mockups/Contacts.jpg/>
-</p>
-<p align="center" justify="center">
-  <img src=documentation/mockups/Chat1.jpg/>
-</p>
 
 #### User Story 6: Tracking Items Given & Received
 As a user, I want to see a section displaying the number of items I have given and received so that I can track my contributions and benefits from the app.
