@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'add_item_screen.dart';
 import 'search_screen.dart';
 import 'welcome_screen.dart';
+import 'user_creation_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -46,6 +47,16 @@ class HomeScreen extends StatelessWidget {
               child: const Text('Welcome'),
             ),
             //
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => UserCreationScreen()),
+                );
+              },
+              child: const Text('Change profile'),
+            ),
           ],
         ),
       ),
