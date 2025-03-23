@@ -8,7 +8,7 @@
 
     <application
         android:usesCleartextTraffic="true"
-        android:label="test1"
+        android:label="Item Swap"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
