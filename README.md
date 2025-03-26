@@ -227,7 +227,7 @@ As a user, I want to add an item with its name, description, image, location, an
 #### User Story 4: Search and Filters
 As a user, I want to search for items by name, filter by type and date of posting, and see nearby items first so that I can quickly find what I need in a convenient location.
 <p align="center" justify="center">
-  <img src=documentation/mockups/user_story_4/user_story_4.gif/>
+  <img src=docs/mockups/search_items/user_story_4.gif/>
 </p>
 
 #### User Story 5: Chat System (Requesting Items and Communication)
@@ -238,7 +238,7 @@ As a user, I want to see a section displaying the number of items I have given a
 
 ### Domain model
 
-![domain model](documentation/domain_model/domain_model.png)
+![domain model](docs/domain_model/domain_model.png)
 
 <!-- 
 To better understand the context of the software system, it is useful to have a simple UML class diagram with all and only the key concepts (names, attributes) and relationships involved of the problem domain addressed by your app. 
@@ -274,7 +274,7 @@ Example of _UML package diagram_ showing a _logical view_ of the Eletronic Ticke
 ![LogicalView](https://user-images.githubusercontent.com/9655877/160585416-b1278ad7-18d7-463c-b8c6-afa4f7ac7639.png)
 -->
 
-![LogicalArchitecture](documentation/logical_architecture/logical_architecture.svg)
+![LogicalArchitecture](docs/logical_architecture/logical_architecture.svg)
 
 
 ### Physical architecture
@@ -288,7 +288,7 @@ Example of _UML deployment diagram_ showing a _deployment view_ of the Eletronic
 ![DeploymentView](https://user-images.githubusercontent.com/9655877/160592491-20e85af9-0758-4e1e-a704-0db1be3ee65d.png)
 -->
 
-![PhysicalArchitecture](documentation/physical_architecture/physical_architecture.svg)
+![PhysicalArchitecture](docs/physical_architecture/physical_architecture.svg)
 
 **Obs:** The many to one association is spaced on the diagram because plantUML was not able to render it correctly.
 
