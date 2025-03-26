@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'home_screen.dart';
+import 'user_creation_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -13,6 +15,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   bool _isPasswordVisible = false;
   bool _isLoading = false; // For loading state
 
@@ -49,11 +52,26 @@ class _LoginScreenState extends State<LoginScreen> {
         return;
       }
 
-      // Navigate to HomeScreen if login is successful
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-      );
+      // Check if user profile exists in Firestore
+      DocumentSnapshot userDoc =
+          await _firestore
+              .collection('users')
+              .doc(userCredential.user!.uid)
+              .get();
+
+      if (!userDoc.exists) {
+        // If profile does not exist, redirect to user creation screen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const UserCreationScreen()),
+        );
+      } else {
+        // Navigate to HomeScreen if profile exists
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+        );
+      }
     } on FirebaseAuthException catch (e) {
       setState(() {
         _isLoading = false;
@@ -68,7 +86,6 @@ class _LoginScreenState extends State<LoginScreen> {
         message = 'Invalid email format.';
       }
 
-      // Show error message
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(message)));
@@ -109,6 +126,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       SizedBox(
                         width: 300,
                         child: TextField(
+                          maxLength: 300,
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
                           decoration: const InputDecoration(
@@ -123,6 +141,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       SizedBox(
                         width: 300,
                         child: TextField(
+                          maxLength: 15,
                           controller: _passwordController,
                           obscureText: !_isPasswordVisible,
                           decoration: InputDecoration(
