@@ -238,7 +238,7 @@ As a user, I want to see a section displaying the number of items I have given a
 
 ### Domain model
 
-![domain model](documentation/domain_model.png)
+![domain model](documentation/domain_model/domain_model.png)
 
 <!-- 
 To better understand the context of the software system, it is useful to have a simple UML class diagram with all and only the key concepts (names, attributes) and relationships involved of the problem domain addressed by your app. 
