@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'add_item_screen.dart';
 import 'search_screen.dart';
+import 'contacts.dart';
 import 'welcome_screen.dart';
 import 'user_creation_screen.dart';
 
@@ -56,6 +57,16 @@ class HomeScreen extends StatelessWidget {
                 );
               },
               child: const Text('Change profile'),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Contacts()),
+                );
+              },
+              child: const Text('Contacts'),
             ),
           ],
         ),
