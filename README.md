@@ -21,7 +21,7 @@ This Software Development Report, tailored for LEIC-ES-2024-25, provides compreh
     * [Vertical prototype](#Vertical-Prototype)
 * [Project management](#Project-Management)
     * [Sprint 0](#Sprint-0)
-    * [Sprint 1](#Sprint-1)
+    * [Sprint 1](docs/sprints/sprint1.png)
     * [Sprint 2](#Sprint-2)
     * [Sprint 3](#Sprint-3)
     * [Sprint 4](#Sprint-4)
@@ -332,6 +332,10 @@ You can find below information and references related with the project managemen
 ### Sprint 0
 
 ### Sprint 1
+
+<p align="center" justify="center">
+  <img src=docs/sprints/sprint1.png>
+</p>
 
 ### Sprint 2
 
