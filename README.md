@@ -227,7 +227,7 @@ As a user, I want to add an item with its name, description, image, location, an
 #### User Story 4: Search and Filters
 As a user, I want to search for items by name, filter by type and date of posting, and see nearby items first so that I can quickly find what I need in a convenient location.
 <p align="center" justify="center">
-  <img src=docs/mockups/search_items/user_story_4.gif/>
+  <img src=docs/mockups/search_item/user_story_4.gif/>
 </p>
 
 #### User Story 5: Chat System (Requesting Items and Communication)
