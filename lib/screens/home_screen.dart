@@ -5,7 +5,8 @@ import 'welcome_screen.dart';
 import 'user_creation_screen.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  final WidgetBuilder? searchScreenBuilder;
+  const HomeScreen({Key? key, this.searchScreenBuilder}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +31,7 @@ class HomeScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => SearchScreen()),
+                  MaterialPageRoute(builder: searchScreenBuilder ?? (context) => SearchScreen()),
                 );
               },
               child: const Text('Search Items'),
