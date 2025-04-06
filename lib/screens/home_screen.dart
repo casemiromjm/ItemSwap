@@ -7,7 +7,7 @@ import 'user_creation_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   final WidgetBuilder? searchScreenBuilder;
-  const HomeScreen({Key? key, this.searchScreenBuilder}) : super(key: key);
+  const HomeScreen({super.key, this.searchScreenBuilder});
 
   @override
   Widget build(BuildContext context) {
