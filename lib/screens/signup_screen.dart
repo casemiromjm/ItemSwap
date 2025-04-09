@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'login_screen.dart';
 
 class SignupScreen extends StatefulWidget {
-  const SignupScreen({super.key});
+  final FirebaseAuth? auth;
 
+  const SignupScreen({super.key, this.auth});
   @override
   _SignupScreenState createState() => _SignupScreenState();
 }
@@ -16,8 +17,13 @@ class _SignupScreenState extends State<SignupScreen> {
   bool _isLoading = false;
   String _errorMessage = '';
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  late final FirebaseAuth _auth;
 
+  @override
+  void initState() {
+    super.initState();
+    _auth = widget.auth ?? FirebaseAuth.instance;
+  }
   Future<void> _signUp() async {
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -168,10 +174,13 @@ class _SignupScreenState extends State<SignupScreen> {
                       const SizedBox(height: 30),
                       ElevatedButton(
                         onPressed: _isLoading ? null : _signUp,
-                        child:
-                            _isLoading
-                                ? const CircularProgressIndicator()
-                                : const Text('Sign Up'),
+                        child: _isLoading
+                            ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        )
+                            : const Text('Sign Up'),
                       ),
                     ],
                   ),
