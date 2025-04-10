@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'home_screen.dart';
+import 'nav_bar.dart';
 import 'user_creation_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -18,6 +19,13 @@ class _LoginScreenState extends State<LoginScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   bool _isPasswordVisible = false;
   bool _isLoading = false; // For loading state
+  final FocusNode _passwordFocusNode = FocusNode();
+
+  @override
+  void dispose() {
+    _passwordFocusNode.dispose();
+    super.dispose();
+  }
 
   // Function to handle the login logic
   Future<void> _login() async {
@@ -69,7 +77,8 @@ class _LoginScreenState extends State<LoginScreen> {
         // Navigate to HomeScreen if profile exists
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
+          //MaterialPageRoute(builder: (context) => const HomeScreen()),  // useful for debug reasons
+          MaterialPageRoute(builder: (context) => const NavBar()),
         );
       }
     } on FirebaseAuthException catch (e) {
@@ -129,6 +138,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           maxLength: 300,
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
+                          textInputAction: TextInputAction.next,
+                          onSubmitted: (_) {
+                            FocusScope.of(context)
+                                .requestFocus(_passwordFocusNode);
+                          },
                           decoration: const InputDecoration(
                             labelText: 'Email',
                             labelStyle: TextStyle(color: Colors.white),
@@ -143,7 +157,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: TextField(
                           maxLength: 15,
                           controller: _passwordController,
+                          focusNode: _passwordFocusNode,
                           obscureText: !_isPasswordVisible,
+                          textInputAction: TextInputAction.done,
+                          onSubmitted: (_) => _login(),
                           decoration: InputDecoration(
                             labelText: 'Password',
                             labelStyle: const TextStyle(color: Colors.white),
