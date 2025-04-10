@@ -5,6 +5,7 @@ import 'package:test1/screens/home_screen.dart';
 import 'package:test1/screens/add_item_screen.dart';
 import 'package:test1/screens/welcome_screen.dart';
 import 'package:test1/screens/user_creation_screen.dart';
+import 'package:test1/screens/contacts.dart';
 import 'auth_mock.dart';
 import 'mock_search_screen.dart';
 
@@ -78,6 +79,20 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(find.byType(UserCreationScreen), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'Navigates to Contacts when "Contacts" is tapped',
+        (WidgetTester tester) async {
+        await tester.pumpWidget(MaterialApp(home: HomeScreen()));
+
+        expect(find.text('Contacts'), findsOneWidget);
+
+        await tester.tap(find.text('Contacts'));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(Contacts), findsOneWidget);
       },
     );
   });

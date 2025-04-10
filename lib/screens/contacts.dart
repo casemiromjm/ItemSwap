@@ -35,14 +35,17 @@ class Contacts extends StatelessWidget {
                 children: [
                   // Circular Photo
                   CircleAvatar(
-                    radius: 30,
-                    backgroundImage: AssetImage('to insert'), // Add your image to the assets folder
+                    radius: 25,
+                    backgroundColor: Colors.blue.shade800, // Dark blue background
+                    child: Icon(Icons.person, size: 25, color: Colors.white), // random icon
                   ),
-                  SizedBox(width: 20), // Spacing between photo and name
-                  // Name of the Person
-                  Text(
-                    'Chat prototype',
-                    style: TextStyle(color: Colors.white, fontSize: 24),
+                  SizedBox(width: 15), // Spacing between photo and name
+                  Expanded(
+                    child: Text(
+                      'Chat prototype',
+                      style: TextStyle(color: Colors.white, fontSize: 20),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ],
               ),
