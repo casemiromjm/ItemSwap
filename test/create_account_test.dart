@@ -1,46 +1,58 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:mockito/mockito.dart';
-import 'package:test1/screens/signup_screen.dart'; // ajusta para o teu path real
+import 'package:test1/screens/signup_screen.dart';
 import 'auth_mock.dart';
-import 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart';
-import 'package:firebase_core/firebase_core.dart';
-
+import 'package:mockito/mockito.dart';
+import 'auth_mock.mocks.dart'; // <-- IMPORTANTE
 
 void main() {
+  setupFirebaseAuthMocks();
 
-  // Initialize Firebase before tests run.
   setUpAll(() async {
     await Firebase.initializeApp();
   });
+
   testWidgets('Signup success shows verification dialog', (WidgetTester tester) async {
-    final mockUser = MockUser(
-      isAnonymous: false,
-      email: 'test@example.com',
-      displayName: 'Test User',
-      emailVerified: false,
-    );
+    final mockUser = MockUser();
+    final mockAuth = MockFirebaseAuth();
+    final mockUserCredential = MockUserCredential();
 
-    final mockAuth = MockFirebaseAuth(mockUser: mockUser);
+// Configura os comportamentos
+    when(mockUser.isAnonymous).thenReturn(false);
+    when(mockUser.email).thenReturn('test@example.com');
+    when(mockUser.displayName).thenReturn('Test User');
+    when(mockUser.emailVerified).thenReturn(false);
+    when(mockUser.reload()).thenAnswer((_) async {});
+    when(mockUser.sendEmailVerification()).thenAnswer((_) async {});
+    when(mockUserCredential.user).thenReturn(mockUser);
+    when(mockAuth.createUserWithEmailAndPassword(
+      email: anyNamed('email'),
+      password: anyNamed('password'),
+    )).thenAnswer((_) async => mockUserCredential);
+    when(mockAuth.currentUser).thenReturn(mockUser);
 
-    // Renderiza o widget com o mock
+
+    // Renderiza o SignupScreen com o mock
     await tester.pumpWidget(
       MaterialApp(
-        home: SignupScreen(),)
+        home: SignupScreen(auth: mockAuth),
+      ),
     );
 
-    // Preenche os campos
+    // Preenche os campos de email e password
     await tester.enterText(find.byType(TextField).at(0), 'test@example.com');
     await tester.enterText(find.byType(TextField).at(1), 'password123');
 
-    // Clica no botão "Sign Up"
-    await tester.tap(find.text('Sign Up'));
-    await tester.pumpAndSettle(); // espera tudo renderizar
+    // Tap no botão 'Sign Up'
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Sign Up'));
 
-    // Verifica se a caixa de diálogo foi aberta
+    await tester.pump(); // primeiro frame
+    await tester.pump(const Duration(seconds: 1)); // animação/dialog
+
+    // Verifica se o diálogo de verificação aparece
     expect(find.text('Email Verification'), findsOneWidget);
-    expect(find.textContaining('check your email'), findsOneWidget);
+    expect(find.textContaining('verify your account'), findsOneWidget);
   });
 }
