@@ -1,11 +1,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
+import 'auth_mock.dart';
 
 class SignupScreen extends StatefulWidget {
-  final FirebaseAuth? auth;
+  final FirebaseAuth auth;
 
-  const SignupScreen({super.key, this.auth});
+  SignupScreen({Key? key, FirebaseAuth? auth})
+      : auth = auth ?? FirebaseAuth.instance,
+        super(key: key);
+
   @override
   _SignupScreenState createState() => _SignupScreenState();
 }
