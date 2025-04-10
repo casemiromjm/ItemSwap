@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:test1/screens/home_screen.dart';
-import 'package:test1/screens/add_item_screen.dart';
-import 'package:test1/screens/welcome_screen.dart';
-import 'package:test1/screens/user_creation_screen.dart';
+import 'package:itemswap/screens/home_screen.dart';
+import 'package:itemswap/screens/add_item_screen.dart';
+import 'package:itemswap/screens/welcome_screen.dart';
+import 'package:itemswap/screens/user_creation_screen.dart';
 import 'auth_mock.dart';
 import 'mock_search_screen.dart';
 

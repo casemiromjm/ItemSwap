@@ -4,6 +4,10 @@ import 'search_screen.dart';
 import 'contacts.dart';
 import 'welcome_screen.dart';
 import 'user_creation_screen.dart';
+import 'mainpage_screen.dart';
+
+// home is actually a menu with buttons to guide the user through the app
+// good for debugging purposes
 
 class HomeScreen extends StatelessWidget {
   final WidgetBuilder? searchScreenBuilder;
@@ -18,6 +22,16 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MainPage()),
+                );
+              },
+              child: const Text('Main/Profile Page'),
+            ),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
