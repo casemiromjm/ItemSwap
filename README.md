@@ -333,11 +333,26 @@ You can find below information and references related with the project managemen
 
 ### Sprint 1
 
+Beginning Dashboard
 <p align="center" justify="center">
-  <img src=docs/sprints/sprint1.png>
+  <img src=docs/sprints/sprint1_ini.png>
 </p>
 
+Ending Dashboard
+<p align="center" justify="center">
+  <img src=docs/sprints/sprint1_fin.png>
+</p>
+
+During this first sprint, we successfully used the GitHub dashboard and implemented the features themselves. However, our main challenge was writing tests for the features.
+We also learned a lot about Flutter/Dart functionalities, particularly how to handle common Flutter issues. Additionally, we improved our work planning and realized the importance of allocating enough time for testing.
+In the next sprint, we expect testing to remain a challenge for us
+
 ### Sprint 2
+
+Beginning Dashboard
+<p align="center" justify="center">
+  <img src=docs/sprints/sprint2_ini.png>
+</p>
 
 ### Sprint 3
 
