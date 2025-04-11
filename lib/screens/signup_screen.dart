@@ -6,9 +6,8 @@ import 'login_screen.dart';
 class SignupScreen extends StatefulWidget {
   final FirebaseAuth auth;
 
-  SignupScreen({Key? key, FirebaseAuth? auth})
-      : auth = auth ?? FirebaseAuth.instance,
-        super(key: key);
+  SignupScreen({super.key, FirebaseAuth? auth})
+      : auth = auth ?? FirebaseAuth.instance;
 
   @override
   _SignupScreenState createState() => _SignupScreenState();

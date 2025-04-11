@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'add_item_screen.dart';
 import 'search_screen.dart';
@@ -22,7 +23,7 @@ class HomeScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => AddItemScreen()),
+                  MaterialPageRoute(builder: (context) => AddItemScreen(firestore: FirebaseFirestore.instance,)),
                 );
               },
               child: const Text('Add New Item'),

@@ -1,15 +1,24 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-//import 'package:firebase_database/firebase_database.dart'; // Para usar Realtime Database
+//import 'package:firebase_database/firebase_database.dart'; // For Realtime Database
 import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore Import
-import 'dart:convert'; // Para usar base64
+import 'dart:convert'; // For base64
 import 'package:latlong2/latlong.dart';
 import 'home_screen.dart';
 import 'map_screen.dart';
 import 'image_handler.dart';
 
 class AddItemScreen extends StatefulWidget {
-  const AddItemScreen({super.key});
+  final WidgetBuilder? mapScreenBuilder;
+  final FirebaseAuth? auth; // <-- Optional injected auth instance
+  final FirebaseFirestore firestore;
+
+  const AddItemScreen({
+    Key? key,
+    this.mapScreenBuilder,
+    this.auth,
+    required this.firestore, // <-- Added required keyword for firestore
+  }): super(key: key);
 
   @override
   _AddItemScreenState createState() => _AddItemScreenState();
@@ -20,10 +29,10 @@ class _AddItemScreenState extends State<AddItemScreen> {
   final TextEditingController _descriptionController = TextEditingController();
   String? _selectedType;
   //File? _image;
-  String? _imageBase64; // Para armazenar a imagem em base64 na Web
+  String? _imageBase64; // To store the base64 image for the Web
   LatLng? _selectedLocation;
 
-  TextStyle color_white = TextStyle(color: Colors.white);
+  TextStyle color_white = const TextStyle(color: Colors.white);
 
   final List<String> _itemTypes = [
     'Art & Decor',
@@ -61,7 +70,9 @@ class _AddItemScreenState extends State<AddItemScreen> {
   Future<void> _pickLocation() async {
     final LatLng? location = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => MapScreen()),
+      MaterialPageRoute(
+        builder: widget.mapScreenBuilder ?? (context) => MapScreen(),
+      ),
     );
 
     if (location != null) {
@@ -74,13 +85,14 @@ class _AddItemScreenState extends State<AddItemScreen> {
   final RegExp validNameRegExp = RegExp(r'[A-Za-zÀ-ÖØ-öø-ÿ]');
 
   Future<void> _submitItem() async {
-    // Get the current logged-in user
-    User? currentUser = FirebaseAuth.instance.currentUser;
+    // Use the injected auth instance (if provided) or fallback to FirebaseAuth.instance.
+    final FirebaseAuth auth = widget.auth ?? FirebaseAuth.instance;
+    User? currentUser = auth.currentUser;
 
     if (_selectedType != null &&
         validNameRegExp.hasMatch(
           _nameController.text,
-        ) && // Pelo menos uma letra válida
+        ) && // At least one valid letter
         _descriptionController.text.isNotEmpty &&
         _selectedLocation != null &&
         currentUser != null) {
@@ -92,7 +104,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
         }
 
         // Save item to Firestore with the owner's ID (currentUser.uid)
-        await FirebaseFirestore.instance.collection('items').add({
+        await widget.firestore.collection('items').add({
           'name': _nameController.text,
           'description': _descriptionController.text,
           'type': _selectedType,
@@ -149,9 +161,12 @@ class _AddItemScreenState extends State<AddItemScreen> {
                 style: color_white,
                 dropdownColor: const Color.fromARGB(255, 52, 83, 130),
                 items:
-                    _itemTypes.map((type) {
-                      return DropdownMenuItem(value: type, child: Text(type));
-                    }).toList(),
+                    _itemTypes
+                        .map(
+                          (type) =>
+                              DropdownMenuItem(value: type, child: Text(type)),
+                        )
+                        .toList(),
                 onChanged: (value) {
                   setState(() {
                     _selectedType = value;
@@ -195,14 +210,14 @@ class _AddItemScreenState extends State<AddItemScreen> {
                       ElevatedButton.icon(
                         onPressed: _pickImage,
                         icon: const Icon(Icons.image),
-                        label: Text('Change Image'),
+                        label: const Text('Change Image'),
                       ),
                     ],
                   )
                   : ElevatedButton.icon(
                     onPressed: _pickImage,
                     icon: const Icon(Icons.image),
-                    label: Text('Select Image'),
+                    label: const Text('Select Image'),
                   ),
 
               // Description Field
