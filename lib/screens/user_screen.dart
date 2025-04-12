@@ -5,19 +5,21 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'home_screen.dart';
 import 'image_handler.dart';
 
-class UserCreationScreen extends StatefulWidget {
-  const UserCreationScreen({super.key});
+class UserScreen extends StatefulWidget {
+  final String userId;
+  const UserScreen({super.key, required this.userId});
 
   @override
   _UserCreationScreenState createState() => _UserCreationScreenState();
 }
 
-class _UserCreationScreenState extends State<UserCreationScreen> {
+class _UserCreationScreenState extends State<UserScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   String? _imageBase64;
   bool _isLoading = false;
   bool _isEditing = false;
+  bool _isOwnProfile = false;
   int _itemsGiven = 0;
   int _itemsReceived = 0;
   Timestamp? _createdAt;
@@ -32,58 +34,46 @@ class _UserCreationScreenState extends State<UserCreationScreen> {
   }
 
   Future<void> _loadUserData() async {
-    User? user = _auth.currentUser;
-    if (user != null) {
-      DocumentSnapshot userDoc =
-          await _firestore.collection('users').doc(user.uid).get();
-      if (userDoc.exists) {
-        setState(() {
-          _isEditing = true;
-          _usernameController.text = userDoc['username'] ?? '';
-          _descriptionController.text = userDoc['description'] ?? '';
-          _imageBase64 = userDoc['image'];
-          _itemsGiven = userDoc['items_given'] ?? 0;
-          _itemsReceived = userDoc['items_received'] ?? 0;
-          _createdAt = userDoc['created_at'];
-        });
-      }
+    User? currentUser = _auth.currentUser;
+    DocumentSnapshot userDoc =
+        await _firestore.collection('users').doc(widget.userId).get();
+
+    if (userDoc.exists) {
+      setState(() {
+        _isEditing = true;
+        _isOwnProfile = currentUser != null && widget.userId == currentUser.uid;
+        _usernameController.text = userDoc['username'] ?? '';
+        _descriptionController.text = userDoc['description'] ?? '';
+        _imageBase64 = userDoc['image'];
+        _itemsGiven = userDoc['items_given'] ?? 0;
+        _itemsReceived = userDoc['items_received'] ?? 0;
+        _createdAt = userDoc['created_at'];
+      });
     }
   }
 
   Future<void> _saveUserData() async {
     User? user = _auth.currentUser;
     if (user == null) return;
-    if (_isEditing) {
-      await _firestore.collection('users').doc(user.uid).set({
-        'username': _usernameController.text,
-        'image': _imageBase64,
-        'description': _descriptionController.text,
-      }, SetOptions(merge: true));
-    } else {
-      await _firestore.collection('users').doc(user.uid).set({
-        'username': _usernameController.text,
-        'image': _imageBase64,
-        'description': _descriptionController.text,
-        'created_at': Timestamp.now(),
-        'items_given': 0,
-        'items_received': 0,
-      }, SetOptions(merge: true));
-    }
+
+    await _firestore.collection('users').doc(user.uid).set({
+      'username': _usernameController.text,
+      'image': _imageBase64,
+      'description': _descriptionController.text,
+    }, SetOptions(merge: true));
+
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const HomeScreen()),
     );
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          _isEditing ? 'Profile updated!' : 'User created successfully!',
-        ),
-      ),
+      SnackBar(content: Text('Profile updated!')),
     );
   }
 
   Future<void> _pickImage() async {
+    if (!_isOwnProfile) return;
     await pickImage((compressedImageBase64) {
       setState(() {
         _imageBase64 = compressedImageBase64;
@@ -98,7 +88,9 @@ class _UserCreationScreenState extends State<UserCreationScreen> {
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 63, 133, 190),
         title: Text(
-          _isEditing ? 'Change Profile' : 'Complete Your Profile',
+          _isOwnProfile
+              ? 'Change Profile'
+              : 'User Profile',
           style: const TextStyle(color: Colors.white),
         ),
       ),
@@ -119,22 +111,17 @@ class _UserCreationScreenState extends State<UserCreationScreen> {
                         child: CircleAvatar(
                           radius: 100,
                           backgroundColor: Colors.grey,
-                          backgroundImage:
-                              _imageBase64 != null
-                                  ? MemoryImage(base64Decode(_imageBase64!))
-                                  : null,
-                          child:
-                              _imageBase64 == null
-                                  ? const Icon(
-                                    Icons.camera_alt,
-                                    color: Colors.white,
-                                    size: 40,
-                                  )
-                                  : null,
+                          backgroundImage: _imageBase64 != null
+                              ? MemoryImage(base64Decode(_imageBase64!))
+                              : null,
+                          child: _imageBase64 == null
+                              ? const Icon(Icons.camera_alt,
+                                  color: Colors.white, size: 40)
+                              : null,
                         ),
                       ),
                       const SizedBox(height: 10),
-                      if (_isEditing)
+                      if (_isEditing && _createdAt != null)
                         Text(
                           'Joined on: ${DateTime.fromMillisecondsSinceEpoch(_createdAt!.millisecondsSinceEpoch).toLocal().toString().split(' ')[0]}',
                           style: const TextStyle(
@@ -144,8 +131,9 @@ class _UserCreationScreenState extends State<UserCreationScreen> {
                         ),
                       const SizedBox(height: 10),
                       TextField(
-                        maxLength: 15,
                         controller: _usernameController,
+                        maxLength: 15,
+                        enabled: _isOwnProfile,
                         decoration: const InputDecoration(
                           labelText: 'Username',
                           labelStyle: TextStyle(color: Colors.white),
@@ -157,6 +145,7 @@ class _UserCreationScreenState extends State<UserCreationScreen> {
                         controller: _descriptionController,
                         maxLength: 100,
                         maxLines: 3,
+                        enabled: _isOwnProfile,
                         decoration: const InputDecoration(
                           labelText: 'Description',
                           labelStyle: TextStyle(color: Colors.white),
@@ -164,7 +153,7 @@ class _UserCreationScreenState extends State<UserCreationScreen> {
                         ),
                         style: const TextStyle(color: Colors.white),
                       ),
-                      if (_isEditing) const SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       if (_isEditing)
                         Text(
                           'Items Given: $_itemsGiven | Items Received: $_itemsReceived',
@@ -174,21 +163,17 @@ class _UserCreationScreenState extends State<UserCreationScreen> {
                           ),
                         ),
                       const SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed:
-                            _isLoading
-                                ? null
-                                : () async {
+                      if (_isOwnProfile)
+                        ElevatedButton(
+                          onPressed: _isLoading
+                              ? null
+                              : () async {
                                   if (_usernameController.text.trim().isEmpty ||
-                                      _descriptionController.text
-                                          .trim()
-                                          .isEmpty ||
+                                      _descriptionController.text.trim().isEmpty ||
                                       _imageBase64 == null) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
-                                        content: Text(
-                                          'Please fill in all fields',
-                                        ),
+                                        content: Text('Please fill in all fields'),
                                       ),
                                     );
                                     return;
@@ -209,15 +194,10 @@ class _UserCreationScreenState extends State<UserCreationScreen> {
                                     );
                                   }
                                 },
-                        child:
-                            _isLoading
-                                ? const CircularProgressIndicator()
-                                : Text(
-                                  _isEditing
-                                      ? 'Update Profile'
-                                      : 'Create Profile',
-                                ),
-                      ),
+                          child: _isLoading
+                              ? const CircularProgressIndicator()
+                              : const Text('Update Profile'),
+                        ),
                     ],
                   ),
                 ),
@@ -229,3 +209,4 @@ class _UserCreationScreenState extends State<UserCreationScreen> {
     );
   }
 }
+

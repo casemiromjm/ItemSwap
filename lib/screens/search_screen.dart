@@ -1,13 +1,15 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-//import 'package:firebase_database/firebase_database.dart';
-import 'dart:convert'; // Para usar base64
+import 'package:firebase_auth/firebase_auth.dart';
 import 'map_screen.dart';
-import 'package:latlong2/latlong.dart'; // Para calcular distâncias
-import 'package:diacritic/diacritic.dart'; // Para remover acentos
+import 'package:latlong2/latlong.dart';
+import 'package:diacritic/diacritic.dart';
+import 'item_details_screen.dart'; // New screen for item details
 
 class SearchScreen extends StatefulWidget {
-  const SearchScreen({super.key});
+  final bool isMyItems;
+  const SearchScreen({super.key, this.isMyItems = false});
 
   @override
   _SearchScreenState createState() => _SearchScreenState();
@@ -15,8 +17,12 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   String? _selectedType = "All";
-  String _sortOption = "time"; // Padrão: ordenação por tempo
+  String _sortOption = "time";
   LatLng? _selectedLocation;
+  int _itemsToLoad = 10;
+  final _auth = FirebaseAuth.instance;
+  final _firestore = FirebaseFirestore.instance;
+
   final List<String> _itemTypes = [
     "All",
     'Art & Decor',
@@ -42,13 +48,15 @@ class _SearchScreenState extends State<SearchScreen> {
     'Other',
   ];
 
-  //final DatabaseReference _itemsRef = FirebaseDatabase.instance.ref('items');
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  int _itemsToLoad = 10;
-
-  Image _getImageFromBase64(String base64String) {
+  /// Returns an Image widget decoded from a base64 string.
+  Image _getImageFromBase64(String base64String, {double size = 50}) {
     final decodedBytes = base64Decode(base64String);
-    return Image.memory(decodedBytes, width: 50, height: 50, fit: BoxFit.cover);
+    return Image.memory(
+      decodedBytes,
+      width: size,
+      height: size,
+      fit: BoxFit.cover,
+    );
   }
 
   double _calculateDistance(LatLng location1, LatLng location2) {
@@ -61,7 +69,6 @@ class _SearchScreenState extends State<SearchScreen> {
       context,
       MaterialPageRoute(builder: (context) => MapScreen()),
     );
-
     if (location != null) {
       setState(() {
         _selectedLocation = location;
@@ -78,74 +85,76 @@ class _SearchScreenState extends State<SearchScreen> {
   String _normalizeName(String name) {
     return removeDiacritics(name)
         .toLowerCase()
-        .replaceAll(RegExp(r'\s+'), '') // Remove espaços
-        .replaceAll(RegExp(r'[^a-z0-9]'), ''); // Remove caracteres especiais
+        .replaceAll(RegExp(r'\s+'), '')
+        .replaceAll(RegExp(r'[^a-z0-9]'), '');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 21, 45, 80),
-      appBar: AppBar(title: const Text('Search Items')),
+      appBar: AppBar(
+        title: Text(widget.isMyItems ? 'My Items' : 'Search Items'),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Select Item Type:',
-              style: TextStyle(color: Colors.white, fontSize: 18),
-            ),
-            DropdownButton<String>(
-              value: _selectedType,
-              isExpanded: true,
-              style: TextStyle(color: Colors.white),
-              dropdownColor: const Color.fromARGB(255, 52, 83, 130),
-              items:
-                  _itemTypes.map((type) {
-                    return DropdownMenuItem(value: type, child: Text(type));
-                  }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  _selectedType = value;
-                  _itemsToLoad = 10;
-                });
-              },
-            ),
-            const SizedBox(height: 20),
-
+            // Filter and sort options
             Row(
               children: [
-                Text(
-                  'Sort by:',
-                  style: TextStyle(color: Colors.white, fontSize: 18),
+                Expanded(
+                  child: DropdownButton<String>(
+                    value: _selectedType,
+                    isExpanded: true,
+                    style: const TextStyle(color: Colors.white),
+                    dropdownColor: const Color.fromARGB(255, 52, 83, 130),
+                    items:
+                        _itemTypes
+                            .map(
+                              (type) => DropdownMenuItem(
+                                value: type,
+                                child: Text(type),
+                              ),
+                            )
+                            .toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedType = value;
+                        _itemsToLoad = 10;
+                      });
+                    },
+                  ),
                 ),
                 const SizedBox(width: 10),
-                DropdownButton<String>(
-                  value: _sortOption,
-                  dropdownColor: const Color.fromARGB(255, 52, 83, 130),
-                  style: TextStyle(color: Colors.white),
-                  items: [
-                    DropdownMenuItem(value: "time", child: Text("Time")),
-                    DropdownMenuItem(
-                      value: "location",
-                      child: Text("Location"),
-                    ),
-                    DropdownMenuItem(value: "name", child: Text("Name")),
-                  ],
-                  onChanged: (value) async {
-                    if (value == "location" && _selectedLocation == null) {
-                      await _pickLocation();
-                    }
-                    setState(() {
-                      _sortOption = value!;
-                    });
-                  },
+                Expanded(
+                  child: DropdownButton<String>(
+                    value: _sortOption,
+                    isExpanded: true,
+                    dropdownColor: const Color.fromARGB(255, 52, 83, 130),
+                    style: const TextStyle(color: Colors.white),
+                    items: const [
+                      DropdownMenuItem(value: "time", child: Text("Time")),
+                      DropdownMenuItem(
+                        value: "location",
+                        child: Text("Location"),
+                      ),
+                      DropdownMenuItem(value: "name", child: Text("Name")),
+                    ],
+                    onChanged: (value) async {
+                      if (value == "location" && _selectedLocation == null) {
+                        await _pickLocation();
+                      }
+                      setState(() {
+                        _sortOption = value!;
+                      });
+                    },
+                  ),
                 ),
                 if (_sortOption == "location" && _selectedLocation != null)
                   TextButton(
                     onPressed: _pickLocation,
-                    child: Text(
+                    child: const Text(
                       "Change Location",
                       style: TextStyle(color: Colors.white),
                     ),
@@ -153,7 +162,6 @@ class _SearchScreenState extends State<SearchScreen> {
               ],
             ),
             const SizedBox(height: 20),
-
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
                 stream: _firestore.collection('items').snapshots(),
@@ -162,16 +170,15 @@ class _SearchScreenState extends State<SearchScreen> {
                     return Center(
                       child: Text(
                         'Error: ${snapshot.error}',
-                        style: TextStyle(color: Colors.white),
+                        style: const TextStyle(color: Colors.white),
                       ),
                     );
                   }
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
+                    return const Center(child: CircularProgressIndicator());
                   }
-
-                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return Center(
+                  if (!snapshot.hasData) {
+                    return const Center(
                       child: Text(
                         'No items found.',
                         style: TextStyle(color: Colors.white),
@@ -179,81 +186,162 @@ class _SearchScreenState extends State<SearchScreen> {
                     );
                   }
 
-                  //Map<dynamic, dynamic> allItems = snapshot.data!.snapshot.value as Map<dynamic, dynamic>;
-                  //List<MapEntry<dynamic, dynamic>> filteredItems = allItems.entries.toList();
-                  List<QueryDocumentSnapshot> filteredItems =
-                      snapshot.data!.docs;
+                  final currentUser = _auth.currentUser;
+                  List<QueryDocumentSnapshot> items = snapshot.data!.docs;
 
+                  // Filter by type if needed.
                   if (_selectedType != "All") {
-                    filteredItems =
-                        filteredItems
+                    items =
+                        items
                             .where((doc) => doc['type'] == _selectedType)
                             .toList();
                   }
+                  // Filter items by ownership.
+                  items =
+                      items.where((doc) {
+                        final ownerId = doc['ownerId'];
+                        return widget.isMyItems
+                            ? ownerId == currentUser!.uid
+                            : ownerId != currentUser!.uid;
+                      }).toList();
 
+                  // Sort items.
                   if (_sortOption == "location" && _selectedLocation != null) {
-                    filteredItems.sort((a, b) {
-                      LatLng itemLocationA = LatLng(
+                    items.sort((a, b) {
+                      final aLoc = LatLng(
                         a['location']['latitude'],
                         a['location']['longitude'],
                       );
-                      LatLng itemLocationB = LatLng(
+                      final bLoc = LatLng(
                         b['location']['latitude'],
                         b['location']['longitude'],
                       );
-                      double distanceA = _calculateDistance(
-                        itemLocationA,
+                      return _calculateDistance(
+                        aLoc,
                         _selectedLocation!,
-                      );
-                      double distanceB = _calculateDistance(
-                        itemLocationB,
-                        _selectedLocation!,
-                      );
-                      return distanceA.compareTo(distanceB);
+                      ).compareTo(_calculateDistance(bLoc, _selectedLocation!));
                     });
                   } else if (_sortOption == "time") {
-                    filteredItems.sort((a, b) {
-                      return (b['timestamp'] ?? 0).compareTo(
-                        a['timestamp'] ?? 0,
-                      );
-                    });
+                    items.sort(
+                      (a, b) =>
+                          (b['timestamp'] ?? 0).compareTo(a['timestamp'] ?? 0),
+                    );
                   } else if (_sortOption == "name") {
-                    filteredItems.sort((a, b) {
-                      String nameA = _normalizeName(a['name'] ?? '');
-                      String nameB = _normalizeName(b['name'] ?? '');
+                    items.sort((a, b) {
+                      final nameA = _normalizeName(a['name'] ?? '');
+                      final nameB = _normalizeName(b['name'] ?? '');
                       return nameA.compareTo(nameB);
                     });
                   }
 
-                  //List<MapEntry<dynamic, dynamic>> itemsToShow = filteredItems.take(_itemsToLoad).toList();
-                  List<QueryDocumentSnapshot> itemsToShow =
-                      filteredItems.take(_itemsToLoad).toList();
-
-                  List<Widget> itemWidgets =
-                      itemsToShow.map((doc) {
-                        var item = doc.data() as Map<String, dynamic>;
-                        return Card(
-                          color: Colors.white,
-                          child: ListTile(
-                            leading:
-                                item['imageUrl'] != null
-                                    ? _getImageFromBase64(item['imageUrl'])
-                                    : Icon(Icons.image_not_supported),
-                            title: Text(item['name'] ?? 'Unknown'),
-                            subtitle: Text(
-                              item['description'] ?? 'No description',
-                            ),
-                          ),
-                        );
-                      }).toList();
+                  final visibleItems = items.take(_itemsToLoad).toList();
 
                   return Column(
                     children: [
-                      Expanded(child: ListView(children: itemWidgets)),
-                      if (filteredItems.length > _itemsToLoad)
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: visibleItems.length,
+                          itemBuilder: (context, index) {
+                            final doc = visibleItems[index];
+                            final item = doc.data() as Map<String, dynamic>;
+
+                            return Card(
+                              margin: const EdgeInsets.symmetric(vertical: 6.0),
+                              child: ListTile(
+                                leading:
+                                    item['imageUrl'] != null
+                                        ? _getImageFromBase64(item['imageUrl'])
+                                        : const Icon(
+                                          Icons.image_not_supported,
+                                          size: 50,
+                                        ),
+                                title: Text(item['name'] ?? 'Unknown'),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      item['description'] ?? 'No description',
+                                    ),
+                                    // Show owner's info only in Search Items mode.
+                                    if (!widget.isMyItems)
+                                      FutureBuilder<DocumentSnapshot>(
+                                        future:
+                                            _firestore
+                                                .collection('users')
+                                                .doc(item['ownerId'])
+                                                .get(),
+                                        builder: (context, userSnapshot) {
+                                          String username = '';
+                                          Widget? profilePic;
+                                          if (userSnapshot.hasData &&
+                                              userSnapshot.data!.exists) {
+                                            final userData =
+                                                userSnapshot.data!.data()
+                                                    as Map<String, dynamic>;
+                                            username =
+                                                userData['username'] ?? '';
+                                            if (userData['profilePicture'] !=
+                                                null) {
+                                              profilePic = _getImageFromBase64(
+                                                userData['profilePicture'],
+                                                size: 30,
+                                              );
+                                            }
+                                          }
+                                          return Row(
+                                            children: [
+                                              if (profilePic != null)
+                                                profilePic,
+                                              const SizedBox(width: 5),
+                                              Text(
+                                                username,
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      ),
+                                  ],
+                                ),
+                                // Trailing buttons: Chat button if in Search mode, and a plus icon for item details.
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (!widget.isMyItems)
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          // Insert your chat logic here.
+                                        },
+                                        child: const Text("Chat"),
+                                      ),
+                                    IconButton(
+                                      icon: const Icon(Icons.add),
+                                      tooltip: "More details",
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder:
+                                                (context) => ItemDetailsScreen(
+                                                  itemDoc: doc,
+                                                ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      if (items.length > _itemsToLoad)
                         ElevatedButton(
                           onPressed: _loadMoreItems,
-                          child: Text("More"),
+                          child: const Text("More"),
                         ),
                     ],
                   );

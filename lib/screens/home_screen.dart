@@ -1,10 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'add_item_screen.dart';
 import 'search_screen.dart';
-import 'contacts.dart';
+import 'contacts_screen.dart';
 import 'welcome_screen.dart';
-import 'user_creation_screen.dart';
+import 'user_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   final WidgetBuilder? searchScreenBuilder;
@@ -23,7 +24,12 @@ class HomeScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => AddItemScreen(firestore: FirebaseFirestore.instance,)),
+                  MaterialPageRoute(
+                    builder:
+                        (context) => AddItemScreen(
+                          firestore: FirebaseFirestore.instance,
+                        ),
+                  ),
                 );
               },
               child: const Text('Add New Item'),
@@ -33,10 +39,26 @@ class HomeScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: searchScreenBuilder ?? (context) => SearchScreen()),
+                  MaterialPageRoute(
+                    builder: searchScreenBuilder ?? (context) => SearchScreen(),
+                  ),
                 );
               },
               child: const Text('Search Items'),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        searchScreenBuilder ??
+                        (context) => SearchScreen(isMyItems: true),
+                  ),
+                );
+              },
+              child: const Text('My Items'),
             ),
             //
             const SizedBox(height: 20),
@@ -55,7 +77,12 @@ class HomeScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => UserCreationScreen()),
+                  MaterialPageRoute(
+                    builder:
+                        (context) => UserScreen(
+                          userId: FirebaseAuth.instance.currentUser?.uid ?? '',
+                        ),
+                  ),
                 );
               },
               child: const Text('Change profile'),
@@ -65,7 +92,7 @@ class HomeScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => Contacts()),
+                  MaterialPageRoute(builder: (context) => ContactsScreen()),
                 );
               },
               child: const Text('Contacts'),

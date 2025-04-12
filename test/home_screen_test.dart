@@ -4,8 +4,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:test1/screens/home_screen.dart';
 import 'package:test1/screens/add_item_screen.dart';
 import 'package:test1/screens/welcome_screen.dart';
-import 'package:test1/screens/user_creation_screen.dart';
-import 'package:test1/screens/contacts.dart';
+import 'package:test1/screens/user_screen.dart';
+import 'package:test1/screens/contacts_screen.dart';
 import 'auth_mock.dart';
 import 'mock_search_screen.dart';
 
@@ -92,7 +92,7 @@ void main() {
         await tester.tap(find.text('Contacts'));
         await tester.pumpAndSettle();
 
-        expect(find.byType(Contacts), findsOneWidget);
+        expect(find.byType(ContactsScreen), findsOneWidget);
       },
     );
   });

@@ -25,7 +25,7 @@ class _SignupScreenState extends State<SignupScreen> {
   @override
   void initState() {
     super.initState();
-    _auth = widget.auth ?? FirebaseAuth.instance;
+    _auth = widget.auth;
   }
   Future<void> _signUp() async {
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'home_screen.dart';
-import 'user_creation_screen.dart';
+import 'user_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -63,7 +63,12 @@ class _LoginScreenState extends State<LoginScreen> {
         // If profile does not exist, redirect to user creation screen
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const UserCreationScreen()),
+          MaterialPageRoute(
+            builder:
+                (context) => UserScreen(
+                  userId: FirebaseAuth.instance.currentUser?.uid ?? '',
+                ),
+          ),
         );
       } else {
         // Navigate to HomeScreen if profile exists
