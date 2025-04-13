@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'map_screen.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:diacritic/diacritic.dart';
-import 'item_details_screen.dart'; // New screen for item details
+import 'item_screen.dart'; // New screen for item details
 
 class SearchScreen extends StatefulWidget {
   final bool isMyItems;
@@ -324,7 +324,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                           context,
                                           MaterialPageRoute(
                                             builder:
-                                                (context) => ItemDetailsScreen(
+                                                (context) => ItemScreen(
                                                   itemDoc: doc,
                                                 ),
                                           ),

@@ -10,10 +10,10 @@ class UserScreen extends StatefulWidget {
   const UserScreen({super.key, required this.userId});
 
   @override
-  _UserCreationScreenState createState() => _UserCreationScreenState();
+  _UserScreenState createState() => _UserScreenState();
 }
 
-class _UserCreationScreenState extends State<UserScreen> {
+class _UserScreenState extends State<UserScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   String? _imageBase64;
@@ -67,9 +67,9 @@ class _UserCreationScreenState extends State<UserScreen> {
       MaterialPageRoute(builder: (context) => const HomeScreen()),
     );
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Profile updated!')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Profile updated!')));
   }
 
   Future<void> _pickImage() async {
@@ -88,9 +88,7 @@ class _UserCreationScreenState extends State<UserScreen> {
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 63, 133, 190),
         title: Text(
-          _isOwnProfile
-              ? 'Change Profile'
-              : 'User Profile',
+          _isOwnProfile ? 'Change Profile' : 'User Profile',
           style: const TextStyle(color: Colors.white),
         ),
       ),
@@ -111,13 +109,18 @@ class _UserCreationScreenState extends State<UserScreen> {
                         child: CircleAvatar(
                           radius: 100,
                           backgroundColor: Colors.grey,
-                          backgroundImage: _imageBase64 != null
-                              ? MemoryImage(base64Decode(_imageBase64!))
-                              : null,
-                          child: _imageBase64 == null
-                              ? const Icon(Icons.camera_alt,
-                                  color: Colors.white, size: 40)
-                              : null,
+                          backgroundImage:
+                              _imageBase64 != null
+                                  ? MemoryImage(base64Decode(_imageBase64!))
+                                  : null,
+                          child:
+                              _imageBase64 == null
+                                  ? const Icon(
+                                    Icons.camera_alt,
+                                    color: Colors.white,
+                                    size: 40,
+                                  )
+                                  : null,
                         ),
                       ),
                       const SizedBox(height: 10),
@@ -129,7 +132,7 @@ class _UserCreationScreenState extends State<UserScreen> {
                             fontSize: 14,
                           ),
                         ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 20),
                       TextField(
                         controller: _usernameController,
                         maxLength: 15,
@@ -137,6 +140,13 @@ class _UserCreationScreenState extends State<UserScreen> {
                         decoration: const InputDecoration(
                           labelText: 'Username',
                           labelStyle: TextStyle(color: Colors.white),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.grey),
+                          ),
+                          disabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.grey),
+                          ),
+                          counterStyle: TextStyle(color: Colors.grey),
                         ),
                         style: const TextStyle(color: Colors.white),
                       ),
@@ -146,10 +156,16 @@ class _UserCreationScreenState extends State<UserScreen> {
                         maxLength: 100,
                         maxLines: 3,
                         enabled: _isOwnProfile,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'Description',
                           labelStyle: TextStyle(color: Colors.white),
-                          border: OutlineInputBorder(),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.grey),
+                          ),
+                          disabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.grey),
+                          ),
+                          counterStyle: TextStyle(color: Colors.grey),
                         ),
                         style: const TextStyle(color: Colors.white),
                       ),
@@ -165,38 +181,50 @@ class _UserCreationScreenState extends State<UserScreen> {
                       const SizedBox(height: 20),
                       if (_isOwnProfile)
                         ElevatedButton(
-                          onPressed: _isLoading
-                              ? null
-                              : () async {
-                                  if (_usernameController.text.trim().isEmpty ||
-                                      _descriptionController.text.trim().isEmpty ||
-                                      _imageBase64 == null) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Please fill in all fields'),
-                                      ),
-                                    );
-                                    return;
-                                  }
+                          onPressed:
+                              _isLoading
+                                  ? null
+                                  : () async {
+                                    if (_usernameController.text
+                                            .trim()
+                                            .isEmpty ||
+                                        _descriptionController.text
+                                            .trim()
+                                            .isEmpty ||
+                                        _imageBase64 == null) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'Please fill in all fields',
+                                          ),
+                                        ),
+                                      );
+                                      return;
+                                    }
 
-                                  setState(() {
-                                    _isLoading = true;
-                                  });
-
-                                  try {
-                                    await _saveUserData();
-                                  } catch (e) {
                                     setState(() {
-                                      _isLoading = false;
+                                      _isLoading = true;
                                     });
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text('Error: $e')),
-                                    );
-                                  }
-                                },
-                          child: _isLoading
-                              ? const CircularProgressIndicator()
-                              : const Text('Update Profile'),
+
+                                    try {
+                                      await _saveUserData();
+                                    } catch (e) {
+                                      setState(() {
+                                        _isLoading = false;
+                                      });
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(content: Text('Error: $e')),
+                                      );
+                                    }
+                                  },
+                          child:
+                              _isLoading
+                                  ? const CircularProgressIndicator()
+                                  : const Text('Update Profile'),
                         ),
                     ],
                   ),
@@ -209,4 +237,3 @@ class _UserCreationScreenState extends State<UserScreen> {
     );
   }
 }
-

@@ -137,6 +137,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           decoration: const InputDecoration(
                             labelText: 'Email',
                             labelStyle: TextStyle(color: Colors.white),
+                            counterStyle: TextStyle(color: Colors.grey),
                           ),
                           style: const TextStyle(color: Colors.white),
                         ),
@@ -152,6 +153,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           decoration: InputDecoration(
                             labelText: 'Password',
                             labelStyle: const TextStyle(color: Colors.white),
+                            counterStyle: TextStyle(color: Colors.grey),
                             suffixIcon: IconButton(
                               icon: Icon(
                                 _isPasswordVisible

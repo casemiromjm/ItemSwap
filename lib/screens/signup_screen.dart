@@ -2,12 +2,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
 
-
 class SignupScreen extends StatefulWidget {
   final FirebaseAuth auth;
 
   SignupScreen({super.key, FirebaseAuth? auth})
-      : auth = auth ?? FirebaseAuth.instance;
+    : auth = auth ?? FirebaseAuth.instance;
 
   @override
   _SignupScreenState createState() => _SignupScreenState();
@@ -27,6 +26,7 @@ class _SignupScreenState extends State<SignupScreen> {
     super.initState();
     _auth = widget.auth;
   }
+
   Future<void> _signUp() async {
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -143,6 +143,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           decoration: const InputDecoration(
                             labelText: 'Email',
                             labelStyle: TextStyle(color: Colors.white),
+                            counterStyle: TextStyle(color: Colors.grey),
                           ),
                           style: const TextStyle(color: Colors.white),
                         ),
@@ -157,6 +158,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           decoration: InputDecoration(
                             labelText: 'Password',
                             labelStyle: const TextStyle(color: Colors.white),
+                            counterStyle: TextStyle(color: Colors.grey),
                             suffixIcon: IconButton(
                               icon: Icon(
                                 _isPasswordVisible
@@ -177,13 +179,17 @@ class _SignupScreenState extends State<SignupScreen> {
                       const SizedBox(height: 30),
                       ElevatedButton(
                         onPressed: _isLoading ? null : _signUp,
-                        child: _isLoading
-                            ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                        )
-                            : const Text('Sign Up'),
+                        child:
+                            _isLoading
+                                ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                                : const Text('Sign Up'),
                       ),
                     ],
                   ),

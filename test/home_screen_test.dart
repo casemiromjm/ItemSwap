@@ -82,18 +82,17 @@ void main() {
       },
     );
 
-    testWidgets(
-      'Navigates to Contacts when "Contacts" is tapped',
-        (WidgetTester tester) async {
-        await tester.pumpWidget(MaterialApp(home: HomeScreen()));
+    testWidgets('Navigates to Contacts when "Contacts" is tapped', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(MaterialApp(home: HomeScreen()));
 
-        expect(find.text('Contacts'), findsOneWidget);
+      expect(find.text('Contacts'), findsOneWidget);
 
-        await tester.tap(find.text('Contacts'));
-        await tester.pumpAndSettle();
+      await tester.tap(find.text('Contacts'));
+      await tester.pumpAndSettle();
 
-        expect(find.byType(ContactsScreen), findsOneWidget);
-      },
-    );
+      expect(find.byType(ContactsScreen), findsOneWidget);
+    });
   });
 }
