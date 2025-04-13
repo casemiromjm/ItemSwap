@@ -89,6 +89,16 @@ class _SearchScreenState extends State<SearchScreen> {
         .replaceAll(RegExp(r'[^a-z0-9]'), '');
   }
 
+  String _descriptionPreview(item) {
+    final description = item['description'];
+    if (description == null) return 'No description';
+
+    final firstLine = description.split('\n').first;
+    return firstLine.length > 25
+        ? '${firstLine.substring(0, 25)} (...)'
+        : '$firstLine (...)';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -162,6 +172,25 @@ class _SearchScreenState extends State<SearchScreen> {
               ],
             ),
             const SizedBox(height: 20),
+            // "New Item" button above the items list when in My Items mode.
+            if (widget.isMyItems)
+              ElevatedButton(
+                onPressed: () async {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ItemScreen()),
+                  );
+                  if (result == 'submitted') {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Item submitted successfully!'),
+                      ),
+                    );
+                  }
+                },
+                child: const Text("New Item"),
+              ),
+            const SizedBox(height: 10),
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
                 stream: _firestore.collection('items').snapshots(),
@@ -246,7 +275,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             final item = doc.data() as Map<String, dynamic>;
 
                             return Card(
-                              margin: const EdgeInsets.symmetric(vertical: 6.0),
+                              margin: const EdgeInsets.symmetric(vertical: 7.0),
                               child: ListTile(
                                 leading:
                                     item['imageUrl'] != null
@@ -259,50 +288,45 @@ class _SearchScreenState extends State<SearchScreen> {
                                 subtitle: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      item['description'] ?? 'No description',
-                                    ),
-                                    // Show owner's info only in Search Items mode.
-                                    if (!widget.isMyItems)
-                                      FutureBuilder<DocumentSnapshot>(
-                                        future:
-                                            _firestore
-                                                .collection('users')
-                                                .doc(item['ownerId'])
-                                                .get(),
-                                        builder: (context, userSnapshot) {
-                                          String username = '';
-                                          Widget? profilePic;
-                                          if (userSnapshot.hasData &&
-                                              userSnapshot.data!.exists) {
-                                            final userData =
-                                                userSnapshot.data!.data()
-                                                    as Map<String, dynamic>;
-                                            username =
-                                                userData['username'] ?? '';
-                                            if (userData['profilePicture'] !=
-                                                null) {
-                                              profilePic = _getImageFromBase64(
-                                                userData['profilePicture'],
+                                    Text(_descriptionPreview(item)),
+                                    FutureBuilder<DocumentSnapshot>(
+                                      future:
+                                          _firestore
+                                              .collection('users')
+                                              .doc(item['ownerId'])
+                                              .get(),
+                                      builder: (context, userSnapshot) {
+                                        String username = '';
+                                        Widget? profilePic;
+                                        if (userSnapshot.hasData &&
+                                            userSnapshot.data!.exists) {
+                                          final userData =
+                                              userSnapshot.data!.data()
+                                                  as Map<String, dynamic>;
+                                          username = userData['username'] ?? '';
+                                          if (userData['image'] != null) {
+                                            profilePic = ClipOval(
+                                              child: _getImageFromBase64(
+                                                userData['image'],
                                                 size: 30,
-                                              );
-                                            }
-                                          }
-                                          return Row(
-                                            children: [
-                                              if (profilePic != null)
-                                                profilePic,
-                                              const SizedBox(width: 5),
-                                              Text(
-                                                username,
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                ),
                                               ),
-                                            ],
-                                          );
-                                        },
-                                      ),
+                                            );
+                                          }
+                                        }
+                                        return Row(
+                                          children: [
+                                            if (profilePic != null) profilePic,
+                                            const SizedBox(width: 5),
+                                            Text(
+                                              username,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    ),
                                   ],
                                 ),
                                 // Trailing buttons: Chat button if in Search mode, and a plus icon for item details.
@@ -324,9 +348,8 @@ class _SearchScreenState extends State<SearchScreen> {
                                           context,
                                           MaterialPageRoute(
                                             builder:
-                                                (context) => ItemScreen(
-                                                  itemDoc: doc,
-                                                ),
+                                                (context) =>
+                                                    ItemScreen(itemDoc: doc),
                                           ),
                                         );
                                       },

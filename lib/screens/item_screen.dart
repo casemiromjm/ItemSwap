@@ -10,9 +10,9 @@ import 'user_screen.dart';
 import 'image_handler.dart';
 
 class ItemScreen extends StatefulWidget {
-  final QueryDocumentSnapshot itemDoc;
-
-  const ItemScreen({super.key, required this.itemDoc});
+  /// When [itemDoc] is null, we assume a new item is being created.
+  final QueryDocumentSnapshot? itemDoc;
+  const ItemScreen({super.key, this.itemDoc});
 
   @override
   State<ItemScreen> createState() => _ItemScreenState();
@@ -29,6 +29,7 @@ class _ItemScreenState extends State<ItemScreen> {
   LatLng? _location;
   bool _isOwnItem = false;
   bool _isLoading = false;
+  bool _isNewItem = false; // Flag to indicate new item creation.
 
   // New variable for item type.
   String? _selectedType;
@@ -70,8 +71,24 @@ class _ItemScreenState extends State<ItemScreen> {
   @override
   void initState() {
     super.initState();
-    item = widget.itemDoc.data() as Map<String, dynamic>;
-    _loadItemData();
+    // If no itemDoc is provided, we are creating a new item.
+    _isNewItem = widget.itemDoc == null;
+    final currentUser = _auth.currentUser;
+    _isOwnItem = currentUser != null; // For new items the user is the owner.
+    if (_isNewItem) {
+      // Start with empty fields.
+      _nameController.text = '';
+      _descriptionController.text = '';
+      _selectedType = null;
+      _imageBase64 = null;
+      _location = LatLng(
+        41.1579,
+        -8.6291,
+      ); // Default location (Porto, Portugal).
+    } else {
+      item = widget.itemDoc!.data() as Map<String, dynamic>;
+      _loadItemData();
+    }
   }
 
   void _loadItemData() {
@@ -99,12 +116,15 @@ class _ItemScreenState extends State<ItemScreen> {
 
   Future<void> _pickLocation() async {
     if (!_isOwnItem) return;
+    // Use _location if available; for new items, _location is set to a default.
     final selected = await Navigator.push<LatLng>(
       context,
       MaterialPageRoute(
         builder:
-            (context) =>
-                MapScreen(selectable: true, initialLocation: _location!),
+            (context) => MapScreen(
+              selectable: true,
+              initialLocation: _location ?? LatLng(0, 0),
+            ),
       ),
     );
     if (selected != null) {
@@ -115,25 +135,62 @@ class _ItemScreenState extends State<ItemScreen> {
   }
 
   Future<void> _saveItemChanges() async {
+    // Define the valid name regex.
+    final RegExp validNameRegExp = RegExp(r'[A-Za-zÀ-ÖØ-öø-ÿ]');
+
+    // Validate that required fields are not empty.
+    if (_nameController.text.trim().isEmpty ||
+        !validNameRegExp.hasMatch(_nameController.text) ||
+        _descriptionController.text.trim().isEmpty ||
+        _selectedType == null ||
+        _selectedType!.trim().isEmpty ||
+        _imageBase64 == null ||
+        _imageBase64!.trim().isEmpty ||
+        _location == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please fill in all fields correctly.")),
+      );
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });
 
     try {
-      await _firestore.collection('items').doc(widget.itemDoc.id).update({
-        'name': _nameController.text,
-        'description': _descriptionController.text,
-        'type': _selectedType, // Save the item type.
-        'imageUrl': _imageBase64,
-        'location': {
-          'latitude': _location!.latitude,
-          'longitude': _location!.longitude,
-        },
-      });
-
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Item updated!")));
+      final currentUser = _auth.currentUser;
+      if (_isNewItem) {
+        // Create a new item document.
+        await _firestore.collection('items').add({
+          'name': _nameController.text,
+          'description': _descriptionController.text,
+          'type': _selectedType, // Save the item type.
+          'imageUrl': _imageBase64,
+          'location': {
+            'latitude': _location!.latitude,
+            'longitude': _location!.longitude,
+          },
+          'ownerId': currentUser!.uid,
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+        // Pop with a flag to indicate successful submission.
+        Navigator.pop(context, 'submitted');
+      } else {
+        // Update the existing item document.
+        await _firestore.collection('items').doc(widget.itemDoc!.id).update({
+          'name': _nameController.text,
+          'description': _descriptionController.text,
+          'type': _selectedType, // Save the item type.
+          'imageUrl': _imageBase64,
+          'location': {
+            'latitude': _location!.latitude,
+            'longitude': _location!.longitude,
+          },
+        });
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("Item updated!")));
+      }
     } catch (e) {
       ScaffoldMessenger.of(
         context,
@@ -179,7 +236,6 @@ class _ItemScreenState extends State<ItemScreen> {
     );
   }
 
-  /// New widget for the map action button.
   Widget _buildMapActionButton() {
     return ElevatedButton.icon(
       style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(40)),
@@ -204,14 +260,17 @@ class _ItemScreenState extends State<ItemScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final timestamp = item['timestamp'] as Timestamp?;
-
+    // If editing an existing item, show its timestamp.
+    final timestamp =
+        !_isNewItem && item['timestamp'] is Timestamp
+            ? item['timestamp'] as Timestamp
+            : null;
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 21, 45, 80),
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 63, 133, 190),
         title: Text(
-          _isOwnItem ? 'Edit Item' : 'Item Details',
+          _isOwnItem ? (_isNewItem ? 'New Item' : 'Edit Item') : 'Item Details',
           style: const TextStyle(color: Colors.white),
         ),
       ),
@@ -322,7 +381,12 @@ class _ItemScreenState extends State<ItemScreen> {
               const Divider(height: 30, color: Colors.white),
               FutureBuilder<DocumentSnapshot>(
                 future:
-                    _firestore.collection('users').doc(item['ownerId']).get(),
+                    _firestore
+                        .collection('users')
+                        .doc(
+                          _isNewItem ? _auth.currentUser!.uid : item['ownerId'],
+                        )
+                        .get(),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData || !snapshot.data!.exists) {
                     return const SizedBox();
@@ -375,7 +439,7 @@ class _ItemScreenState extends State<ItemScreen> {
                   child:
                       _isLoading
                           ? const CircularProgressIndicator()
-                          : const Text('Save Changes'),
+                          : Text(_isNewItem ? 'Create Item' : 'Save Changes'),
                 ),
             ],
           ),

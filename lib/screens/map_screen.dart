@@ -11,11 +11,8 @@ class MapScreen extends StatefulWidget {
   /// In selectable mode, if provided, shows the currently selected location.
   final LatLng? initialLocation;
 
-  const MapScreen({
-    Key? key,
-    this.selectable = true,
-    this.initialLocation,
-  }) : super(key: key);
+  const MapScreen({Key? key, this.selectable = true, this.initialLocation})
+    : super(key: key);
 
   @override
   _CustomMapScreenState createState() => _CustomMapScreenState();
@@ -33,7 +30,7 @@ class _CustomMapScreenState extends State<MapScreen> {
   void initState() {
     super.initState();
     // In non-selectable mode, show the passed location if available.
-    if (!widget.selectable && widget.initialLocation != null) {
+    if (widget.initialLocation != null) {
       _selectedLocation = widget.initialLocation;
     }
   }
@@ -52,9 +49,9 @@ class _CustomMapScreenState extends State<MapScreen> {
     if (_selectedLocation != null) {
       Navigator.pop(context, _selectedLocation);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a location')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please select a location')));
     }
   }
 
@@ -63,9 +60,10 @@ class _CustomMapScreenState extends State<MapScreen> {
     // Center the map:
     // • In selectable mode, use the current selection (or default location if none).
     // • In non-selectable mode, force the center to the provided initialLocation.
-    final LatLng center = widget.selectable
-        ? (_selectedLocation ?? _defaultLocation)
-        : (widget.initialLocation ?? _defaultLocation);
+    final LatLng center =
+        widget.selectable
+            ? (_selectedLocation ?? _defaultLocation)
+            : (widget.initialLocation ?? _defaultLocation);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Map')),
