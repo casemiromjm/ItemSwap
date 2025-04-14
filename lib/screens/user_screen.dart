@@ -81,15 +81,39 @@ class _UserScreenState extends State<UserScreen> {
     });
   }
 
+  InputDecoration buildTextFieldDecoration(String labelText) {
+    return InputDecoration(
+      labelText: labelText,
+      labelStyle: const TextStyle(color: Colors.white),
+      enabledBorder: const OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.grey),
+      ),
+      focusedBorder: const OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.grey), // Use desired focused color
+      ),
+      disabledBorder: const OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.grey),
+      ),
+      counterStyle: const TextStyle(color: Colors.grey),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 21, 45, 80),
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 63, 133, 190),
-        title: Text(
-          _isOwnProfile ? 'Change Profile' : 'User Profile',
-          style: const TextStyle(color: Colors.white),
+        title: Center(
+          child: Text(
+            _isOwnProfile ? 'Change Profile' : 'User Profile',
+            style: const TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontFamily: 'Roboto',
+            ),
+          ),
         ),
       ),
       body: LayoutBuilder(
@@ -136,37 +160,19 @@ class _UserScreenState extends State<UserScreen> {
                       TextField(
                         controller: _usernameController,
                         maxLength: 15,
-                        enabled: _isOwnProfile,
-                        decoration: const InputDecoration(
-                          labelText: 'Username',
-                          labelStyle: TextStyle(color: Colors.white),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.grey),
-                          ),
-                          disabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.grey),
-                          ),
-                          counterStyle: TextStyle(color: Colors.grey),
-                        ),
+                        readOnly: !_isOwnProfile,
+                        decoration: buildTextFieldDecoration('Username'),
                         style: const TextStyle(color: Colors.white),
                       ),
                       const SizedBox(height: 16),
                       TextField(
                         controller: _descriptionController,
                         maxLength: 100,
-                        maxLines: 3,
-                        enabled: _isOwnProfile,
-                        decoration: InputDecoration(
-                          labelText: 'Description',
-                          labelStyle: TextStyle(color: Colors.white),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.grey),
-                          ),
-                          disabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.grey),
-                          ),
-                          counterStyle: TextStyle(color: Colors.grey),
-                        ),
+                        minLines: 3,
+                        maxLines: 10,
+                        readOnly: !_isOwnProfile,
+                        scrollPhysics: const AlwaysScrollableScrollPhysics(),
+                        decoration: buildTextFieldDecoration('Description'),
                         style: const TextStyle(color: Colors.white),
                       ),
                       const SizedBox(height: 20),

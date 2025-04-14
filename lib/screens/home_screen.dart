@@ -1,11 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'add_item_screen.dart';
 import 'search_screen.dart';
 import 'contacts_screen.dart';
 import 'welcome_screen.dart';
 import 'user_screen.dart';
+import 'item_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   final WidgetBuilder? searchScreenBuilder;
@@ -15,7 +14,20 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 21, 45, 80),
-      appBar: AppBar(title: const Text('Home')),
+      appBar: AppBar(
+        backgroundColor: const Color.fromARGB(255, 63, 133, 190),
+        title: const Center(
+          child: Text(
+            'Home',
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontFamily: 'Roboto',
+            ),
+          ),
+        ),
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -24,12 +36,7 @@ class HomeScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder:
-                        (context) => AddItemScreen(
-                          firestore: FirebaseFirestore.instance,
-                        ),
-                  ),
+                  MaterialPageRoute(builder: (context) => ItemScreen()),
                 );
               },
               child: const Text('Add New Item'),

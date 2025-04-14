@@ -99,12 +99,73 @@ class _SearchScreenState extends State<SearchScreen> {
         : '$firstLine (...)';
   }
 
+  void _showDeleteConfirmation(DocumentSnapshot doc) {
+    final String itemName = doc['name'] ?? 'this item';
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: const Color.fromARGB(255, 52, 83, 130),
+          title: Text(
+            "Delete '$itemName'?",
+            style: const TextStyle(color: Colors.white),
+          ),
+          actionsAlignment: MainAxisAlignment.spaceBetween,
+          actions: [
+            // Cancel button (✗ in red) positioned to the left.
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Dismiss the dialog.
+              },
+              child: const Text(
+                '✗',
+                style: TextStyle(color: Colors.red, fontSize: 20),
+              ),
+            ),
+            // Confirm delete button (✓ in green) positioned to the right.
+            TextButton(
+              onPressed: () async {
+                try {
+                  await _firestore.collection('items').doc(doc.id).delete();
+                  Navigator.of(context).pop(); // Dismiss the dialog.
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text("$itemName deleted.")));
+                } catch (error) {
+                  Navigator.of(context).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Failed to delete $itemName.")),
+                  );
+                }
+              },
+              child: const Text(
+                '✓',
+                style: TextStyle(color: Colors.green, fontSize: 20),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 21, 45, 80),
       appBar: AppBar(
-        title: Text(widget.isMyItems ? 'My Items' : 'Search Items'),
+        backgroundColor: const Color.fromARGB(255, 63, 133, 190),
+        title: Center(
+          child: Text(
+            widget.isMyItems ? 'My Items' : 'Search Items',
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontFamily: 'Roboto',
+            ),
+          ),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -340,6 +401,15 @@ class _SearchScreenState extends State<SearchScreen> {
                                         },
                                         child: const Text("Chat"),
                                       ),
+                                    if (widget.isMyItems)
+                                      IconButton(
+                                        icon: const Icon(Icons.delete),
+                                        tooltip: "Delete",
+                                        onPressed: () {
+                                          _showDeleteConfirmation(doc);
+                                        },
+                                      ),
+                                    const SizedBox(width: 5),
                                     IconButton(
                                       icon: const Icon(Icons.add),
                                       tooltip: "More details",

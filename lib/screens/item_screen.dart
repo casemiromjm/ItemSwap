@@ -58,13 +58,22 @@ class _ItemScreenState extends State<ItemScreen> {
     'Other',
   ];
 
-  InputDecoration itemTypeDecoration = const InputDecoration(
-    labelText: 'Item Type',
-    labelStyle: TextStyle(color: Colors.white),
-    enabledBorder: OutlineInputBorder(
-      borderSide: BorderSide(color: Colors.grey),
-    ),
-  );
+  InputDecoration buildTextFieldDecoration(String labelText) {
+    return InputDecoration(
+      labelText: labelText,
+      labelStyle: const TextStyle(color: Colors.white),
+      enabledBorder: const OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.grey),
+      ),
+      focusedBorder: const OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.grey), // Use desired focused color
+      ),
+      disabledBorder: const OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.grey),
+      ),
+      counterStyle: const TextStyle(color: Colors.grey),
+    );
+  }
 
   late Map<String, dynamic> item;
 
@@ -269,9 +278,18 @@ class _ItemScreenState extends State<ItemScreen> {
       backgroundColor: const Color.fromARGB(255, 21, 45, 80),
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 63, 133, 190),
-        title: Text(
-          _isOwnItem ? (_isNewItem ? 'New Item' : 'Edit Item') : 'Item Details',
-          style: const TextStyle(color: Colors.white),
+        title: Center(
+          child: Text(
+            _isOwnItem
+                ? (_isNewItem ? 'New Item' : 'Edit Item')
+                : 'Item Details',
+            style: const TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontFamily: 'Roboto',
+            ),
+          ),
         ),
       ),
       body: SingleChildScrollView(
@@ -308,28 +326,18 @@ class _ItemScreenState extends State<ItemScreen> {
               // Item Name Field with text length restriction.
               TextField(
                 controller: _nameController,
-                enabled: _isOwnItem,
+                readOnly: !_isOwnItem,
                 style: const TextStyle(color: Colors.white),
                 maxLength: 20, // Restrict name to 20 characters.
-                decoration: const InputDecoration(
-                  labelText: 'Item Name',
-                  labelStyle: TextStyle(color: Colors.white),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey),
-                  ),
-                  disabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey),
-                  ),
-                  counterStyle: TextStyle(color: Colors.grey),
-                ),
+                decoration: buildTextFieldDecoration('Item Name'),
               ),
               const SizedBox(height: 5),
               // Item Type Field.
               _isOwnItem
                   ? DropdownButtonFormField<String>(
                     value: _selectedType,
-                    decoration: itemTypeDecoration,
-                    dropdownColor: const Color.fromARGB(255, 21, 45, 80),
+                    decoration: buildTextFieldDecoration('Item Type'),
+                    dropdownColor: const Color.fromARGB(255, 52, 83, 130),
                     items:
                         _itemTypes.map((type) {
                           return DropdownMenuItem(
@@ -347,7 +355,7 @@ class _ItemScreenState extends State<ItemScreen> {
                     },
                   )
                   : InputDecorator(
-                    decoration: itemTypeDecoration,
+                    decoration: buildTextFieldDecoration('Item Type'),
                     child: Text(
                       _selectedType ?? '',
                       style: const TextStyle(color: Colors.white),
@@ -357,21 +365,13 @@ class _ItemScreenState extends State<ItemScreen> {
               // Description Field with text length restriction.
               TextField(
                 controller: _descriptionController,
-                enabled: _isOwnItem,
-                maxLines: 3,
+                readOnly: !_isOwnItem,
+                minLines: 3,
+                maxLines: 10,
                 style: const TextStyle(color: Colors.white),
-                maxLength: 500, // Restrict description to 500 characters.
-                decoration: const InputDecoration(
-                  labelText: 'Description',
-                  labelStyle: TextStyle(color: Colors.white),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey),
-                  ),
-                  disabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey),
-                  ),
-                  counterStyle: TextStyle(color: Colors.grey),
-                ),
+                maxLength: 500,
+                scrollPhysics: const AlwaysScrollableScrollPhysics(),
+                decoration: buildTextFieldDecoration('Description'),
               ),
               const SizedBox(height: 16),
               _buildMapPreview(),

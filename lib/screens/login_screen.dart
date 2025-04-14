@@ -105,7 +105,7 @@ class _LoginScreenState extends State<LoginScreen> {
         backgroundColor: const Color.fromARGB(255, 63, 133, 190),
         title: const Center(
           child: Text(
-            'Welcome to ItemSwap',
+            'Login',
             style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,

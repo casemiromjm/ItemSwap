@@ -7,7 +7,7 @@ import 'package:mockito/mockito.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 
 // Import your screens.
-import 'package:test1/screens/add_item_screen.dart';
+import 'package:test1/screens/add_item_screen_outdated.dart';
 import 'package:test1/screens/home_screen.dart';
 
 // Import Firebase auth mocks.

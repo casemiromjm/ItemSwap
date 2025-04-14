@@ -66,7 +66,20 @@ class _CustomMapScreenState extends State<MapScreen> {
             : (widget.initialLocation ?? _defaultLocation);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Map')),
+      appBar: AppBar(
+        backgroundColor: const Color.fromARGB(255, 63, 133, 190),
+        title: const Center(
+          child: Text(
+            'Map',
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontFamily: 'Roboto',
+            ),
+          ),
+        ),
+      ),
       body: Stack(
         children: [
           Column(
