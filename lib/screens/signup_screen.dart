@@ -120,7 +120,17 @@ class _SignupScreenState extends State<SignupScreen> {
       backgroundColor: const Color.fromARGB(255, 21, 45, 80),
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 63, 133, 190),
-        title: const Text('Sign Up', style: TextStyle(color: Colors.white)),
+        title: const Center(
+          child: Text(
+            'Sign Up',
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontFamily: 'Roboto',
+            ),
+          ),
+        ),
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {

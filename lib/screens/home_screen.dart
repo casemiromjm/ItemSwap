@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'search_screen.dart';
-import 'contacts_screen.dart';
 import 'welcome_screen.dart';
 import 'user_screen.dart';
 import 'item_screen.dart';
@@ -99,10 +98,12 @@ class HomeScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ContactsScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => const SearchScreen(isChatsMode: true),
+                  ),
                 );
               },
-              child: const Text('Contacts'),
+              child: const Text('Chats'),
             ),
           ],
         ),
