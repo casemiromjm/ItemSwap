@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -13,14 +14,12 @@ void main() {
     await Firebase.initializeApp();
   });
 
-  testWidgets('Signup success shows verification dialog', (
-    WidgetTester tester,
-  ) async {
+  testWidgets('Signup success shows verification dialog', (WidgetTester tester) async {
     final mockUser = MockUser();
     final mockAuth = MockFirebaseAuth();
     final mockUserCredential = MockUserCredential();
 
-    // Configura os comportamentos
+// Configura os comportamentos
     when(mockUser.isAnonymous).thenReturn(false);
     when(mockUser.email).thenReturn('test@example.com');
     when(mockUser.displayName).thenReturn('Test User');
@@ -28,16 +27,19 @@ void main() {
     when(mockUser.reload()).thenAnswer((_) async {});
     when(mockUser.sendEmailVerification()).thenAnswer((_) async {});
     when(mockUserCredential.user).thenReturn(mockUser);
-    when(
-      mockAuth.createUserWithEmailAndPassword(
-        email: anyNamed('email'),
-        password: anyNamed('password'),
-      ),
-    ).thenAnswer((_) async => mockUserCredential);
+    when(mockAuth.createUserWithEmailAndPassword(
+      email: anyNamed('email'),
+      password: anyNamed('password'),
+    )).thenAnswer((_) async => mockUserCredential);
     when(mockAuth.currentUser).thenReturn(mockUser);
 
+
     // Renderiza o SignupScreen com o mock
-    await tester.pumpWidget(MaterialApp(home: SignupScreen(auth: mockAuth)));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: SignupScreen(auth: mockAuth),
+      ),
+    );
 
     // Preenche os campos de email e password
     await tester.enterText(find.byType(TextField).at(0), 'test@example.com');
