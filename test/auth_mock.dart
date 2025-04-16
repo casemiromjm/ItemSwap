@@ -16,11 +16,18 @@ import 'package:mockito/annotations.dart';
   MockSpec<DocumentSnapshot<Map<String, dynamic>>>(),
 ])
 
-void main() {}
-
 typedef Callback = void Function(MethodCall call);
 
 void setupFirebaseAuthMocks([Callback? customHandlers]) {
   TestWidgetsFlutterBinding.ensureInitialized();
   setupFirebaseCoreMocks();
 }
+
+Future<T> neverEndingFuture<T>() async {
+  // ignore: literal_only_boolean_expressions
+  while (true) {
+    await Future.delayed(const Duration(minutes: 5));
+  }
+}
+
+void main() {}

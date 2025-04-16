@@ -6,7 +6,14 @@ import 'home_screen.dart';
 import 'image_handler.dart';
 
 class UserCreationScreen extends StatefulWidget {
-  const UserCreationScreen({super.key});
+  final FirebaseAuth? auth;
+  final FirebaseFirestore? firestore;
+
+  const UserCreationScreen({
+    Key? key,
+    this.auth,
+    this.firestore,
+  }) : super(key: key);
 
   @override
   _UserCreationScreenState createState() => _UserCreationScreenState();
@@ -22,12 +29,14 @@ class _UserCreationScreenState extends State<UserCreationScreen> {
   int _itemsReceived = 0;
   Timestamp? _createdAt;
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  late final FirebaseAuth _auth;
+  late final FirebaseFirestore _firestore;
 
   @override
   void initState() {
     super.initState();
+    _auth = widget.auth ?? FirebaseAuth.instance;
+    _firestore = widget.firestore ?? FirebaseFirestore.instance;
     _loadUserData();
   }
 
@@ -35,7 +44,7 @@ class _UserCreationScreenState extends State<UserCreationScreen> {
     User? user = _auth.currentUser;
     if (user != null) {
       DocumentSnapshot userDoc =
-          await _firestore.collection('users').doc(user.uid).get();
+      await _firestore.collection('users').doc(user.uid).get();
       if (userDoc.exists) {
         setState(() {
           _isEditing = true;
@@ -53,6 +62,7 @@ class _UserCreationScreenState extends State<UserCreationScreen> {
   Future<void> _saveUserData() async {
     User? user = _auth.currentUser;
     if (user == null) return;
+
     if (_isEditing) {
       await _firestore.collection('users').doc(user.uid).set({
         'username': _usernameController.text,
@@ -69,6 +79,10 @@ class _UserCreationScreenState extends State<UserCreationScreen> {
         'items_received': 0,
       }, SetOptions(merge: true));
     }
+
+    // Necessário para o teste
+    await user.updateDisplayName(_usernameController.text);
+
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const HomeScreen()),
@@ -90,6 +104,14 @@ class _UserCreationScreenState extends State<UserCreationScreen> {
       });
     });
   }
+
+  // ✅ Setter público para usar no teste
+  void setImageBase64(String value) {
+    setState(() {
+      _imageBase64 = value;
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -119,24 +141,24 @@ class _UserCreationScreenState extends State<UserCreationScreen> {
                         child: CircleAvatar(
                           radius: 100,
                           backgroundColor: Colors.grey,
-                          backgroundImage:
-                              _imageBase64 != null
-                                  ? MemoryImage(base64Decode(_imageBase64!))
-                                  : null,
-                          child:
-                              _imageBase64 == null
-                                  ? const Icon(
-                                    Icons.camera_alt,
-                                    color: Colors.white,
-                                    size: 40,
-                                  )
-                                  : null,
+                          backgroundImage: _imageBase64 != null
+                              ? MemoryImage(base64Decode(_imageBase64!))
+                              : null,
+                          child: _imageBase64 == null
+                              ? const Icon(
+                            Icons.camera_alt,
+                            color: Colors.white,
+                            size: 40,
+                          )
+                              : null,
                         ),
                       ),
                       const SizedBox(height: 10),
                       if (_isEditing)
                         Text(
-                          'Joined on: ${DateTime.fromMillisecondsSinceEpoch(_createdAt!.millisecondsSinceEpoch).toLocal().toString().split(' ')[0]}',
+                          _createdAt != null
+                              ? 'Joined on: ${DateTime.fromMillisecondsSinceEpoch(_createdAt!.millisecondsSinceEpoch).toLocal().toString().split(' ')[0]}'
+                              : 'Join date not available',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 14,
@@ -144,6 +166,7 @@ class _UserCreationScreenState extends State<UserCreationScreen> {
                         ),
                       const SizedBox(height: 10),
                       TextField(
+                        key: const Key('nameField'),
                         maxLength: 15,
                         controller: _usernameController,
                         decoration: const InputDecoration(
@@ -154,6 +177,7 @@ class _UserCreationScreenState extends State<UserCreationScreen> {
                       ),
                       const SizedBox(height: 16),
                       TextField(
+                        key: const Key('descField'),
                         controller: _descriptionController,
                         maxLength: 100,
                         maxLines: 3,
@@ -175,48 +199,47 @@ class _UserCreationScreenState extends State<UserCreationScreen> {
                         ),
                       const SizedBox(height: 20),
                       ElevatedButton(
-                        onPressed:
-                            _isLoading
-                                ? null
-                                : () async {
-                                  if (_usernameController.text.trim().isEmpty ||
-                                      _descriptionController.text
-                                          .trim()
-                                          .isEmpty ||
-                                      _imageBase64 == null) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                          'Please fill in all fields',
-                                        ),
-                                      ),
-                                    );
-                                    return;
-                                  }
-
-                                  setState(() {
-                                    _isLoading = true;
-                                  });
-
-                                  try {
-                                    await _saveUserData();
-                                  } catch (e) {
-                                    setState(() {
-                                      _isLoading = false;
-                                    });
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text('Error: $e')),
-                                    );
-                                  }
-                                },
-                        child:
-                            _isLoading
-                                ? const CircularProgressIndicator()
-                                : Text(
-                                  _isEditing
-                                      ? 'Update Profile'
-                                      : 'Create Profile',
+                        key: const Key('saveButton'),
+                        onPressed: _isLoading
+                            ? null
+                            : () async {
+                          if (_usernameController.text.trim().isEmpty ||
+                              _descriptionController.text
+                                  .trim()
+                                  .isEmpty ||
+                              _imageBase64 == null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Please fill in all fields',
                                 ),
+                              ),
+                            );
+                            return;
+                          }
+
+                          setState(() {
+                            _isLoading = true;
+                          });
+
+                          try {
+                            await _saveUserData();
+                          } catch (e) {
+                            setState(() {
+                              _isLoading = false;
+                            });
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Error: $e')),
+                            );
+                          }
+                        },
+                        child: _isLoading
+                            ? const CircularProgressIndicator()
+                            : Text(
+                          _isEditing
+                              ? 'Update Profile'
+                              : 'Create Profile',
+                        ),
                       ),
                     ],
                   ),
