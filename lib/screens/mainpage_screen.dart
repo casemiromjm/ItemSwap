@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+// actually "home" page / main page
+
 class MainPage extends StatelessWidget {
   final WidgetBuilder? searchScreenBuilder;
 
@@ -10,6 +12,8 @@ class MainPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    //TODO
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 21, 45, 80),

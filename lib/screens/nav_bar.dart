@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'search_screen.dart';
 import 'mainpage_screen.dart';
+import 'chat_screen.dart';
 
 class NavBar extends StatefulWidget {
   final Widget Function(BuildContext)? searchScreenBuilder;
@@ -19,6 +20,7 @@ class _NavBarState extends State<NavBar> {
   List<Widget> get _pages => [
     const MainPage(),
     widget.searchScreenBuilder?.call(context) ?? const SearchScreen(),
+    widget.searchScreenBuilder?.call(context) ?? const ChatScreen(), // fine?
   ];
 
   @override
@@ -44,6 +46,10 @@ class _NavBarState extends State<NavBar> {
               icon: Icon(Icons.search),
               label: 'Search',
             ),
+            NavigationDestination (
+              icon: Icon(Icons.chat_bubble),
+              label: 'Chat',
+            )
           ],
         )
     );

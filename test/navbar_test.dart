@@ -5,6 +5,7 @@ import 'package:itemswap/screens/mainpage_screen.dart';
 import 'package:itemswap/screens/nav_bar.dart';
 import 'auth_mock.dart';
 import 'mock_search_screen.dart';
+import 'mock_chat_screen.dart';
 
 void main() {
   // IMPORTANT: Set up the Firebase Core mocks at the very beginning.
@@ -46,6 +47,20 @@ void main() {
       expect(find.byType(MainPage), findsOneWidget);
     });
 
+    testWidgets('Navigates to Chat when "Chat" icon is tapped', (
+        WidgetTester tester,)
+
+    async {
+      await tester.pumpWidget(MaterialApp(home: NavBar(
+        searchScreenBuilder: (context) => MockChatScreen(),
+      )));
+
+      //expect(find.byIcon(Icons.chat_bubble), findsOneWidget);   // debug reason
+      await tester.tap(find.byIcon(Icons.chat_bubble));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Mock Chat Screen'), findsOneWidget);
+    });
 
   });
 }
