@@ -13,13 +13,11 @@ class MainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    //TODO
-
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 21, 45, 80),
       body: const Center(
         child: Text(
-          'MAIN/PROFILE PAGE STILL UNDER CONSTRUCTION',
+          'MAINPAGE BEING CONSTRUCTED',
           style: TextStyle(fontSize: 32, color: Colors.white),
         ),
       ),
