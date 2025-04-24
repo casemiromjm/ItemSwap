@@ -196,8 +196,10 @@ class _SearchScreenState extends State<SearchScreen> {
     } else {
       DocumentReference newChatRef = await _firestore.collection('chats').add({
         'itemID': doc.id,
-        'senderID': currentUser.uid,
-        'receiverID': ownerId,
+        'senderID': ownerId,
+        'sender_swap': false,
+        'receiver_swap': false,
+        'receiverID': currentUser.uid,
         'timestamp': FieldValue.serverTimestamp(),
       });
       Navigator.push(

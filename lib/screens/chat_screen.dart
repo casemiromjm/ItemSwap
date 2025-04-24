@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 // Import your image handler package that provides the pickImage function.
 import 'image_handler.dart';
+// Import your home screen for navigation
+import 'home_screen.dart';
 
 class ChatScreen extends StatefulWidget {
   final String chatId;
@@ -25,7 +27,6 @@ class _ChatScreenState extends State<ChatScreen> {
   String? _imageBase64;
 
   /// Helper function that decodes a base64 image and returns an Image widget.
-  /// This version displays the image in totality.
   Widget _getImageFromBase64(String base64String) {
     final decodedBytes = base64Decode(base64String);
     return Image.memory(decodedBytes, fit: BoxFit.contain);
@@ -47,7 +48,6 @@ class _ChatScreenState extends State<ChatScreen> {
     if (currentUser == null) return;
 
     if (_imageBase64 != null) {
-      // Send an image message.
       _firestore
           .collection('chats')
           .doc(widget.chatId)
@@ -60,10 +60,9 @@ class _ChatScreenState extends State<ChatScreen> {
             'timestamp': FieldValue.serverTimestamp(),
           });
       setState(() {
-        _imageBase64 = null; // Reset the selected image.
+        _imageBase64 = null;
       });
     } else {
-      // Send a text message.
       String text = _messageController.text.trim();
       if (text.isNotEmpty) {
         _firestore
@@ -84,7 +83,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   /// Uses the image_handler pickImage function.
   Future<void> _pickImage() async {
-    // This calls your function from the image_handler package.
     await pickImage((compressedImageBase64) {
       setState(() {
         _imageBase64 = compressedImageBase64;
@@ -92,7 +90,7 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
-  /// Fetch the item's name from Firestore so it can be displayed in the AppBar.
+  /// Fetch the item's name from Firestore so it can be displayed in the AppBar or Snackbar.
   Future<String> _fetchItemName() async {
     final doc = await _firestore.collection('items').doc(widget.itemId).get();
     if (doc.exists) {
@@ -100,6 +98,38 @@ class _ChatScreenState extends State<ChatScreen> {
       return data['name'] ?? widget.itemId;
     }
     return widget.itemId;
+  }
+
+  /// Completes the swap: deletes the item, updates user stats, deletes chat, and navigates home.
+  Future<void> _completeSwap(Map<String, dynamic> chatData) async {
+    final itemName = await _fetchItemName();
+    final senderId = chatData['senderID'] as String;
+    final receiverId = chatData['receiverID'] as String;
+
+    // Remove the item from the database
+    await _firestore.collection('items').doc(widget.itemId).delete();
+
+    // Increment items_given for sender and items_received for receiver
+    await _firestore.collection('users').doc(senderId).update({
+      'items_given': FieldValue.increment(1),
+    });
+    await _firestore.collection('users').doc(receiverId).update({
+      'items_received': FieldValue.increment(1),
+    });
+
+    // Delete the chat document
+    await _firestore.collection('chats').doc(widget.chatId).delete();
+
+    if (!mounted) return;
+
+    // Show confirmation and navigate home
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('$itemName successfully swapped!')));
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => HomeScreen()),
+      (route) => false,
+    );
   }
 
   @override
@@ -133,6 +163,39 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       body: Column(
         children: [
+          // Swap/Keeep Button
+          StreamBuilder<DocumentSnapshot>(
+            stream:
+                _firestore.collection('chats').doc(widget.chatId).snapshots(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) return const SizedBox.shrink();
+              final data = snapshot.data!.data()! as Map<String, dynamic>;
+              final bool senderSwap = data['sender_swap'] ?? false;
+              final bool receiverSwap = data['receiver_swap'] ?? false;
+              final bool isSender = data['senderID'] == currentUser?.uid;
+              final bool mySwap = isSender ? senderSwap : receiverSwap;
+
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ElevatedButton(
+                  onPressed: () async {
+                    final field = isSender ? 'sender_swap' : 'receiver_swap';
+                    // Toggle swap flag
+                    await _firestore
+                        .collection('chats')
+                        .doc(widget.chatId)
+                        .update({field: !mySwap});
+                    // If both have swapped, complete the swap process
+                    if ((isSender ? !mySwap : senderSwap) &&
+                        (!isSender ? !mySwap : receiverSwap)) {
+                      await _completeSwap(data);
+                    }
+                  },
+                  child: Text(mySwap ? 'Keep item' : 'Swap item'),
+                ),
+              );
+            },
+          ),
           // Chat messages display.
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
@@ -178,8 +241,6 @@ class _ChatScreenState extends State<ChatScreen> {
                                   : Colors.grey[300],
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        // If the message is text, display text;
-                        // if not, display the decoded image.
                         child:
                             messageData['isText'] == true
                                 ? Text(
