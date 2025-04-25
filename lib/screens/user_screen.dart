@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'home_screen.dart';
 import 'image_handler.dart';
+import 'package:intl/intl.dart';
 
 class UserScreen extends StatefulWidget {
   final String userId;
@@ -35,41 +36,61 @@ class _UserScreenState extends State<UserScreen> {
 
   Future<void> _loadUserData() async {
     User? currentUser = _auth.currentUser;
+    bool isOwn = currentUser != null && widget.userId == currentUser.uid;
     DocumentSnapshot userDoc =
         await _firestore.collection('users').doc(widget.userId).get();
 
-    if (userDoc.exists) {
-      setState(() {
+    setState(() {
+      _isOwnProfile = isOwn;
+
+      if (userDoc.exists) {
         _isEditing = true;
-        _isOwnProfile = currentUser != null && widget.userId == currentUser.uid;
         _usernameController.text = userDoc['username'] ?? '';
         _descriptionController.text = userDoc['description'] ?? '';
         _imageBase64 = userDoc['image'];
         _itemsGiven = userDoc['items_given'] ?? 0;
         _itemsReceived = userDoc['items_received'] ?? 0;
-        _createdAt = userDoc['created_at'];
-      });
-    }
+        _createdAt =
+            (userDoc.data() as Map<String, dynamic>)['created_at']
+                as Timestamp?;
+      } else {
+        _isEditing = false;
+        _itemsGiven = 0;
+        _itemsReceived = 0;
+      }
+    });
   }
 
   Future<void> _saveUserData() async {
     User? user = _auth.currentUser;
     if (user == null) return;
 
-    await _firestore.collection('users').doc(user.uid).set({
-      'username': _usernameController.text,
+    Map<String, dynamic> data = {
+      'username': _usernameController.text.trim(),
       'image': _imageBase64,
-      'description': _descriptionController.text,
-    }, SetOptions(merge: true));
+      'description': _descriptionController.text.trim(),
+      'items_given': _itemsGiven,
+      'items_received': _itemsReceived,
+    };
+    if (!_isEditing) {
+      data['created_at'] = FieldValue.serverTimestamp();
+    }
+
+    await _firestore
+        .collection('users')
+        .doc(user.uid)
+        .set(data, SetOptions(merge: true));
 
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const HomeScreen()),
     );
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('Profile updated!')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(_isEditing ? 'Profile updated!' : 'Profile created!'),
+      ),
+    );
   }
 
   Future<void> _pickImage() async {
@@ -89,13 +110,17 @@ class _UserScreenState extends State<UserScreen> {
         borderSide: BorderSide(color: Colors.grey),
       ),
       focusedBorder: const OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.grey), // Use desired focused color
+        borderSide: BorderSide(color: Colors.grey),
       ),
       disabledBorder: const OutlineInputBorder(
         borderSide: BorderSide(color: Colors.grey),
       ),
       counterStyle: const TextStyle(color: Colors.grey),
     );
+  }
+
+  String _formatDate(Timestamp ts) {
+    return DateFormat.yMMMd().format(ts.toDate());
   }
 
   @override
@@ -106,7 +131,9 @@ class _UserScreenState extends State<UserScreen> {
         backgroundColor: const Color.fromARGB(255, 63, 133, 190),
         title: Center(
           child: Text(
-            _isOwnProfile ? 'Change Profile' : 'User Profile',
+            _isOwnProfile
+                ? (_isEditing ? 'Change Profile' : 'Create Profile')
+                : 'User Profile',
             style: const TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
@@ -150,7 +177,7 @@ class _UserScreenState extends State<UserScreen> {
                       const SizedBox(height: 10),
                       if (_isEditing && _createdAt != null)
                         Text(
-                          'Joined on: ${DateTime.fromMillisecondsSinceEpoch(_createdAt!.millisecondsSinceEpoch).toLocal().toString().split(' ')[0]}',
+                          'Joined on: ${_formatDate(_createdAt!)}',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 14,
@@ -230,7 +257,11 @@ class _UserScreenState extends State<UserScreen> {
                           child:
                               _isLoading
                                   ? const CircularProgressIndicator()
-                                  : const Text('Update Profile'),
+                                  : Text(
+                                    _isEditing
+                                        ? 'Update Profile'
+                                        : 'Create Profile',
+                                  ),
                         ),
                     ],
                   ),

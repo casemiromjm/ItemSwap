@@ -11,12 +11,7 @@ import 'chat_screen.dart';
 class SearchScreen extends StatefulWidget {
   final bool isMyItems;
   // When isChatsMode is true, the screen displays only items for which a chat is initiated.
-  final bool isChatsMode;
-  const SearchScreen({
-    super.key,
-    this.isMyItems = false,
-    this.isChatsMode = false,
-  });
+  const SearchScreen({super.key, this.isMyItems = false});
 
   @override
   _SearchScreenState createState() => _SearchScreenState();
@@ -154,7 +149,7 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  /// Updated: Checks if a chat already exists for the given item.
+  /// Checks if a chat already exists for the given item.
   /// If it exists, navigates to that chat; otherwise, creates a new chat.
   Future<void> _createChat(DocumentSnapshot doc) async {
     final currentUser = FirebaseAuth.instance.currentUser;
@@ -197,10 +192,12 @@ class _SearchScreenState extends State<SearchScreen> {
       DocumentReference newChatRef = await _firestore.collection('chats').add({
         'itemID': doc.id,
         'senderID': ownerId,
-        'sender_swap': false,
-        'receiver_swap': false,
+        'request_swap': false,
         'receiverID': currentUser.uid,
         'timestamp': FieldValue.serverTimestamp(),
+        'pendingDelete': false,
+        'left_sender': false,
+        'left_receiver': false,
       });
       Navigator.push(
         context,
@@ -215,10 +212,7 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     // Use the same app bar title as in non–My Items search.
-    final String appBarTitle =
-        widget.isChatsMode
-            ? 'Chats'
-            : (widget.isMyItems ? 'My Items' : 'Search Items');
+    final String appBarTitle = widget.isMyItems ? 'My Items' : 'Search Items';
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 21, 45, 80),
@@ -366,116 +360,36 @@ class _SearchScreenState extends State<SearchScreen> {
                             : ownerId != currentUser!.uid;
                       }).toList();
 
-                  // If in chats mode, further filter to only items for which a chat exists.
-                  if (widget.isChatsMode) {
-                    // Use a FutureBuilder to retrieve the chats.
-                    return FutureBuilder<QuerySnapshot>(
-                      future: _firestore.collection('chats').get(),
-                      builder: (context, chatSnapshot) {
-                        if (chatSnapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        }
-                        if (!chatSnapshot.hasData) {
-                          return const Center(
-                            child: Text(
-                              'No chats available.',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          );
-                        }
-                        List<String> chatItemIds = [];
-                        for (var chatDoc in chatSnapshot.data!.docs) {
-                          final data = chatDoc.data() as Map<String, dynamic>;
-                          if (currentUser != null &&
-                              (data['senderID'] == currentUser.uid ||
-                                  data['receiverID'] == currentUser.uid)) {
-                            chatItemIds.add(data['itemID']);
-                          }
-                        }
-                        // Remove duplicates.
-                        chatItemIds = chatItemIds.toSet().toList();
-                        // Only show items where a chat has been initiated.
-                        items =
-                            items
-                                .where((doc) => chatItemIds.contains(doc.id))
-                                .toList();
-
-                        // Continue with sorting.
-                        if (_sortOption == "location" &&
-                            _selectedLocation != null) {
-                          items.sort((a, b) {
-                            final aLoc = LatLng(
-                              a['location']['latitude'],
-                              a['location']['longitude'],
-                            );
-                            final bLoc = LatLng(
-                              b['location']['latitude'],
-                              b['location']['longitude'],
-                            );
-                            return _calculateDistance(
-                              aLoc,
-                              _selectedLocation!,
-                            ).compareTo(
-                              _calculateDistance(bLoc, _selectedLocation!),
-                            );
-                          });
-                        } else if (_sortOption == "time") {
-                          items.sort(
-                            (a, b) => (b['timestamp'] ?? 0).compareTo(
-                              a['timestamp'] ?? 0,
-                            ),
-                          );
-                        } else if (_sortOption == "name") {
-                          items.sort((a, b) {
-                            final nameA = _normalizeName(a['name'] ?? '');
-                            final nameB = _normalizeName(b['name'] ?? '');
-                            return nameA.compareTo(nameB);
-                          });
-                        }
-                        final visibleItems = items.take(_itemsToLoad).toList();
-
-                        return _buildItemList(visibleItems);
-                      },
-                    );
-                  } else {
-                    // For normal search mode.
-                    if (_sortOption == "location" &&
-                        _selectedLocation != null) {
-                      items.sort((a, b) {
-                        final aLoc = LatLng(
-                          a['location']['latitude'],
-                          a['location']['longitude'],
-                        );
-                        final bLoc = LatLng(
-                          b['location']['latitude'],
-                          b['location']['longitude'],
-                        );
-                        return _calculateDistance(
-                          aLoc,
-                          _selectedLocation!,
-                        ).compareTo(
-                          _calculateDistance(bLoc, _selectedLocation!),
-                        );
-                      });
-                    } else if (_sortOption == "time") {
-                      items.sort(
-                        (a, b) => (b['timestamp'] ?? 0).compareTo(
-                          a['timestamp'] ?? 0,
-                        ),
+                  // For normal search mode.
+                  if (_sortOption == "location" && _selectedLocation != null) {
+                    items.sort((a, b) {
+                      final aLoc = LatLng(
+                        a['location']['latitude'],
+                        a['location']['longitude'],
                       );
-                    } else if (_sortOption == "name") {
-                      items.sort((a, b) {
-                        final nameA = _normalizeName(a['name'] ?? '');
-                        final nameB = _normalizeName(b['name'] ?? '');
-                        return nameA.compareTo(nameB);
-                      });
-                    }
-                    final visibleItems = items.take(_itemsToLoad).toList();
-                    return _buildItemList(visibleItems);
+                      final bLoc = LatLng(
+                        b['location']['latitude'],
+                        b['location']['longitude'],
+                      );
+                      return _calculateDistance(
+                        aLoc,
+                        _selectedLocation!,
+                      ).compareTo(_calculateDistance(bLoc, _selectedLocation!));
+                    });
+                  } else if (_sortOption == "time") {
+                    items.sort(
+                      (a, b) =>
+                          (b['timestamp'] ?? 0).compareTo(a['timestamp'] ?? 0),
+                    );
+                  } else if (_sortOption == "name") {
+                    items.sort((a, b) {
+                      final nameA = _normalizeName(a['name'] ?? '');
+                      final nameB = _normalizeName(b['name'] ?? '');
+                      return nameA.compareTo(nameB);
+                    });
                   }
+                  final visibleItems = items.take(_itemsToLoad).toList();
+                  return _buildItemList(visibleItems);
                 },
               ),
             ),
