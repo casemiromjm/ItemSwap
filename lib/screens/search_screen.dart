@@ -7,6 +7,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:diacritic/diacritic.dart';
 import 'item_screen.dart';
 import 'chat_screen.dart';
+import 'item_deletion_handler.dart';
 
 class SearchScreen extends StatefulWidget {
   final bool isMyItems;
@@ -126,8 +127,8 @@ class _SearchScreenState extends State<SearchScreen> {
             TextButton(
               onPressed: () async {
                 try {
-                  await _firestore.collection('items').doc(doc.id).delete();
                   Navigator.of(context).pop();
+                  ItemDeletionHandler.deleteItemAndRelatedChats(doc.id);
                   ScaffoldMessenger.of(
                     context,
                   ).showSnackBar(SnackBar(content: Text("$itemName deleted.")));
@@ -195,9 +196,6 @@ class _SearchScreenState extends State<SearchScreen> {
         'request_swap': false,
         'receiverID': currentUser.uid,
         'timestamp': FieldValue.serverTimestamp(),
-        'pendingDelete': false,
-        'left_sender': false,
-        'left_receiver': false,
       });
       Navigator.push(
         context,
