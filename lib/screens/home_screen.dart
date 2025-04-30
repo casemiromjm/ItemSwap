@@ -100,19 +100,7 @@ class HomeScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => SearchChatsScreen(isOwnerMode: true),
-                  ),
-                );
-              },
-              child: const Text('My items Chats'),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => SearchChatsScreen(isOwnerMode: false),
+                    builder: (context) => SearchChatsScreen(),
                   ),
                 );
               },
