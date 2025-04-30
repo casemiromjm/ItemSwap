@@ -7,21 +7,15 @@ import 'package:latlong2/latlong.dart';
 import 'package:diacritic/diacritic.dart';
 import 'item_screen.dart';
 import 'chat_screen.dart';
-import 'item_deletion_handler.dart';
 
 class SearchScreen extends StatefulWidget {
   final bool isMyItems;
-<<<<<<< HEAD
   final bool isChatsMode;
   const SearchScreen({
     super.key,
     this.isMyItems = false,
     this.isChatsMode = false,
   });
-=======
-  // When isChatsMode is true, the screen displays only items for which a chat is initiated.
-  const SearchScreen({super.key, this.isMyItems = false});
->>>>>>> 465577dce17c71da357de6e1ab783b4cce4cc611
 
   @override
   _SearchScreenState createState() => _SearchScreenState();
@@ -135,8 +129,8 @@ class _SearchScreenState extends State<SearchScreen> {
             TextButton(
               onPressed: () async {
                 try {
+                  await _firestore.collection('items').doc(doc.id).delete();
                   Navigator.of(context).pop();
-                  ItemDeletionHandler.deleteItemAndRelatedChats(doc.id);
                   ScaffoldMessenger.of(
                     context,
                   ).showSnackBar(SnackBar(content: Text("$itemName deleted.")));
@@ -158,11 +152,6 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-<<<<<<< HEAD
-=======
-  /// Checks if a chat already exists for the given item.
-  /// If it exists, navigates to that chat; otherwise, creates a new chat.
->>>>>>> 465577dce17c71da357de6e1ab783b4cce4cc611
   Future<void> _createChat(DocumentSnapshot doc) async {
     final currentUser = FirebaseAuth.instance.currentUser;
     final ownerId = doc['ownerId'];
@@ -196,9 +185,8 @@ class _SearchScreenState extends State<SearchScreen> {
     } else {
       DocumentReference newChatRef = await _firestore.collection('chats').add({
         'itemID': doc.id,
-        'senderID': ownerId,
-        'request_swap': false,
-        'receiverID': currentUser.uid,
+        'senderID': currentUser.uid,
+        'receiverID': ownerId,
         'timestamp': FieldValue.serverTimestamp(),
       });
       Navigator.push(
@@ -212,13 +200,8 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-<<<<<<< HEAD
     final String appBarTitle =
     widget.isChatsMode ? 'Chats' : (widget.isMyItems ? 'My Items' : 'Search Items');
-=======
-    // Use the same app bar title as in non–My Items search.
-    final String appBarTitle = widget.isMyItems ? 'My Items' : 'Search Items';
->>>>>>> 465577dce17c71da357de6e1ab783b4cce4cc611
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 21, 45, 80),
@@ -360,7 +343,6 @@ class _SearchScreenState extends State<SearchScreen> {
                     items = items.where((doc) => doc['type'] == _selectedType).toList();
                   }
 
-<<<<<<< HEAD
                   items = items.where((doc) {
                     final ownerId = doc['ownerId'];
                     return widget.isMyItems ? ownerId == currentUser!.uid : ownerId != currentUser!.uid;
@@ -384,29 +366,6 @@ class _SearchScreenState extends State<SearchScreen> {
                     });
                   } else if (_sortOption == "time") {
                     items.sort((a, b) => (b['timestamp'] ?? 0).compareTo(a['timestamp'] ?? 0));
-=======
-                  // For normal search mode.
-                  if (_sortOption == "location" && _selectedLocation != null) {
-                    items.sort((a, b) {
-                      final aLoc = LatLng(
-                        a['location']['latitude'],
-                        a['location']['longitude'],
-                      );
-                      final bLoc = LatLng(
-                        b['location']['latitude'],
-                        b['location']['longitude'],
-                      );
-                      return _calculateDistance(
-                        aLoc,
-                        _selectedLocation!,
-                      ).compareTo(_calculateDistance(bLoc, _selectedLocation!));
-                    });
-                  } else if (_sortOption == "time") {
-                    items.sort(
-                      (a, b) =>
-                          (b['timestamp'] ?? 0).compareTo(a['timestamp'] ?? 0),
-                    );
->>>>>>> 465577dce17c71da357de6e1ab783b4cce4cc611
                   } else if (_sortOption == "name") {
                     items.sort((a, b) {
                       final nameA = _normalizeName(a['name'] ?? '');
@@ -414,10 +373,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       return nameA.compareTo(nameB);
                     });
                   }
-<<<<<<< HEAD
 
-=======
->>>>>>> 465577dce17c71da357de6e1ab783b4cce4cc611
                   final visibleItems = items.take(_itemsToLoad).toList();
                   return _buildItemList(visibleItems);
                 },
