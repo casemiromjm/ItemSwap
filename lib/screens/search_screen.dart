@@ -11,19 +11,28 @@ import 'item_deletion_handler.dart';
 
 class SearchScreen extends StatefulWidget {
   final bool isMyItems;
+<<<<<<< HEAD
+  final bool isChatsMode;
+  const SearchScreen({
+    super.key,
+    this.isMyItems = false,
+    this.isChatsMode = false,
+  });
+=======
   // When isChatsMode is true, the screen displays only items for which a chat is initiated.
   const SearchScreen({super.key, this.isMyItems = false});
+>>>>>>> 465577dce17c71da357de6e1ab783b4cce4cc611
 
   @override
   _SearchScreenState createState() => _SearchScreenState();
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  // Variables for the item search view.
   String? _selectedType = "All";
   String _sortOption = "time";
   LatLng? _selectedLocation;
   int _itemsToLoad = 10;
+  String _searchQuery = '';
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
 
@@ -52,7 +61,6 @@ class _SearchScreenState extends State<SearchScreen> {
     'Other',
   ];
 
-  /// Decodes a base64 image and returns an Image widget.
   Image _getImageFromBase64(String base64String, {double size = 50}) {
     final decodedBytes = base64Decode(base64String);
     return Image.memory(
@@ -150,13 +158,15 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
+<<<<<<< HEAD
+=======
   /// Checks if a chat already exists for the given item.
   /// If it exists, navigates to that chat; otherwise, creates a new chat.
+>>>>>>> 465577dce17c71da357de6e1ab783b4cce4cc611
   Future<void> _createChat(DocumentSnapshot doc) async {
     final currentUser = FirebaseAuth.instance.currentUser;
     final ownerId = doc['ownerId'];
 
-    // Prevent chatting with yourself.
     if (currentUser == null || currentUser.uid == ownerId) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("You cannot chat with yourself.")),
@@ -164,24 +174,18 @@ class _SearchScreenState extends State<SearchScreen> {
       return;
     }
 
-    // Look for an existing chat with the given itemID that involves the current user.
     QuerySnapshot chatQuery =
-        await _firestore
-            .collection('chats')
-            .where('itemID', isEqualTo: doc.id)
-            .get();
+    await _firestore.collection('chats').where('itemID', isEqualTo: doc.id).get();
 
     String chatId = '';
     for (var chatDoc in chatQuery.docs) {
       final data = chatDoc.data() as Map<String, dynamic>;
-      if (data['senderID'] == currentUser.uid ||
-          data['receiverID'] == currentUser.uid) {
+      if (data['senderID'] == currentUser.uid || data['receiverID'] == currentUser.uid) {
         chatId = chatDoc.id;
         break;
       }
     }
 
-    // If chat exists, navigate to it; otherwise create a new chat.
     if (chatId.isNotEmpty) {
       Navigator.push(
         context,
@@ -200,8 +204,7 @@ class _SearchScreenState extends State<SearchScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder:
-              (context) => ChatScreen(chatId: newChatRef.id, itemId: doc.id),
+          builder: (context) => ChatScreen(chatId: newChatRef.id, itemId: doc.id),
         ),
       );
     }
@@ -209,8 +212,13 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+<<<<<<< HEAD
+    final String appBarTitle =
+    widget.isChatsMode ? 'Chats' : (widget.isMyItems ? 'My Items' : 'Search Items');
+=======
     // Use the same app bar title as in non–My Items search.
     final String appBarTitle = widget.isMyItems ? 'My Items' : 'Search Items';
+>>>>>>> 465577dce17c71da357de6e1ab783b4cce4cc611
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 21, 45, 80),
@@ -232,70 +240,87 @@ class _SearchScreenState extends State<SearchScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Filter and sort options always shown when not in My Items mode.
+            // USER STORY:
+            // As a user, I want to search items by name so that I can quickly find what I'm looking for.
+            // I also want to load more items on demand, so I don't get overwhelmed by too many at once.
+
             if (!widget.isMyItems)
-              Row(
+              Column(
                 children: [
-                  Expanded(
-                    child: DropdownButton<String>(
-                      value: _selectedType,
-                      isExpanded: true,
-                      style: const TextStyle(color: Colors.white),
-                      dropdownColor: const Color.fromARGB(255, 52, 83, 130),
-                      items:
-                          _itemTypes
-                              .map(
-                                (type) => DropdownMenuItem(
-                                  value: type,
-                                  child: Text(type),
-                                ),
-                              )
+                  Row(
+                    children: [
+                      Expanded(
+                        child: DropdownButton<String>(
+                          value: _selectedType,
+                          isExpanded: true,
+                          style: const TextStyle(color: Colors.white),
+                          dropdownColor: const Color.fromARGB(255, 52, 83, 130),
+                          items: _itemTypes
+                              .map((type) => DropdownMenuItem(value: type, child: Text(type)))
                               .toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedType = value;
-                          _itemsToLoad = 10;
-                        });
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: DropdownButton<String>(
-                      value: _sortOption,
-                      isExpanded: true,
-                      dropdownColor: const Color.fromARGB(255, 52, 83, 130),
-                      style: const TextStyle(color: Colors.white),
-                      items: const [
-                        DropdownMenuItem(value: "time", child: Text("Time")),
-                        DropdownMenuItem(
-                          value: "location",
-                          child: Text("Location"),
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedType = value;
+                              _itemsToLoad = 10;
+                            });
+                          },
                         ),
-                        DropdownMenuItem(value: "name", child: Text("Name")),
-                      ],
-                      onChanged: (value) async {
-                        if (value == "location" && _selectedLocation == null) {
-                          await _pickLocation();
-                        }
-                        setState(() {
-                          _sortOption = value!;
-                        });
-                      },
-                    ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: DropdownButton<String>(
+                          value: _sortOption,
+                          isExpanded: true,
+                          dropdownColor: const Color.fromARGB(255, 52, 83, 130),
+                          style: const TextStyle(color: Colors.white),
+                          items: const [
+                            DropdownMenuItem(value: "time", child: Text("Time")),
+                            DropdownMenuItem(value: "location", child: Text("Location")),
+                            DropdownMenuItem(value: "name", child: Text("Name")),
+                          ],
+                          onChanged: (value) async {
+                            if (value == "location" && _selectedLocation == null) {
+                              await _pickLocation();
+                            }
+                            setState(() {
+                              _sortOption = value!;
+                            });
+                          },
+                        ),
+                      ),
+                      if (_sortOption == "location" && _selectedLocation != null)
+                        TextButton(
+                          onPressed: _pickLocation,
+                          child: const Text(
+                            "Change Location",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                    ],
                   ),
-                  if (_sortOption == "location" && _selectedLocation != null)
-                    TextButton(
-                      onPressed: _pickLocation,
-                      child: const Text(
-                        "Change Location",
-                        style: TextStyle(color: Colors.white),
+                  const SizedBox(height: 10),
+                  TextField(
+                    decoration: const InputDecoration(
+                      hintText: 'Search by name',
+                      hintStyle: TextStyle(color: Colors.white70),
+                      prefixIcon: Icon(Icons.search, color: Colors.white70),
+                      filled: true,
+                      fillColor: Color.fromARGB(255, 52, 83, 130),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
                       ),
                     ),
+                    style: const TextStyle(color: Colors.white),
+                    onChanged: (value) {
+                      setState(() {
+                        _searchQuery = value;
+                        _itemsToLoad = 10;
+                      });
+                    },
+                  ),
                 ],
               ),
             const SizedBox(height: 20),
-            // "New Item" button appears in My Items mode.
             if (widget.isMyItems)
               ElevatedButton(
                 onPressed: () async {
@@ -314,50 +339,52 @@ class _SearchScreenState extends State<SearchScreen> {
                 child: const Text("New Item"),
               ),
             const SizedBox(height: 10),
-            // Stream of items from Firestore.
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
                 stream: _firestore.collection('items').snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
-                    return Center(
-                      child: Text(
-                        'Error: ${snapshot.error}',
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    );
+                    return Center(child: Text('Error: ${snapshot.error}', style: const TextStyle(color: Colors.white)));
                   }
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   }
                   if (!snapshot.hasData) {
-                    return const Center(
-                      child: Text(
-                        'No items found.',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    );
+                    return const Center(child: Text('No items found.', style: TextStyle(color: Colors.white)));
                   }
 
                   final currentUser = _auth.currentUser;
                   List<QueryDocumentSnapshot> items = snapshot.data!.docs;
 
-                  // Filter items by type.
                   if (_selectedType != "All") {
-                    items =
-                        items
-                            .where((doc) => doc['type'] == _selectedType)
-                            .toList();
+                    items = items.where((doc) => doc['type'] == _selectedType).toList();
                   }
-                  // Filter items by ownership.
-                  items =
-                      items.where((doc) {
-                        final ownerId = doc['ownerId'];
-                        return widget.isMyItems
-                            ? ownerId == currentUser!.uid
-                            : ownerId != currentUser!.uid;
-                      }).toList();
 
+<<<<<<< HEAD
+                  items = items.where((doc) {
+                    final ownerId = doc['ownerId'];
+                    return widget.isMyItems ? ownerId == currentUser!.uid : ownerId != currentUser!.uid;
+                  }).toList();
+
+                  if (_searchQuery.isNotEmpty) {
+                    items = items.where((doc) {
+                      final name = _normalizeName(doc['name'] ?? '');
+                      final query = _normalizeName(_searchQuery);
+                      return name.contains(query);
+                    }).toList();
+                  }
+
+                  if (_sortOption == "location" && _selectedLocation != null) {
+                    items.sort((a, b) {
+                      final aLoc = LatLng(a['location']['latitude'], a['location']['longitude']);
+                      final bLoc = LatLng(b['location']['latitude'], b['location']['longitude']);
+                      return _calculateDistance(aLoc, _selectedLocation!).compareTo(
+                        _calculateDistance(bLoc, _selectedLocation!),
+                      );
+                    });
+                  } else if (_sortOption == "time") {
+                    items.sort((a, b) => (b['timestamp'] ?? 0).compareTo(a['timestamp'] ?? 0));
+=======
                   // For normal search mode.
                   if (_sortOption == "location" && _selectedLocation != null) {
                     items.sort((a, b) {
@@ -379,6 +406,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       (a, b) =>
                           (b['timestamp'] ?? 0).compareTo(a['timestamp'] ?? 0),
                     );
+>>>>>>> 465577dce17c71da357de6e1ab783b4cce4cc611
                   } else if (_sortOption == "name") {
                     items.sort((a, b) {
                       final nameA = _normalizeName(a['name'] ?? '');
@@ -386,6 +414,10 @@ class _SearchScreenState extends State<SearchScreen> {
                       return nameA.compareTo(nameB);
                     });
                   }
+<<<<<<< HEAD
+
+=======
+>>>>>>> 465577dce17c71da357de6e1ab783b4cce4cc611
                   final visibleItems = items.take(_itemsToLoad).toList();
                   return _buildItemList(visibleItems);
                 },
@@ -397,7 +429,6 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  /// Builds the list view for the items using the common design.
   Widget _buildItemList(List<QueryDocumentSnapshot> visibleItems) {
     return Column(
       children: [
@@ -410,36 +441,25 @@ class _SearchScreenState extends State<SearchScreen> {
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 7.0),
                 child: ListTile(
-                  leading:
-                      item['imageUrl'] != null
-                          ? _getImageFromBase64(item['imageUrl'])
-                          : const Icon(Icons.image_not_supported, size: 50),
+                  leading: item['imageUrl'] != null
+                      ? _getImageFromBase64(item['imageUrl'])
+                      : const Icon(Icons.image_not_supported, size: 50),
                   title: Text(item['name'] ?? 'Unknown'),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(_descriptionPreview(item)),
                       FutureBuilder<DocumentSnapshot>(
-                        future:
-                            _firestore
-                                .collection('users')
-                                .doc(item['ownerId'])
-                                .get(),
+                        future: _firestore.collection('users').doc(item['ownerId']).get(),
                         builder: (context, userSnapshot) {
                           String username = '';
                           Widget? profilePic;
-                          if (userSnapshot.hasData &&
-                              userSnapshot.data!.exists) {
-                            final userData =
-                                userSnapshot.data!.data()
-                                    as Map<String, dynamic>;
+                          if (userSnapshot.hasData && userSnapshot.data!.exists) {
+                            final userData = userSnapshot.data!.data() as Map<String, dynamic>;
                             username = userData['username'] ?? '';
                             if (userData['image'] != null) {
                               profilePic = ClipOval(
-                                child: _getImageFromBase64(
-                                  userData['image'],
-                                  size: 30,
-                                ),
+                                child: _getImageFromBase64(userData['image'], size: 30),
                               );
                             }
                           }
@@ -447,12 +467,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             children: [
                               if (profilePic != null) profilePic,
                               const SizedBox(width: 5),
-                              Text(
-                                username,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                              Text(username, style: const TextStyle(fontWeight: FontWeight.bold)),
                             ],
                           );
                         },
@@ -497,17 +512,11 @@ class _SearchScreenState extends State<SearchScreen> {
             },
           ),
         ),
-        // Load more button if there are more items.
-        Builder(
-          builder: (context) {
-            return visibleItems.length >= _itemsToLoad
-                ? ElevatedButton(
-                  onPressed: _loadMoreItems,
-                  child: const Text("More"),
-                )
-                : const SizedBox();
-          },
-        ),
+        if (visibleItems.length >= _itemsToLoad)
+          ElevatedButton(
+            onPressed: _loadMoreItems,
+            child: const Text("More"),
+          ),
       ],
     );
   }
