@@ -1,0 +1,26 @@
+@startuml Pyshical Architecture
+
+title "Physical Architecture"
+
+node "Personal Device" {
+    [ItemSwap(Flutter)]
+}
+
+node "Firebase" {
+        [Authentication]
+        database "Firestore Database"
+        database "Realtime Database"
+        [Messaging]
+        [Firebase API]
+}
+
+[ItemSwap(Flutter)] ..> [Authentication]
+[ItemSwap(Flutter)] ..> [Messaging]
+[ItemSwap(Flutter)] ..> [Firebase API] : "All Data Requests"
+
+[Firebase API] ..> "Firestore Database"
+[Firebase API] ..> "Realtime Database"
+
+"Personal Device" "many" --> "1" "Firebase"
+
+@enduml

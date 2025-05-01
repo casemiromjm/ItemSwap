@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'nav_bar.dart';
-import 'user_creation_screen.dart';
+import 'home_screen.dart';
+import 'user_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -70,7 +71,12 @@ class _LoginScreenState extends State<LoginScreen> {
         // If profile does not exist, redirect to user creation screen
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const UserCreationScreen()),
+          MaterialPageRoute(
+            builder:
+                (context) => UserScreen(
+                  userId: FirebaseAuth.instance.currentUser?.uid ?? '',
+                ),
+          ),
         );
       } else {
         // Navigate to HomeScreen if profile exists
@@ -85,13 +91,16 @@ class _LoginScreenState extends State<LoginScreen> {
         _isLoading = false;
       });
 
-      String message = 'Something went wrong';
+      String message;
       if (e.code == 'user-not-found') {
         message = 'No user found for that email.';
       } else if (e.code == 'wrong-password') {
         message = 'Incorrect password.';
       } else if (e.code == 'invalid-email') {
         message = 'Invalid email format.';
+      }
+      else {
+        message = 'Something went wrong';
       }
 
       ScaffoldMessenger.of(
@@ -108,7 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
         backgroundColor: const Color.fromARGB(255, 63, 133, 190),
         title: const Center(
           child: Text(
-            'Welcome to ItemSwap',
+            'Login',
             style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
@@ -145,6 +154,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           decoration: const InputDecoration(
                             labelText: 'Email',
                             labelStyle: TextStyle(color: Colors.white),
+                            counterStyle: TextStyle(color: Colors.grey),
                           ),
                           style: const TextStyle(color: Colors.white),
                         ),
@@ -163,6 +173,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           decoration: InputDecoration(
                             labelText: 'Password',
                             labelStyle: const TextStyle(color: Colors.white),
+                            counterStyle: TextStyle(color: Colors.grey),
                             suffixIcon: IconButton(
                               icon: Icon(
                                 _isPasswordVisible

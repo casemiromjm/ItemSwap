@@ -3,67 +3,108 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 class MapScreen extends StatefulWidget {
-  const MapScreen({super.key});
+  /// If true, the map is interactive—tapping lets the user choose a location
+  /// and the confirm button is visible.
+  final bool selectable;
+
+  /// In non-selectable mode, show the map centered on this location.
+  /// In selectable mode, if provided, shows the currently selected location.
+  final LatLng? initialLocation;
+
+  const MapScreen({super.key, this.selectable = true, this.initialLocation});
 
   @override
-  _MapScreenState createState() => _MapScreenState();
+  _CustomMapScreenState createState() => _CustomMapScreenState();
 }
 
-class _MapScreenState extends State<MapScreen> {
+class _CustomMapScreenState extends State<MapScreen> {
   LatLng? _selectedLocation;
   final MapController _mapController = MapController();
-
-  // Initial location set to Porto, Portugal.
-  static const LatLng _initialLocation = LatLng(41.1579, -8.6291);
-  
-  // Current zoom level, initially set to 12.0.
   double _currentZoom = 12.0;
 
-  // Called when the map is tapped.
-  void _onMapTapped(TapPosition tapPosition, LatLng latlng) {
-    setState(() {
-      _selectedLocation = latlng;
-    });
+  // Default location if none is selected (Porto, Portugal)
+  static const LatLng _defaultLocation = LatLng(41.1579, -8.6291);
+
+  @override
+  void initState() {
+    super.initState();
+    // In non-selectable mode, show the passed location if available.
+    if (widget.initialLocation != null) {
+      _selectedLocation = widget.initialLocation;
+    }
   }
 
-  // Confirm and return the selected location.
+  /// When in selectable mode, update the selection on map tap.
+  void _onMapTapped(TapPosition tapPosition, LatLng latlng) {
+    if (widget.selectable) {
+      setState(() {
+        _selectedLocation = latlng;
+      });
+    }
+  }
+
+  /// In selectable mode, confirm the chosen location and return it.
   void _confirmLocation() {
     if (_selectedLocation != null) {
       Navigator.pop(context, _selectedLocation);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a location')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please select a location')));
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Center the map:
+    // • In selectable mode, use the current selection (or default location if none).
+    // • In non-selectable mode, force the center to the provided initialLocation.
+    final LatLng center =
+        widget.selectable
+            ? (_selectedLocation ?? _defaultLocation)
+            : (widget.initialLocation ?? _defaultLocation);
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Choose Location')),
+      appBar: AppBar(
+        backgroundColor: const Color.fromARGB(255, 63, 133, 190),
+        title: const Center(
+          child: Text(
+            'Map',
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontFamily: 'Roboto',
+            ),
+          ),
+        ),
+      ),
       body: Stack(
         children: [
-          // Expanded widget to fill available space with the map.
           Column(
             children: [
               Expanded(
                 child: FlutterMap(
                   mapController: _mapController,
                   options: MapOptions(
-                    initialCenter: _initialLocation,
+                    initialCenter: center,
                     initialZoom: _currentZoom,
+                    // Allow tap only if selectable.
                     onTap: _onMapTapped,
                   ),
                   children: [
                     TileLayer(
-                      urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      urlTemplate:
+                          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                       subdomains: const ['a', 'b', 'c'],
                     ),
-                    if (_selectedLocation != null)
+                    // Show a marker if a location is selected (or provided).
+                    if (_selectedLocation != null ||
+                        widget.initialLocation != null)
                       MarkerLayer(
                         markers: [
                           Marker(
-                            point: _selectedLocation!,
+                            point: center,
                             child: const Icon(
                               Icons.location_on,
                               color: Colors.red,
@@ -75,7 +116,7 @@ class _MapScreenState extends State<MapScreen> {
                   ],
                 ),
               ),
-              // Slider for controlling zoom, with zoom out and zoom in icons.
+              // Zoom controls
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
@@ -91,8 +132,7 @@ class _MapScreenState extends State<MapScreen> {
                         onChanged: (newZoom) {
                           setState(() {
                             _currentZoom = newZoom;
-                            // Move the map using the current center rather than resetting the view.
-                            _mapController.move(_mapController.camera.center, _currentZoom);
+                            _mapController.move(center, _currentZoom);
                           });
                         },
                       ),
@@ -103,17 +143,17 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ],
           ),
-          
-          // FloatingActionButton at the top of the screen.
-          Positioned(
-            top: 16.0,
-            right: 16.0,
-            child: FloatingActionButton.extended(
-              onPressed: _confirmLocation,
-              label: const Text('Confirm Location'),
-              icon: const Icon(Icons.check),
+          // Only show the confirm button if the map is selectable.
+          if (widget.selectable)
+            Positioned(
+              top: 16.0,
+              right: 16.0,
+              child: FloatingActionButton.extended(
+                onPressed: _confirmLocation,
+                label: const Text('Confirm Location'),
+                icon: const Icon(Icons.check),
+              ),
             ),
-          ),
         ],
       ),
     );

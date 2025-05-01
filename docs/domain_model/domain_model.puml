@@ -1,0 +1,60 @@
+@startuml
+
+left to right direction
+
+class User {
+  +id : String
+  +username : String
+  +password : String
+  +picture : String
+  +items_given : int
+  +items_received : int
+}
+
+note left of User
+  - items_given >= items_received
+  - username has to be unique
+  - password has to have at least
+    eight digits and one symbol
+end note
+
+class Item {
+  +ID : String
+  +owner_ID : String
+  +type : String
+  +name : String
+  +description : String
+  +image : String
+  +latitude : double
+  +longitude : double
+  +timestamp : DateTime
+}
+
+note left of Item
+  - name has to have at least one letter,
+    not only numbers or symbols
+end note
+
+class Chat {
+  +ID : String
+  +item_ID : String
+  +sender_ID : String
+  +receiver_ID : String
+}
+
+class Message {
+  +ID : String
+  +chat_ID : String
+  +sender_ID : String
+  +text : String
+  +isText : bool
+  +timestamp : DateTime
+}
+
+User "1" -- "*" Item : owns >
+User "1" -- "*" Chat : initiates >
+Item "1" -- "*" Chat : linked >
+Chat "1" -- "*" Message : contains >
+Message "1" -- "1" User : sent by >
+
+@enduml

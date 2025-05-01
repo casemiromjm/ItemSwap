@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:itemswap/screens/home_screen.dart';
-import 'package:itemswap/screens/add_item_screen.dart';
 import 'package:itemswap/screens/welcome_screen.dart';
-import 'package:itemswap/screens/user_creation_screen.dart';
+import 'package:itemswap/screens/add_item_screen_outdated.dart';
+import 'package:itemswap/screens/user_screen.dart';
+import 'package:itemswap/screens/contacts_screen.dart';
 import 'auth_mock.dart';
 import 'mock_search_screen.dart';
 
@@ -80,5 +81,18 @@ void main() {
         expect(find.byType(UserCreationScreen), findsOneWidget);
       },
     );
+
+    testWidgets('Navigates to Contacts when "Contacts" is tapped', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(MaterialApp(home: HomeScreen()));
+
+      expect(find.text('Contacts'), findsOneWidget);
+
+      await tester.tap(find.text('Contacts'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ContactsScreen), findsOneWidget);
+    });
   });
 }
