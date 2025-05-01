@@ -4,10 +4,13 @@ import 'package:flutter/material.dart';
 
 class MainPage extends StatelessWidget {
   final WidgetBuilder? searchScreenBuilder;
+  //final String username;
+  //final String profile_pic;
 
   const MainPage({
     super.key,
-    this.searchScreenBuilder
+    this.searchScreenBuilder,
+    //this.username,
   });
 
   @override
@@ -15,10 +18,15 @@ class MainPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 21, 45, 80),
-      body: const Center(
-        child: Text(
-          'MAINPAGE BEING CONSTRUCTED',
-          style: TextStyle(fontSize: 32, color: Colors.white),
+      body: Container (
+        padding: EdgeInsets.only(left: 30,right: 30),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(30.0),
+          child: Container(
+            color: const Color.fromARGB(255, 52, 83, 130),
+            height: 300,
+            width: 600,
+          ),
         ),
       ),
     );
