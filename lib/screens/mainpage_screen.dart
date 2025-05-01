@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:itemswap/screens/myitems_screen.dart';
+import 'package:itemswap/screens/user_screen.dart';
 
 // actually "home" page / main page
 
@@ -36,7 +37,7 @@ class MainPage extends StatelessWidget {
         children: [
           Container (
             alignment: Alignment.topCenter,
-            padding: EdgeInsets.only(left: 30,right: 30),
+            padding: EdgeInsets.symmetric(horizontal: 30),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(30.0),
               child: Container(
@@ -56,30 +57,54 @@ class MainPage extends StatelessWidget {
                     final itemsGiven = userData['items_given'] ?? 0;
                     final itemsReceived = userData['items_received'] ?? 0;
 
-                    return Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    return Stack (
                       children: [
-                        CircleAvatar(
-                          radius: 50,
-                          backgroundColor: Colors.grey[200],
-                          backgroundImage: profilePicture != null ? MemoryImage(base64Decode(profilePicture)) : null,
-                          child: profilePicture == null ? const Icon(Icons.person, size: 50, color: Colors.white) : null,
-                        ),
-                        const SizedBox(height: 20),
-                        Text(
-                          username,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
+                        Positioned.fill(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              CircleAvatar(
+                                radius: 50,
+                                backgroundColor: Colors.grey[200],
+                                backgroundImage: profilePicture != null ? MemoryImage(base64Decode(profilePicture)) : null,
+                                child: profilePicture == null ? const Icon(Icons.person, size: 50, color: Colors.white) : null,
+                              ),
+                              const SizedBox(height: 20),
+                              Text(
+                                username,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              Text(
+                                'Items Given: $itemsGiven | Items Received: $itemsReceived',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 20),
+                            ],
                           ),
                         ),
-                        Text(
-                          'Items Given: $itemsGiven | Items Received: $itemsReceived',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
-                        ),
+                        Positioned(
+                            top: 15,
+                            right: 15,
+                            child: IconButton(
+                                icon: const Icon(Icons.edit, color: Colors.white),
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => UserScreen(
+                                        userId: FirebaseAuth.instance.currentUser!.uid)
+                                    ),
+                                  );
+                                }
+                            )
+                        )
                       ],
                     );
                   },
