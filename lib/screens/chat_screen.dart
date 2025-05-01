@@ -20,6 +20,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final TextEditingController _messageController = TextEditingController();
   final User? currentUser = FirebaseAuth.instance.currentUser;
+  final FocusNode _messageFocusNode = FocusNode();
 
   String? _imageBase64;
 
@@ -160,7 +161,17 @@ class _ChatScreenState extends State<ChatScreen> {
             backgroundColor: const Color(0xFF152D50),
             appBar: AppBar(
               backgroundColor: const Color(0xFF3F85BE),
-              title: const Center(child: Text('Deleted Chat')),
+              title: const Center (
+                child:Text(
+                    'Deleted Chat',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      fontFamily: 'Roboto',
+                    )
+                ),
+              ),
             ),
             body: const Center(
               child: Text('This chat has been deleted.',
@@ -306,12 +317,14 @@ class _ChatScreenState extends State<ChatScreen> {
                       Expanded(
                         child: TextField(
                           controller: _messageController,
+                          focusNode: _messageFocusNode,
                           style: const TextStyle(color: Colors.white),
                           decoration: const InputDecoration(
                             hintText: 'Tap to write',
                             hintStyle: TextStyle(color: Colors.white70),
                             border: InputBorder.none,
                           ),
+                          onSubmitted: (text) => _sendMessage(),
                         ),
                       ),
                       IconButton(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'chat_screen.dart';
+import 'package:intl/intl.dart';
 
 class SearchChatsScreen extends StatefulWidget {
   const SearchChatsScreen({super.key});
@@ -13,7 +14,20 @@ class SearchChatsScreen extends StatefulWidget {
 class _SearchChatsScreenState extends State<SearchChatsScreen> {
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
-  String _chatFilter = 'Sender'; // Default filter
+  String _chatFilter = 'Receiver'; // Default filter
+
+  String _formatTimestamp(dynamic timestamp) {
+    if (timestamp == null) return 'Unknown time';
+
+    try {
+      if (timestamp is Timestamp) {
+        return DateFormat('MMM d, h:mm a').format(timestamp.toDate());
+      }
+      return 'Invalid time';
+    } catch (e) {
+      return 'Time error';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,8 +60,9 @@ class _SearchChatsScreenState extends State<SearchChatsScreen> {
                     dropdownColor: const Color.fromARGB(255, 52, 83, 130),
                     style: const TextStyle(color: Colors.white),
                     items: const [
-                      DropdownMenuItem(value: "Sender", child: Text("Sender")),
-                      DropdownMenuItem(value: "Receiver", child: Text("Receiver")),
+                      DropdownMenuItem(value: "All", child: Text("All chats")),
+                      DropdownMenuItem(value: "Sender", child: Text("Chats started by you")),
+                      DropdownMenuItem(value: "Receiver", child: Text("Chats started with you")),
                     ],
                     onChanged: (value) {
                       setState(() {
@@ -78,9 +93,14 @@ class _SearchChatsScreenState extends State<SearchChatsScreen> {
 
                 final chatDocs = snapshot.data!.docs.where((doc) {
                   final data = doc.data() as Map<String, dynamic>;
-                  return _chatFilter == 'Sender'
-                      ? data['receiverID'] == currentUser.uid
-                      : data['senderID'] == currentUser.uid;
+                  final isCurrentUserReceiver = data['receiverID'] == currentUser.uid;
+                  final isCurrentUserSender = data['senderID'] == currentUser.uid;
+
+                  return _chatFilter == 'All'
+                      ? (isCurrentUserReceiver || isCurrentUserSender)
+                      : _chatFilter == 'Sender'
+                        ? isCurrentUserSender
+                        : isCurrentUserReceiver;
                 }).toList();
 
                 if (chatDocs.isEmpty) {
@@ -109,22 +129,36 @@ class _SearchChatsScreenState extends State<SearchChatsScreen> {
                           color: const Color.fromARGB(255, 52, 83, 130),
                           margin: const EdgeInsets.symmetric(
                               vertical: 8, horizontal: 12),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           child: ListTile(
                             title: Text(
                               itemData['name'] ?? 'Unnamed Item',
                               style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 18,
-                                  fontWeight: FontWeight.bold),
+                                  fontWeight: FontWeight.bold
+                              ),
                             ),
-                            subtitle: Text(
-                              itemData['description']
-                                  ?.split('\n')
-                                  .first ??
-                                  '',
-                              style: const TextStyle(color: Colors.white70),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (itemData['description']?.isNotEmpty ?? false)
+                                  Text(
+                                    itemData['description']
+                                        ?.split('\n')
+                                        .first ??
+                                        '',
+                                    style: const TextStyle(color: Colors.white70),
+                                  ),
+                                const SizedBox(height: 4,),
+                                Text(
+                                  'Last updated: ${_formatTimestamp(data['timestamp'])}',
+                                  style: const TextStyle(
+                                    color: Colors.white54,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
                             ),
                             trailing: const Icon(Icons.chat_bubble_outline,
                                 color: Colors.white),
@@ -133,7 +167,8 @@ class _SearchChatsScreenState extends State<SearchChatsScreen> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (_) => ChatScreen(
-                                      chatId: chat.id, itemId: itemId),
+                                      chatId: chat.id, itemId: itemId
+                                  ),
                                 ),
                               );
                             },

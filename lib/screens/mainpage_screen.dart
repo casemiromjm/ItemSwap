@@ -1,17 +1,32 @@
+import 'dart:convert';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:itemswap/screens/myitems_screen.dart';
+import 'package:itemswap/screens/user_screen.dart';
 
 // actually "home" page / main page
 
 class MainPage extends StatelessWidget {
   final WidgetBuilder? searchScreenBuilder;
-  //final String username;
-  //final String profile_pic;
 
   const MainPage({
     super.key,
     this.searchScreenBuilder,
-    //this.username,
   });
+
+  Future<Map<String, dynamic>> _getUserData() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return {};
+
+    final doc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .get();
+
+    return doc.data() ?? {};
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,24 +36,89 @@ class MainPage extends StatelessWidget {
       body: Column (
         children: [
           Container (
-            padding: EdgeInsets.only(left: 30,right: 30),
+            alignment: Alignment.topCenter,
+            padding: EdgeInsets.symmetric(horizontal: 30),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(30.0),
               child: Container(
                 color: const Color.fromARGB(255, 52, 83, 130),
-                height: 300,
-                width: 600,
+                height: 200,
+                width: 300,
+                child: FutureBuilder<Map<String, dynamic>>(
+                  future: _getUserData(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    final userData = snapshot.data ?? {};
+                    final username = userData['username'] ?? 'User';
+                    final profilePicture = userData['image'] ?? '';
+                    final itemsGiven = userData['items_given'] ?? 0;
+                    final itemsReceived = userData['items_received'] ?? 0;
+
+                    return Stack (
+                      children: [
+                        Positioned.fill(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              CircleAvatar(
+                                radius: 50,
+                                backgroundColor: Colors.grey[200],
+                                backgroundImage: profilePicture != null ? MemoryImage(base64Decode(profilePicture)) : null,
+                                child: profilePicture == null ? const Icon(Icons.person, size: 50, color: Colors.white) : null,
+                              ),
+                              const SizedBox(height: 20),
+                              Text(
+                                username,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              Text(
+                                'Items Given: $itemsGiven | Items Received: $itemsReceived',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 20),
+                            ],
+                          ),
+                        ),
+                        Positioned(
+                            top: 15,
+                            right: 15,
+                            child: IconButton(
+                                icon: const Icon(Icons.edit, color: Colors.white),
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => UserScreen(
+                                        userId: FirebaseAuth.instance.currentUser!.uid)
+                                    ),
+                                  );
+                                }
+                            )
+                        )
+                      ],
+                    );
+                  },
+                ),
               ),
             ),
           ),
           const SizedBox(height: 20),
           ElevatedButton(
             onPressed: () {
-              //Navigator.push(
-                //context,
-                // missing import
-                //MaterialPageRoute(builder: (context) => ItemScreen()),
-              //);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => MyItemsScreen()),
+              );
             },
             child: const Text('My Items'),
             ),
