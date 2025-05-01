@@ -160,7 +160,17 @@ class _ChatScreenState extends State<ChatScreen> {
             backgroundColor: const Color(0xFF152D50),
             appBar: AppBar(
               backgroundColor: const Color(0xFF3F85BE),
-              title: const Center(child: Text('Deleted Chat')),
+              title: const Center (
+                child:Text(
+                    'Deleted Chat',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      fontFamily: 'Roboto',
+                    )
+                ),
+              ),
             ),
             body: const Center(
               child: Text('This chat has been deleted.',
