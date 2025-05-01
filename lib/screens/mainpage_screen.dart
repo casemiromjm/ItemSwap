@@ -60,34 +60,36 @@ class MainPage extends StatelessWidget {
                     return Stack (
                       children: [
                         Positioned.fill(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              CircleAvatar(
-                                radius: 50,
-                                backgroundColor: Colors.grey[200],
-                                backgroundImage: profilePicture != null ? MemoryImage(base64Decode(profilePicture)) : null,
-                                child: profilePicture == null ? const Icon(Icons.person, size: 50, color: Colors.white) : null,
-                              ),
-                              const SizedBox(height: 20),
-                              Text(
-                                username,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 24,
+                          child: SingleChildScrollView(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                CircleAvatar(
+                                  radius: 50,
+                                  backgroundColor: Colors.grey[200],
+                                  backgroundImage: profilePicture.isNotEmpty ? MemoryImage(base64Decode(profilePicture)) : null,
+                                  child: profilePicture == null ? const Icon(Icons.person, size: 50, color: Colors.white) : null,
                                 ),
-                                textAlign: TextAlign.center,
-                              ),
-                              Text(
-                                'Items Given: $itemsGiven | Items Received: $itemsReceived',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
+                                const SizedBox(height: 20),
+                                Text(
+                                  username,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 24,
+                                  ),
+                                  textAlign: TextAlign.center,
                                 ),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 20),
-                            ],
+                                Text(
+                                  'Items Given: $itemsGiven | Items Received: $itemsReceived',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 20),
+                              ],
+                            ),
                           ),
                         ),
                         Positioned(

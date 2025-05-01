@@ -5,10 +5,14 @@ import 'search_chats_screen.dart';
 
 class NavBar extends StatefulWidget {
   final Widget Function(BuildContext)? searchScreenBuilder;
+  final Widget Function(BuildContext)? profileScreenBuilder;
+  final Widget Function(BuildContext)? chatScreenBuilder;
 
   const NavBar({
     super.key,
     this.searchScreenBuilder,
+    this.profileScreenBuilder,
+    this.chatScreenBuilder,
   });
 
   @override
@@ -18,9 +22,9 @@ class NavBar extends StatefulWidget {
 class _NavBarState extends State<NavBar> {
   int _currIdxPage = 0;
   List<Widget> get _pages => [
-    const MainPage(),
+    widget.profileScreenBuilder?.call(context) ?? const MainPage(),
     widget.searchScreenBuilder?.call(context) ?? const SearchScreen(),
-    const SearchChatsScreen(),
+    widget.chatScreenBuilder?.call(context) ?? const SearchChatsScreen(),
   ];
 
   @override

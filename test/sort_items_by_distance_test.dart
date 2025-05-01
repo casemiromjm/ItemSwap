@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:test1/screens/search_screen.dart';
+import 'package:itemswap/screens/search_screen.dart';
 
 void main() {
   testWidgets('Sort items by distance', (WidgetTester tester) async {

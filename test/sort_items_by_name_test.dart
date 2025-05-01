@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:test1/screens/search_screen.dart';
+import 'package:itemswap/screens/search_screen.dart';
 import 'auth_mock.dart'; // Import your mock setup file
 
 void main() {

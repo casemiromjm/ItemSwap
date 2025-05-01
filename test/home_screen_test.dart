@@ -3,11 +3,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:itemswap/screens/home_screen.dart';
 import 'package:itemswap/screens/welcome_screen.dart';
-import 'package:itemswap/screens/add_item_screen_outdated.dart';
 import 'package:itemswap/screens/user_screen.dart';
-import 'package:itemswap/screens/contacts_screen.dart';
 import 'auth_mock.dart';
 import 'mock_search_screen.dart';
+
+// OUTDATED BUT KEEP FOR REFERENCE
 
 void main() {
   // IMPORTANT: Set up the Firebase Core mocks at the very beginning.
