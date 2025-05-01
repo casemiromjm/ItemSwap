@@ -82,13 +82,16 @@ class _LoginScreenState extends State<LoginScreen> {
         _isLoading = false;
       });
 
-      String message = 'Something went wrong';
+      String message;
       if (e.code == 'user-not-found') {
         message = 'No user found for that email.';
       } else if (e.code == 'wrong-password') {
         message = 'Incorrect password.';
       } else if (e.code == 'invalid-email') {
         message = 'Invalid email format.';
+      }
+      else {
+        message = 'Something went wrong';
       }
 
       ScaffoldMessenger.of(

@@ -8,6 +8,7 @@ import 'search_chats_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   final WidgetBuilder? searchScreenBuilder;
+
   const HomeScreen({super.key, this.searchScreenBuilder});
 
   @override
