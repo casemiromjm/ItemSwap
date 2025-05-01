@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:itemswap/screens/myitems_screen.dart';
+import 'item_screen.dart';
 
 // actually "home" page / main page
 
@@ -34,11 +36,10 @@ class MainPage extends StatelessWidget {
           const SizedBox(height: 20),
           ElevatedButton(
             onPressed: () {
-              //Navigator.push(
-                //context,
-                // missing import
-                //MaterialPageRoute(builder: (context) => ItemScreen()),
-              //);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => MyItemsScreen()),
+              );
             },
             child: const Text('My Items'),
             ),
