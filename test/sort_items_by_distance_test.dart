@@ -1,8 +1,17 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:itemswap/screens/search_screen.dart';
+import 'auth_mock.dart';
 
 void main() {
+  setupFirebaseAuthMocks();
+
+  // Initialize Firebase before tests run.
+  setUpAll(() async {
+    await Firebase.initializeApp();
+  });
+
   testWidgets('Sort items by distance', (WidgetTester tester) async {
     await tester.pumpWidget(
       MaterialApp(
