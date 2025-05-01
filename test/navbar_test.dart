@@ -39,7 +39,10 @@ void main() {
     testWidgets('Navigates to Profile when "Profile" icon is tapped', (
       WidgetTester tester,
     ) async {
-      await tester.pumpWidget(MaterialApp(home: NavBar()));
+      await tester.pumpWidget(MaterialApp(home: NavBar(
+          profileScreenBuilder: (context) => MainPage(),
+      ),
+      ));
 
       await tester.tap(find.byIcon(Icons.person));
       await tester.pumpAndSettle();
@@ -52,10 +55,11 @@ void main() {
 
     async {
       await tester.pumpWidget(MaterialApp(home: NavBar(
-        searchScreenBuilder: (context) => MockChatScreen(),
-      )));
+        chatScreenBuilder: (context) => MockChatScreen(),
+      ),
+      ));
 
-      //expect(find.byIcon(Icons.chat_bubble), findsOneWidget);   // debug reason
+      //expect(find.byIcon(Icons.chat_bubble), findsOneWidget);   // debug
       await tester.tap(find.byIcon(Icons.chat_bubble));
       await tester.pumpAndSettle();
 

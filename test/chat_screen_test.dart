@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:itemswap/screens/contacts_screen.dart';
 import 'package:itemswap/screens/chat_screen.dart';
+import 'package:itemswap/screens/search_chats_screen.dart';
 
 void main(){
   group('Chat Tests', (){
@@ -16,7 +17,7 @@ void main(){
       );
 
       Navigator.of(tester.element(find.byType(Contacts))).push(
-        MaterialPageRoute(builder: (context) => ChatScreen()),
+        MaterialPageRoute(builder: (context) => SearchChatsScreen()),
       );
       await tester.pumpAndSettle();
 
