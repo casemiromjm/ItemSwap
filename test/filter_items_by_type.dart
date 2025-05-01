@@ -1,10 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:test1/screens/search_screen.dart';
 import 'auth_mock.dart'; // Import your mock setup file
-import 'auth_mock.mocks.dart'; // Import generated mocks
+// Import generated mocks
 
 void main() {
   setupFirebaseAuthMocks(); // Set up Firebase mocks

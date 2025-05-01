@@ -11,8 +11,7 @@ class MapScreen extends StatefulWidget {
   /// In selectable mode, if provided, shows the currently selected location.
   final LatLng? initialLocation;
 
-  const MapScreen({Key? key, this.selectable = true, this.initialLocation})
-    : super(key: key);
+  const MapScreen({super.key, this.selectable = true, this.initialLocation});
 
   @override
   _CustomMapScreenState createState() => _CustomMapScreenState();
