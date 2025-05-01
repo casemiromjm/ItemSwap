@@ -366,6 +366,11 @@ In the next sprint, we feel that testing Firebase interaction will still be an o
 
 ### Sprint 3
 
+Beginning Dashboard
+<p align="center" justify="center">
+  <img src=docs/sprints/sprint3_ini.png>
+</p>
+
 ### Sprint 4
 
 ### Final Release
