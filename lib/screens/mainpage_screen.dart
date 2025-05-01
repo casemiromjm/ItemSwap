@@ -18,16 +18,31 @@ class MainPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 21, 45, 80),
-      body: Container (
-        padding: EdgeInsets.only(left: 30,right: 30),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(30.0),
-          child: Container(
-            color: const Color.fromARGB(255, 52, 83, 130),
-            height: 300,
-            width: 600,
+      body: Column (
+        children: [
+          Container (
+            padding: EdgeInsets.only(left: 30,right: 30),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(30.0),
+              child: Container(
+                color: const Color.fromARGB(255, 52, 83, 130),
+                height: 300,
+                width: 600,
+              ),
+            ),
           ),
-        ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: () {
+              //Navigator.push(
+                //context,
+                // missing import
+                //MaterialPageRoute(builder: (context) => ItemScreen()),
+              //);
+            },
+            child: const Text('My Items'),
+            ),
+        ],
       ),
     );
   }
