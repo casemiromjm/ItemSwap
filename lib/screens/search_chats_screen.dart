@@ -61,8 +61,8 @@ class _SearchChatsScreenState extends State<SearchChatsScreen> {
                     style: const TextStyle(color: Colors.white),
                     items: const [
                       DropdownMenuItem(value: "All", child: Text("All chats")),
-                      DropdownMenuItem(value: "Receiver", child: Text("Chats started by you")),
-                      DropdownMenuItem(value: "Sender", child: Text("Chats start with you")),
+                      DropdownMenuItem(value: "Sender", child: Text("Chats started by you")),
+                      DropdownMenuItem(value: "Receiver", child: Text("Chats started with you")),
                     ],
                     onChanged: (value) {
                       setState(() {
@@ -93,14 +93,14 @@ class _SearchChatsScreenState extends State<SearchChatsScreen> {
 
                 final chatDocs = snapshot.data!.docs.where((doc) {
                   final data = doc.data() as Map<String, dynamic>;
-                  final isReceiver = data['receiverID'] == currentUser.uid;
-                  final isSender = data['senderID'] == currentUser.uid;
+                  final isCurrentUserReceiver = data['receiverID'] == currentUser.uid;
+                  final isCurrentUserSender = data['senderID'] == currentUser.uid;
 
                   return _chatFilter == 'All'
-                      ? (isReceiver || isSender)
-                      : _chatFilter == 'Received'
-                      ? isReceiver
-                      : isSender;
+                      ? (isCurrentUserReceiver || isCurrentUserSender)
+                      : _chatFilter == 'Sender'
+                        ? isCurrentUserSender
+                        : isCurrentUserReceiver;
                 }).toList();
 
                 if (chatDocs.isEmpty) {
@@ -167,7 +167,8 @@ class _SearchChatsScreenState extends State<SearchChatsScreen> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (_) => ChatScreen(
-                                      chatId: chat.id, itemId: itemId),
+                                      chatId: chat.id, itemId: itemId
+                                  ),
                                 ),
                               );
                             },
