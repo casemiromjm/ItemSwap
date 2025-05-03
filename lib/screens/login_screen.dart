@@ -89,8 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
         message = 'Incorrect password.';
       } else if (e.code == 'invalid-email') {
         message = 'Invalid email format.';
-      }
-      else {
+      } else {
         message = 'Something went wrong';
       }
 

@@ -37,7 +37,7 @@ class _ChatScreenState extends State<ChatScreen> {
         .snapshots();
   }
 
-  void _sendMessage() {
+  Future<void> _sendMessage() async {
     if (currentUser == null) return;
 
     if (_imageBase64 != null) {
@@ -46,12 +46,12 @@ class _ChatScreenState extends State<ChatScreen> {
           .doc(widget.chatId)
           .collection('messages')
           .add({
-        'chatId': widget.chatId,
-        'senderID': currentUser!.uid,
-        'text': _imageBase64,
-        'isText': false,
-        'timestamp': FieldValue.serverTimestamp(),
-      });
+            'chatId': widget.chatId,
+            'senderID': currentUser!.uid,
+            'text': _imageBase64,
+            'isText': false,
+            'timestamp': FieldValue.serverTimestamp(),
+          });
       setState(() {
         _imageBase64 = null;
       });
@@ -63,12 +63,12 @@ class _ChatScreenState extends State<ChatScreen> {
             .doc(widget.chatId)
             .collection('messages')
             .add({
-          'chatId': widget.chatId,
-          'senderID': currentUser!.uid,
-          'text': text,
-          'isText': true,
-          'timestamp': FieldValue.serverTimestamp(),
-        });
+              'chatId': widget.chatId,
+              'senderID': currentUser!.uid,
+              'text': text,
+              'isText': true,
+              'timestamp': FieldValue.serverTimestamp(),
+            });
         _messageController.clear();
       }
     }
@@ -115,12 +115,17 @@ class _ChatScreenState extends State<ChatScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('✗', style: TextStyle(color: Colors.red, fontSize: 20)),
+              child: const Text(
+                '✗',
+                style: TextStyle(color: Colors.red, fontSize: 20),
+              ),
             ),
             TextButton(
               onPressed: () async {
                 Navigator.of(context).pop();
-                await ItemDeletionHandler.deleteItemAndRelatedChats(widget.itemId);
+                await ItemDeletionHandler.deleteItemAndRelatedChats(
+                  widget.itemId,
+                );
                 final senderId = chatData['senderID'] as String;
                 final receiverId = chatData['receiverID'] as String;
                 await _firestore.collection('users').doc(senderId).update({
@@ -133,7 +138,10 @@ class _ChatScreenState extends State<ChatScreen> {
                   SnackBar(content: Text('$itemName successfully swapped!')),
                 );
               },
-              child: const Text('✓', style: TextStyle(color: Colors.green, fontSize: 20)),
+              child: const Text(
+                '✓',
+                style: TextStyle(color: Colors.green, fontSize: 20),
+              ),
             ),
           ],
         );
@@ -163,8 +171,10 @@ class _ChatScreenState extends State<ChatScreen> {
               title: const Center(child: Text('Deleted Chat')),
             ),
             body: const Center(
-              child: Text('This chat has been deleted.',
-                  style: TextStyle(color: Colors.white70)),
+              child: Text(
+                'This chat has been deleted.',
+                style: TextStyle(color: Colors.white70),
+              ),
             ),
           );
         }
@@ -184,12 +194,13 @@ class _ChatScreenState extends State<ChatScreen> {
             title: FutureBuilder<String>(
               future: Future.wait([
                 _fetchItemName(),
-                _fetchReceiverName(isReceiver ? senderId : receiverId)
+                _fetchReceiverName(isReceiver ? senderId : receiverId),
               ]).then((values) => 'Chat for ${values[0]} with ${values[1]}'),
               builder: (context, titleSnap) {
-                final title = titleSnap.connectionState == ConnectionState.waiting
-                    ? 'Loading...'
-                    : titleSnap.data!;
+                final title =
+                    titleSnap.connectionState == ConnectionState.waiting
+                        ? 'Loading...'
+                        : titleSnap.data!;
                 return Text(
                   title,
                   textAlign: TextAlign.center,
@@ -209,7 +220,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: ElevatedButton(
-                    onPressed: () => chatRef.update({'request_swap': !requestSwap}),
+                    onPressed:
+                        () => chatRef.update({'request_swap': !requestSwap}),
                     child: Text(requestSwap ? 'Undo request' : 'Request swap'),
                   ),
                 ),
@@ -240,27 +252,35 @@ class _ChatScreenState extends State<ChatScreen> {
                     return ListView.builder(
                       itemCount: messages.length,
                       itemBuilder: (context, index) {
-                        final msg = messages[index].data() as Map<String, dynamic>;
-                        final bool isCurrentUser = msg['senderID'] == currentUser?.uid;
+                        final msg =
+                            messages[index].data() as Map<String, dynamic>;
+                        final bool isCurrentUser =
+                            msg['senderID'] == currentUser?.uid;
 
                         return Align(
                           alignment:
-                          isCurrentUser ? Alignment.centerRight : Alignment.centerLeft,
+                              isCurrentUser
+                                  ? Alignment.centerRight
+                                  : Alignment.centerLeft,
                           child: Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            margin: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: msg['isText'] == true
-                                ? Text(
-                              msg['text'] ?? '',
-                              style: const TextStyle(
-                                color: Color(0xFF152D50),
-                              ),
-                            )
-                                : _getImageFromBase64(msg['text'] ?? ''),
+                            child:
+                                msg['isText'] == true
+                                    ? Text(
+                                      msg['text'] ?? '',
+                                      style: const TextStyle(
+                                        color: Color(0xFF152D50),
+                                      ),
+                                    )
+                                    : _getImageFromBase64(msg['text'] ?? ''),
                           ),
                         );
                       },

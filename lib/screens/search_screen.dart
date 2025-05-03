@@ -164,12 +164,16 @@ class _SearchScreenState extends State<SearchScreen> {
     }
 
     QuerySnapshot chatQuery =
-    await _firestore.collection('chats').where('itemID', isEqualTo: doc.id).get();
+        await _firestore
+            .collection('chats')
+            .where('itemID', isEqualTo: doc.id)
+            .get();
 
     String chatId = '';
     for (var chatDoc in chatQuery.docs) {
       final data = chatDoc.data() as Map<String, dynamic>;
-      if (data['senderID'] == currentUser.uid || data['receiverID'] == currentUser.uid) {
+      if (data['senderID'] == currentUser.uid ||
+          data['receiverID'] == currentUser.uid) {
         chatId = chatDoc.id;
         break;
       }
@@ -185,14 +189,15 @@ class _SearchScreenState extends State<SearchScreen> {
     } else {
       DocumentReference newChatRef = await _firestore.collection('chats').add({
         'itemID': doc.id,
-        'senderID': currentUser.uid,
-        'receiverID': ownerId,
+        'senderID': ownerId,
+        'receiverID': currentUser.uid,
         'timestamp': FieldValue.serverTimestamp(),
       });
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => ChatScreen(chatId: newChatRef.id, itemId: doc.id),
+          builder:
+              (context) => ChatScreen(chatId: newChatRef.id, itemId: doc.id),
         ),
       );
     }
@@ -201,7 +206,9 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     final String appBarTitle =
-    widget.isChatsMode ? 'Chats' : (widget.isMyItems ? 'My Items' : 'Search Items');
+        widget.isChatsMode
+            ? 'Chats'
+            : (widget.isMyItems ? 'My Items' : 'Search Items');
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 21, 45, 80),
@@ -226,7 +233,6 @@ class _SearchScreenState extends State<SearchScreen> {
             // USER STORY:
             // As a user, I want to search items by name so that I can quickly find what I'm looking for.
             // I also want to load more items on demand, so I don't get overwhelmed by too many at once.
-
             if (!widget.isMyItems)
               Column(
                 children: [
@@ -239,9 +245,15 @@ class _SearchScreenState extends State<SearchScreen> {
                           isExpanded: true,
                           dropdownColor: const Color.fromARGB(255, 52, 83, 130),
                           style: const TextStyle(color: Colors.white),
-                          items: _itemTypes
-                              .map((type) => DropdownMenuItem(value: type, child: Text(type)))
-                              .toList(),
+                          items:
+                              _itemTypes
+                                  .map(
+                                    (type) => DropdownMenuItem(
+                                      value: type,
+                                      child: Text(type),
+                                    ),
+                                  )
+                                  .toList(),
                           onChanged: (value) {
                             setState(() {
                               _selectedType = value;
@@ -258,12 +270,22 @@ class _SearchScreenState extends State<SearchScreen> {
                           dropdownColor: const Color.fromARGB(255, 52, 83, 130),
                           style: const TextStyle(color: Colors.white),
                           items: const [
-                            DropdownMenuItem(value: "time", child: Text("Time")),
-                            DropdownMenuItem(value: "location", child: Text("Location")),
-                            DropdownMenuItem(value: "name", child: Text("Name")),
+                            DropdownMenuItem(
+                              value: "time",
+                              child: Text("Time"),
+                            ),
+                            DropdownMenuItem(
+                              value: "location",
+                              child: Text("Location"),
+                            ),
+                            DropdownMenuItem(
+                              value: "name",
+                              child: Text("Name"),
+                            ),
                           ],
                           onChanged: (value) async {
-                            if (value == "location" && _selectedLocation == null) {
+                            if (value == "location" &&
+                                _selectedLocation == null) {
                               await _pickLocation();
                             }
                             setState(() {
@@ -272,7 +294,8 @@ class _SearchScreenState extends State<SearchScreen> {
                           },
                         ),
                       ),
-                      if (_sortOption == "location" && _selectedLocation != null)
+                      if (_sortOption == "location" &&
+                          _selectedLocation != null)
                         TextButton(
                           onPressed: _pickLocation,
                           child: const Text(
@@ -328,45 +351,72 @@ class _SearchScreenState extends State<SearchScreen> {
                 stream: _firestore.collection('items').snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}', style: const TextStyle(color: Colors.white)));
+                    return Center(
+                      child: Text(
+                        'Error: ${snapshot.error}',
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    );
                   }
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   }
                   if (!snapshot.hasData) {
-                    return const Center(child: Text('No items found.', style: TextStyle(color: Colors.white)));
+                    return const Center(
+                      child: Text(
+                        'No items found.',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    );
                   }
 
                   final currentUser = _auth.currentUser;
                   List<QueryDocumentSnapshot> items = snapshot.data!.docs;
 
                   if (_selectedType != "All") {
-                    items = items.where((doc) => doc['type'] == _selectedType).toList();
+                    items =
+                        items
+                            .where((doc) => doc['type'] == _selectedType)
+                            .toList();
                   }
 
-                  items = items.where((doc) {
-                    final ownerId = doc['ownerId'];
-                    return widget.isMyItems ? ownerId == currentUser!.uid : ownerId != currentUser!.uid;
-                  }).toList();
+                  items =
+                      items.where((doc) {
+                        final ownerId = doc['ownerId'];
+                        return widget.isMyItems
+                            ? ownerId == currentUser!.uid
+                            : ownerId != currentUser!.uid;
+                      }).toList();
 
                   if (_searchQuery.isNotEmpty) {
-                    items = items.where((doc) {
-                      final name = _normalizeName(doc['name'] ?? '');
-                      final query = _normalizeName(_searchQuery);
-                      return name.contains(query);
-                    }).toList();
+                    items =
+                        items.where((doc) {
+                          final name = _normalizeName(doc['name'] ?? '');
+                          final query = _normalizeName(_searchQuery);
+                          return name.contains(query);
+                        }).toList();
                   }
 
                   if (_sortOption == "location" && _selectedLocation != null) {
                     items.sort((a, b) {
-                      final aLoc = LatLng(a['location']['latitude'], a['location']['longitude']);
-                      final bLoc = LatLng(b['location']['latitude'], b['location']['longitude']);
-                      return _calculateDistance(aLoc, _selectedLocation!).compareTo(
-                        _calculateDistance(bLoc, _selectedLocation!),
+                      final aLoc = LatLng(
+                        a['location']['latitude'],
+                        a['location']['longitude'],
                       );
+                      final bLoc = LatLng(
+                        b['location']['latitude'],
+                        b['location']['longitude'],
+                      );
+                      return _calculateDistance(
+                        aLoc,
+                        _selectedLocation!,
+                      ).compareTo(_calculateDistance(bLoc, _selectedLocation!));
                     });
                   } else if (_sortOption == "time") {
-                    items.sort((a, b) => (b['timestamp'] ?? 0).compareTo(a['timestamp'] ?? 0));
+                    items.sort(
+                      (a, b) =>
+                          (b['timestamp'] ?? 0).compareTo(a['timestamp'] ?? 0),
+                    );
                   } else if (_sortOption == "name") {
                     items.sort((a, b) {
                       final nameA = _normalizeName(a['name'] ?? '');
@@ -387,6 +437,12 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildItemList(List<QueryDocumentSnapshot> visibleItems) {
+    if (visibleItems.isEmpty) {
+      return const Center(
+        child: Text('No items found.', style: TextStyle(color: Colors.white)),
+      );
+    }
+
     return Column(
       children: [
         Expanded(
@@ -396,27 +452,52 @@ class _SearchScreenState extends State<SearchScreen> {
               final doc = visibleItems[index];
               final item = doc.data() as Map<String, dynamic>;
               return Card(
-                margin: const EdgeInsets.symmetric(vertical: 7.0),
+                color: const Color.fromARGB(255, 52, 83, 130),
+                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 child: ListTile(
-                  leading: item['imageUrl'] != null
-                      ? _getImageFromBase64(item['imageUrl'])
-                      : const Icon(Icons.image_not_supported, size: 50),
-                  title: Text(item['name'] ?? 'Unknown'),
+                  leading:
+                      item['imageUrl'] != null
+                          ? _getImageFromBase64(item['imageUrl'])
+                          : const Icon(Icons.image_not_supported, size: 50),
+                  title: Text(
+                    item['name'] ?? 'Unnamed Item',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(_descriptionPreview(item)),
+                      Text(
+                        _descriptionPreview(item ?? ''),
+                        style: const TextStyle(color: Colors.white70),
+                      ),
+                      const SizedBox(height: 5),
                       FutureBuilder<DocumentSnapshot>(
-                        future: _firestore.collection('users').doc(item['ownerId']).get(),
+                        future:
+                            _firestore
+                                .collection('users')
+                                .doc(item['ownerId'])
+                                .get(),
                         builder: (context, userSnapshot) {
                           String username = '';
                           Widget? profilePic;
-                          if (userSnapshot.hasData && userSnapshot.data!.exists) {
-                            final userData = userSnapshot.data!.data() as Map<String, dynamic>;
+                          if (userSnapshot.hasData &&
+                              userSnapshot.data!.exists) {
+                            final userData =
+                                userSnapshot.data!.data()
+                                    as Map<String, dynamic>;
                             username = userData['username'] ?? '';
                             if (userData['image'] != null) {
                               profilePic = ClipOval(
-                                child: _getImageFromBase64(userData['image'], size: 30),
+                                child: _getImageFromBase64(
+                                  userData['image'],
+                                  size: 30,
+                                ),
                               );
                             }
                           }
@@ -424,7 +505,14 @@ class _SearchScreenState extends State<SearchScreen> {
                             children: [
                               if (profilePic != null) profilePic,
                               const SizedBox(width: 5),
-                              Text(username, style: const TextStyle(fontWeight: FontWeight.bold)),
+                              Text(
+                                username ?? 'Unknown',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                             ],
                           );
                         },
@@ -435,15 +523,19 @@ class _SearchScreenState extends State<SearchScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       if (!widget.isMyItems)
-                        ElevatedButton(
+                        IconButton(
+                          icon: const Icon(
+                            Icons.chat_bubble_outline,
+                            color: Colors.white,
+                          ),
+                          tooltip: 'Open Chat',
                           onPressed: () {
                             _createChat(doc);
                           },
-                          child: const Text("Chat"),
                         ),
                       if (widget.isMyItems)
                         IconButton(
-                          icon: const Icon(Icons.delete),
+                          icon: const Icon(Icons.delete, color: Colors.white),
                           tooltip: "Delete",
                           onPressed: () {
                             _showDeleteConfirmation(doc);
@@ -451,7 +543,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         ),
                       const SizedBox(width: 5),
                       IconButton(
-                        icon: const Icon(Icons.add),
+                        icon: const Icon(Icons.add, color: Colors.white),
                         tooltip: "More details",
                         onPressed: () {
                           Navigator.push(
@@ -470,10 +562,7 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
         ),
         if (visibleItems.length >= _itemsToLoad)
-          ElevatedButton(
-            onPressed: _loadMoreItems,
-            child: const Text("More"),
-          ),
+          ElevatedButton(onPressed: _loadMoreItems, child: const Text("More")),
       ],
     );
   }
