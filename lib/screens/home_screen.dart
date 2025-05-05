@@ -5,6 +5,7 @@ import 'welcome_screen.dart';
 import 'user_screen.dart';
 import 'item_screen.dart';
 import 'search_chats_screen.dart';
+import 'settings_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   final WidgetBuilder? searchScreenBuilder;
@@ -100,12 +101,20 @@ class HomeScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => SearchChatsScreen(),
-                  ),
+                  MaterialPageRoute(builder: (context) => SearchChatsScreen()),
                 );
               },
               child: const Text('Chats'),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SettingsScreen()),
+                );
+              },
+              child: const Text('Settings'),
             ),
           ],
         ),
