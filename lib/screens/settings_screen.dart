@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'change_email_screen.dart';
 import 'change_password_screen.dart';
 import 'credits_screen.dart';
+import 'delete_count_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -50,6 +51,17 @@ class SettingsScreen extends StatelessWidget {
               },
               icon: const Icon(Icons.lock),
               label: const Text('Change Password'),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const DeleteCountScreen()),
+                );
+              },
+              icon: const Icon(Icons.delete),
+              label: const Text('Delete Account'),
             ),
             const SizedBox(height: 16),
             ElevatedButton(

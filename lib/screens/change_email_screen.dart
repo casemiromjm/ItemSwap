@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'home_screen.dart';
 
 class ChangeEmailScreen extends StatefulWidget {
   const ChangeEmailScreen({Key? key}) : super(key: key);
@@ -16,28 +17,107 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
   Future<void> _updateEmail() async {
     final user = FirebaseAuth.instance.currentUser;
     final newEmail = _emailController.text.trim();
-    if (newEmail.isEmpty) return;
+    if (newEmail.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter an email address')),
+      );
+      return;
+    }
 
     setState(() {
       _isLoading = true;
       _error = '';
     });
+
     try {
-      await user?.updateEmail(newEmail);
-      await user?.sendEmailVerification();
+      // Send update‐email verification link to the NEW email address
+      await user!.verifyBeforeUpdateEmail(newEmail);
+
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Email updated. Verification sent.')),
+        const SnackBar(
+          content: Text(
+            'A verification link has been sent to your new email. '
+            'Please click it to confirm the change.',
+          ),
+        ),
       );
-      Navigator.pop(context);
+
+      // Show a dialog so user can manually refresh their status
+      _showUpdateEmailVerificationDialog(user, newEmail);
     } on FirebaseAuthException catch (e) {
       setState(() {
-        _error = e.message ?? 'Error updating email';
+        _error = e.message ?? 'Error sending verification email';
       });
     } finally {
       setState(() {
         _isLoading = false;
       });
     }
+  }
+
+  void _showUpdateEmailVerificationDialog(User user, String pendingEmail) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        // Use a separate setState for the dialog
+        return StatefulBuilder(
+          builder: (context, dialogSetState) {
+            String dialogError = '';
+
+            return AlertDialog(
+              title: const Text('Confirm New Email'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'We’ve sent a verification link to your new address. '
+                    'Please click it in the email to complete the update.',
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () async {
+                      // Reload both the passed-in user and the singleton instance
+                      await user.reload();
+                      await FirebaseAuth.instance.currentUser?.reload();
+                      final updatedUser = FirebaseAuth.instance.currentUser;
+
+                      if (updatedUser != null &&
+                          updatedUser.email == pendingEmail) {
+                        // Dismiss dialog AND replace with HomeScreen
+                        Navigator.of(context).pop();
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(builder: (_) => const HomeScreen()),
+                        );
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Email successfully updated!'),
+                          ),
+                        );
+                      } else {
+                        dialogSetState(() {
+                          dialogError =
+                              'Still waiting on confirmation. Please check your mail.';
+                        });
+                      }
+                    },
+                    child: const Text('Refresh & Confirm'),
+                  ),
+                  if (dialogError.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    Text(
+                      dialogError,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  ],
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   @override

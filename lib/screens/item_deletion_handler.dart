@@ -9,9 +9,6 @@ class ItemDeletionHandler {
   static Future<void> deleteItemAndRelatedChats(String itemId) async {
     final itemRef = _firestore.collection('items').doc(itemId);
 
-    // 1. Delete the item itself.
-    await itemRef.delete();
-
     // 2. Query all chats referencing this item.
     final chatsQuery =
         await _firestore
@@ -31,5 +28,8 @@ class ItemDeletionHandler {
       // 4. Delete the chat document itself.
       await chatRef.delete();
     }
+
+    // 5. Delete the item itself.
+    await itemRef.delete();
   }
 }

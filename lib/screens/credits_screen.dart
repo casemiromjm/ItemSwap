@@ -6,9 +6,9 @@ class CreditsScreen extends StatelessWidget {
   const CreditsScreen({Key? key}) : super(key: key);
 
   void _launchGitHub(String name) async {
-    final url = 'https://github.com/$name';
-    if (await canLaunch(url)) {
-      await launch(url);
+    final Uri url = Uri.parse('https://github.com/$name');
+    if (!await launchUrl(url)) {
+      throw Exception('Could not launch $url');
     }
   }
 
