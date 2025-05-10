@@ -166,7 +166,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     children: [
                       Expanded(
                         child: DropdownButton<String>(
-                          key: const Key('typeDropdown'), // Add a unique key
+                          key: const Key('typeDropdown'),
                           value: _selectedType,
                           isExpanded: true,
                           dropdownColor: const Color.fromARGB(255, 52, 83, 130),

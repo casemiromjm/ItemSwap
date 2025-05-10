@@ -6,7 +6,6 @@ import 'search_chats_screen.dart';
 class AppShell extends StatelessWidget {
   final Widget child;
 
-  /// Which tab index should be highlighted.
   final int currentIndex;
 
   const AppShell({Key? key, required this.child, required this.currentIndex})

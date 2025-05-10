@@ -18,9 +18,8 @@ class _SearchChatsScreenState extends State<SearchChatsScreen> {
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
   String _chatFilter = 'Sender';
-  int _chatsToLoad = 20;
+  final int _chatsToLoad = 20;
 
-  // track unread counts and message stream subs
   final Map<String, int> _unreadCounts = {};
   final Map<String, StreamSubscription<QuerySnapshot>> _msgSubs = {};
 
@@ -163,7 +162,7 @@ class _SearchChatsScreenState extends State<SearchChatsScreen> {
                                     130,
                                   ),
                                   title: const Text(
-                                    'Delete chat? This action is irreversible.',
+                                    'Delete chat?\nAttention: This action is irreversible.',
                                     style: TextStyle(color: Colors.white),
                                   ),
                                   actionsAlignment:
@@ -339,7 +338,7 @@ class _SearchChatsScreenState extends State<SearchChatsScreen> {
                           .listen((snapMsgs) {
                             final count =
                                 snapMsgs.docs.where((m) {
-                                  final md = m.data() as Map<String, dynamic>;
+                                  final md = m.data();
                                   return md['read'] == false &&
                                       md['senderID'] != currentUser.uid;
                                 }).length;

@@ -101,8 +101,6 @@ class _DeleteCountScreenState extends State<DeleteCountScreen> {
     try {
       final uid = user.uid;
       final firestore = FirebaseFirestore.instance;
-
-      // Delete all items and related chats
       final itemsSnapshot =
           await firestore
               .collection('items')
@@ -111,8 +109,6 @@ class _DeleteCountScreenState extends State<DeleteCountScreen> {
       for (var doc in itemsSnapshot.docs) {
         await ItemDeletionHandler.deleteItemAndRelatedChats(doc.id);
       }
-
-      // Delete all chats where receiverId == uid
       final chatsSnapshot =
           await firestore
               .collection('chats')
@@ -121,17 +117,11 @@ class _DeleteCountScreenState extends State<DeleteCountScreen> {
       for (var chatDoc in chatsSnapshot.docs) {
         await firestore.collection('chats').doc(chatDoc.id).delete();
       }
-
-      // Delete user document
       await firestore.collection('users').doc(uid).delete();
-
-      // Delete Firebase Auth user
       await user.delete();
-
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Account and data deleted.')),
       );
-
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const WelcomeScreen()),

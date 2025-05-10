@@ -24,7 +24,7 @@ class HomeScreen extends StatelessWidget {
         return AlertDialog(
           backgroundColor: const Color.fromARGB(255, 52, 83, 130),
           title: Text(
-            "Delete '$itemName'?\nAttention:\nThis action will delete the item irreversibly!",
+            "Delete '$itemName'?\nAttention:\nThis action will delete the item and all related chats!",
             style: const TextStyle(color: Colors.white),
           ),
           actionsAlignment: MainAxisAlignment.spaceBetween,
@@ -77,7 +77,6 @@ class HomeScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             child: ListView(
               children: [
-                // Profile card
                 FutureBuilder<DocumentSnapshot>(
                   future: _fetchUserDoc(),
                   builder: (context, snap) {
@@ -99,26 +98,31 @@ class HomeScreen extends StatelessWidget {
                         padding: const EdgeInsets.all(12),
                         child: Row(
                           children: [
-                            CircleAvatar(
-                              radius: 60,
-                              backgroundColor: Colors.grey[700],
-                              backgroundImage: image,
-                              child:
-                                  image == null
-                                      ? const Icon(Icons.person, size: 60)
-                                      : null,
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                username,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 25,
-                                  fontWeight: FontWeight.bold,
+                            Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                CircleAvatar(
+                                  radius: 60,
+                                  backgroundColor: Colors.grey[700],
+                                  backgroundImage: image,
+                                  child:
+                                      image == null
+                                          ? const Icon(Icons.person, size: 60)
+                                          : null,
                                 ),
-                              ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  username,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 25,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             ),
+                            const SizedBox(width: 16),
+                            const Spacer(),
                             IconButton(
                               icon: const Icon(Icons.edit, color: Colors.white),
                               onPressed: () {
@@ -154,8 +158,6 @@ class HomeScreen extends StatelessWidget {
                 ),
 
                 const SizedBox(height: 24),
-
-                // Your items header + add button
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -192,8 +194,6 @@ class HomeScreen extends StatelessWidget {
                 ),
 
                 const SizedBox(height: 16),
-
-                // Stream your own items
                 StreamBuilder<QuerySnapshot>(
                   stream:
                       FirebaseFirestore.instance

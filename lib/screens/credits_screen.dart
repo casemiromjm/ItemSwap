@@ -123,8 +123,8 @@ class CreditsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 15),
             const Text(
-              "If you'd like to support this project, please consider donating.",
-              style: TextStyle(color: Colors.white, fontSize: 18),
+              "If you'd like to support this project,\nplease consider donating.",
+              style: TextStyle(color: Colors.white, fontSize: 25),
             ),
           ],
         ),

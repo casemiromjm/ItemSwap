@@ -105,7 +105,7 @@ class _ChatScreenState extends State<ChatScreen> {
         return AlertDialog(
           backgroundColor: const Color.fromARGB(255, 52, 83, 130),
           title: Text(
-            "Finish swap negotiation for '$itemName'?\nAttention:\nThis action will delete the chat and the item irreversibly!",
+            "Finish swap negotiation for '$itemName'?\nAttention:\nThis action will delete the chat and the item!",
             style: const TextStyle(color: Colors.white),
           ),
           actionsAlignment: MainAxisAlignment.spaceBetween,
@@ -244,7 +244,6 @@ class _ChatScreenState extends State<ChatScreen> {
                       );
                     }
                     final messages = msgSnap.data!.docs;
-                    // mark incoming unread messages as read
                     for (var mdoc in messages) {
                       final m = mdoc.data() as Map<String, dynamic>;
                       if (m['senderID'] != currentUser?.uid &&
@@ -287,7 +286,6 @@ class _ChatScreenState extends State<ChatScreen> {
                                       ? CrossAxisAlignment.end
                                       : CrossAxisAlignment.start,
                               children: [
-                                // Text or Image
                                 if (msg['isText'] == true)
                                   Text(
                                     msg['text'] ?? '',
@@ -303,8 +301,6 @@ class _ChatScreenState extends State<ChatScreen> {
                                       msg['text'] ?? '',
                                     ),
                                   ),
-
-                                // Timestamp inside bubble
                                 if (timestamp != null)
                                   Padding(
                                     padding: const EdgeInsets.only(top: 4),
@@ -325,8 +321,6 @@ class _ChatScreenState extends State<ChatScreen> {
                   },
                 ),
               ),
-
-              // Image-preview before sending
               if (_imageBase64 != null)
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -357,8 +351,6 @@ class _ChatScreenState extends State<ChatScreen> {
                     ],
                   ),
                 ),
-
-              // Message input
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Container(

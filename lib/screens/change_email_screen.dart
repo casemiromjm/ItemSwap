@@ -30,7 +30,6 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
     });
 
     try {
-      // Send update‐email verification link to the NEW email address
       await user!.verifyBeforeUpdateEmail(newEmail);
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -42,7 +41,6 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
         ),
       );
 
-      // Show a dialog so user can manually refresh their status
       _showUpdateEmailVerificationDialog(user, newEmail);
     } on FirebaseAuthException catch (e) {
       setState(() {
@@ -60,7 +58,6 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
       context: context,
       barrierDismissible: false,
       builder: (context) {
-        // Use a separate setState for the dialog
         return StatefulBuilder(
           builder: (context, dialogSetState) {
             String dialogError = '';
@@ -77,14 +74,12 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () async {
-                      // Reload both the passed-in user and the singleton instance
                       await user.reload();
                       await FirebaseAuth.instance.currentUser?.reload();
                       final updatedUser = FirebaseAuth.instance.currentUser;
 
                       if (updatedUser != null &&
                           updatedUser.email == pendingEmail) {
-                        // Dismiss dialog AND replace with HomeScreen
                         Navigator.of(context).pop();
                         Navigator.of(context).pushReplacement(
                           MaterialPageRoute(builder: (_) => const HomeScreen()),
