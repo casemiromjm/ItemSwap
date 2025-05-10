@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'item_deletion_handler.dart';
-// Import your image handler package that provides the pickImage function.
 import 'image_handler.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -108,7 +107,7 @@ class _ChatScreenState extends State<ChatScreen> {
         return AlertDialog(
           backgroundColor: const Color.fromARGB(255, 52, 83, 130),
           title: Text(
-            "Finish swap negotiation for '$itemName'?",
+            "Finish swap negotiation for '$itemName'?\nAttention:\nThis action will delete the chat and the item irreversibly!",
             style: const TextStyle(color: Colors.white),
           ),
           actionsAlignment: MainAxisAlignment.spaceBetween,

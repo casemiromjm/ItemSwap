@@ -65,7 +65,7 @@ class _DeleteCountScreenState extends State<DeleteCountScreen> {
         return AlertDialog(
           backgroundColor: const Color.fromARGB(255, 52, 83, 130),
           title: const Text(
-            'Are you sure you want to delete your account and all data?\nAttention: This action is irreversible!',
+            'Are you sure you want to delete your account and all data?\nAttention:\nThis action will delete your account irreversibly!',
             style: TextStyle(color: Colors.white),
           ),
           actionsAlignment: MainAxisAlignment.spaceBetween,

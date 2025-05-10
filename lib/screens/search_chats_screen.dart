@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'chat_screen.dart';
 import 'item_screen.dart';
+import 'app_shell.dart';
 
 class SearchChatsScreen extends StatefulWidget {
   const SearchChatsScreen({super.key});
@@ -120,7 +121,7 @@ class _SearchChatsScreenState extends State<SearchChatsScreen> {
                     const SizedBox(height: 5),
                     Row(
                       children: [
-                        if (profilePic != null) profilePic,
+                        profilePic,
                         const SizedBox(width: 5),
                         Text(
                           user['username'] ?? 'Unknown',
@@ -153,7 +154,7 @@ class _SearchChatsScreenState extends State<SearchChatsScreen> {
                                     130,
                                   ),
                                   title: const Text(
-                                    'Delete chat?',
+                                    'Delete chat?\nAttention:\nThis action will delete the chat irreversibly!',
                                     style: TextStyle(color: Colors.white),
                                   ),
                                   actionsAlignment:
@@ -241,87 +242,79 @@ class _SearchChatsScreenState extends State<SearchChatsScreen> {
   @override
   Widget build(BuildContext context) {
     final currentUser = _auth.currentUser;
-    return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 21, 45, 80),
-      appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 63, 133, 190),
-        title: const Text(
-          'Chat Search',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: DropdownButton<String>(
-                    value: _chatFilter,
-                    isExpanded: true,
-                    dropdownColor: const Color.fromARGB(255, 52, 83, 130),
-                    style: const TextStyle(color: Colors.white),
-                    items: const [
-                      DropdownMenuItem(
-                        value: 'Sender',
-                        child: Text('Items to receive'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'Receiver',
-                        child: Text('Items to give'),
-                      ),
-                    ],
-                    onChanged: (val) => setState(() => _chatFilter = val!),
+    return AppShell(
+      currentIndex: 3,
+      child: Container(
+        color: const Color.fromARGB(255, 21, 45, 80),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: DropdownButton<String>(
+                      value: _chatFilter,
+                      isExpanded: true,
+                      dropdownColor: const Color.fromARGB(255, 52, 83, 130),
+                      style: const TextStyle(color: Colors.white),
+                      items: const [
+                        DropdownMenuItem(
+                          value: 'Sender',
+                          child: Text('Items to receive'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'Receiver',
+                          child: Text('Items to give'),
+                        ),
+                      ],
+                      onChanged: (val) => setState(() => _chatFilter = val!),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream:
-                  _firestore
-                      .collection('chats')
-                      .orderBy('timestamp', descending: true)
-                      .snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (!snapshot.hasData || currentUser == null) {
-                  return const Center(
-                    child: Text(
-                      'No chats available.',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  );
-                }
-                final allChats = snapshot.data!.docs;
-                final filtered =
-                    allChats.where((doc) {
-                      final d = doc.data() as Map<String, dynamic>;
-                      return _chatFilter == 'Sender'
-                          ? d['receiverID'] == currentUser.uid
-                          : d['senderID'] == currentUser.uid;
-                    }).toList();
-                if (filtered.isEmpty) {
-                  return const Center(
-                    child: Text(
-                      'No chats found.',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  );
-                }
-                return _buildChatList(filtered.take(_chatsToLoad).toList());
-              },
+            Expanded(
+              child: StreamBuilder<QuerySnapshot>(
+                stream:
+                    _firestore
+                        .collection('chats')
+                        .orderBy('timestamp', descending: true)
+                        .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (!snapshot.hasData || currentUser == null) {
+                    return const Center(
+                      child: Text(
+                        'No chats available.',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    );
+                  }
+                  final allChats = snapshot.data!.docs;
+                  final filtered =
+                      allChats.where((doc) {
+                        final d = doc.data() as Map<String, dynamic>;
+                        return _chatFilter == 'Sender'
+                            ? d['receiverID'] == currentUser.uid
+                            : d['senderID'] == currentUser.uid;
+                      }).toList();
+                  if (filtered.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        'No chats found.',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    );
+                  }
+                  return _buildChatList(filtered.take(_chatsToLoad).toList());
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

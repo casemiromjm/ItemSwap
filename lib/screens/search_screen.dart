@@ -7,16 +7,10 @@ import 'package:latlong2/latlong.dart';
 import 'package:diacritic/diacritic.dart';
 import 'item_screen.dart';
 import 'chat_screen.dart';
-import 'item_deletion_handler.dart';
+import 'app_shell.dart';
 
 class SearchScreen extends StatefulWidget {
-  final bool isMyItems;
-  final bool isChatsMode;
-  const SearchScreen({
-    super.key,
-    this.isMyItems = false,
-    this.isChatsMode = false,
-  });
+  const SearchScreen({super.key});
 
   @override
   _SearchScreenState createState() => _SearchScreenState();
@@ -105,54 +99,6 @@ class _SearchScreenState extends State<SearchScreen> {
         : '$firstLine (...)';
   }
 
-  void _showDeleteConfirmation(DocumentSnapshot doc) {
-    final String itemName = doc['name'] ?? 'this item';
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: const Color.fromARGB(255, 52, 83, 130),
-          title: Text(
-            "Delete '$itemName'?",
-            style: const TextStyle(color: Colors.white),
-          ),
-          actionsAlignment: MainAxisAlignment.spaceBetween,
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text(
-                '✗',
-                style: TextStyle(color: Colors.red, fontSize: 20),
-              ),
-            ),
-            TextButton(
-              onPressed: () async {
-                try {
-                  await ItemDeletionHandler.deleteItemAndRelatedChats(doc.id);
-                  Navigator.of(context).pop();
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text("$itemName deleted.")));
-                } catch (error) {
-                  Navigator.of(context).pop();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Failed to delete $itemName.")),
-                  );
-                }
-              },
-              child: const Text(
-                '✓',
-                style: TextStyle(color: Colors.green, fontSize: 20),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   Future<void> _createChat(DocumentSnapshot doc) async {
     final currentUser = FirebaseAuth.instance.currentUser;
     final ownerId = doc['ownerId'];
@@ -206,35 +152,14 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final String appBarTitle =
-        widget.isChatsMode
-            ? 'Chats'
-            : (widget.isMyItems ? 'My Items' : 'Search Items');
-
-    return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 21, 45, 80),
-      appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 63, 133, 190),
-        title: Center(
-          child: Text(
-            appBarTitle,
-            style: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              fontFamily: 'Roboto',
-            ),
-          ),
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            // USER STORY:
-            // As a user, I want to search items by name so that I can quickly find what I'm looking for.
-            // I also want to load more items on demand, so I don't get overwhelmed by too many at once.
-            if (!widget.isMyItems)
+    return AppShell(
+      currentIndex: 2,
+      child: Container(
+        color: const Color.fromARGB(255, 21, 45, 80),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
               Column(
                 children: [
                   Row(
@@ -328,110 +253,95 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                 ],
               ),
-            const SizedBox(height: 20),
-            if (widget.isMyItems)
-              ElevatedButton(
-                onPressed: () async {
-                  final result = await Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const ItemScreen()),
-                  );
-                  if (result == 'submitted') {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Item submitted successfully!'),
-                      ),
-                    );
-                  }
-                },
-                child: const Text("New Item"),
-              ),
-            const SizedBox(height: 10),
-            Expanded(
-              child: StreamBuilder<QuerySnapshot>(
-                stream: _firestore.collection('items').snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    return Center(
-                      child: Text(
-                        'Error: ${snapshot.error}',
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    );
-                  }
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (!snapshot.hasData) {
-                    return const Center(
-                      child: Text(
-                        'No items found.',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    );
-                  }
+              const SizedBox(height: 20),
+              Expanded(
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: _firestore.collection('items').snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Text(
+                          'Error: ${snapshot.error}',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      );
+                    }
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (!snapshot.hasData) {
+                      return const Center(
+                        child: Text(
+                          'No items found.',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      );
+                    }
 
-                  final currentUser = _auth.currentUser;
-                  List<QueryDocumentSnapshot> items = snapshot.data!.docs;
+                    final currentUser = _auth.currentUser;
+                    List<QueryDocumentSnapshot> items = snapshot.data!.docs;
 
-                  if (_selectedType != "All") {
-                    items =
-                        items
-                            .where((doc) => doc['type'] == _selectedType)
-                            .toList();
-                  }
+                    if (_selectedType != "All") {
+                      items =
+                          items
+                              .where((doc) => doc['type'] == _selectedType)
+                              .toList();
+                    }
 
-                  items =
-                      items.where((doc) {
-                        final ownerId = doc['ownerId'];
-                        return widget.isMyItems
-                            ? ownerId == currentUser!.uid
-                            : ownerId != currentUser!.uid;
-                      }).toList();
-
-                  if (_searchQuery.isNotEmpty) {
                     items =
                         items.where((doc) {
-                          final name = _normalizeName(doc['name'] ?? '');
-                          final query = _normalizeName(_searchQuery);
-                          return name.contains(query);
+                          final ownerId = doc['ownerId'];
+                          return ownerId != currentUser!.uid;
                         }).toList();
-                  }
 
-                  if (_sortOption == "location" && _selectedLocation != null) {
-                    items.sort((a, b) {
-                      final aLoc = LatLng(
-                        a['location']['latitude'],
-                        a['location']['longitude'],
-                      );
-                      final bLoc = LatLng(
-                        b['location']['latitude'],
-                        b['location']['longitude'],
-                      );
-                      return _calculateDistance(
-                        aLoc,
-                        _selectedLocation!,
-                      ).compareTo(_calculateDistance(bLoc, _selectedLocation!));
-                    });
-                  } else if (_sortOption == "time") {
-                    items.sort(
-                      (a, b) =>
-                          (b['timestamp'] ?? 0).compareTo(a['timestamp'] ?? 0),
-                    );
-                  } else if (_sortOption == "name") {
-                    items.sort((a, b) {
-                      final nameA = _normalizeName(a['name'] ?? '');
-                      final nameB = _normalizeName(b['name'] ?? '');
-                      return nameA.compareTo(nameB);
-                    });
-                  }
+                    if (_searchQuery.isNotEmpty) {
+                      items =
+                          items.where((doc) {
+                            final name = _normalizeName(doc['name'] ?? '');
+                            final query = _normalizeName(_searchQuery);
+                            return name.contains(query);
+                          }).toList();
+                    }
 
-                  final visibleItems = items.take(_itemsToLoad).toList();
-                  return _buildItemList(visibleItems);
-                },
+                    if (_sortOption == "location" &&
+                        _selectedLocation != null) {
+                      items.sort((a, b) {
+                        final aLoc = LatLng(
+                          a['location']['latitude'],
+                          a['location']['longitude'],
+                        );
+                        final bLoc = LatLng(
+                          b['location']['latitude'],
+                          b['location']['longitude'],
+                        );
+                        return _calculateDistance(
+                          aLoc,
+                          _selectedLocation!,
+                        ).compareTo(
+                          _calculateDistance(bLoc, _selectedLocation!),
+                        );
+                      });
+                    } else if (_sortOption == "time") {
+                      items.sort(
+                        (a, b) => (b['timestamp'] ?? 0).compareTo(
+                          a['timestamp'] ?? 0,
+                        ),
+                      );
+                    } else if (_sortOption == "name") {
+                      items.sort((a, b) {
+                        final nameA = _normalizeName(a['name'] ?? '');
+                        final nameB = _normalizeName(b['name'] ?? '');
+                        return nameA.compareTo(nameB);
+                      });
+                    }
+
+                    final visibleItems = items.take(_itemsToLoad).toList();
+                    return _buildItemList(visibleItems);
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -474,7 +384,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _descriptionPreview(item ?? ''),
+                        _descriptionPreview(item),
                         style: const TextStyle(color: Colors.white70),
                       ),
                       const SizedBox(height: 5),
@@ -507,7 +417,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               if (profilePic != null) profilePic,
                               const SizedBox(width: 5),
                               Text(
-                                username ?? 'Unknown',
+                                username,
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 14,
@@ -523,25 +433,16 @@ class _SearchScreenState extends State<SearchScreen> {
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      if (!widget.isMyItems)
-                        IconButton(
-                          icon: const Icon(
-                            Icons.chat_bubble_outline,
-                            color: Colors.white,
-                          ),
-                          tooltip: 'Open Chat',
-                          onPressed: () {
-                            _createChat(doc);
-                          },
+                      IconButton(
+                        icon: const Icon(
+                          Icons.chat_bubble_outline,
+                          color: Colors.white,
                         ),
-                      if (widget.isMyItems)
-                        IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.white),
-                          tooltip: "Delete",
-                          onPressed: () {
-                            _showDeleteConfirmation(doc);
-                          },
-                        ),
+                        tooltip: 'Open Chat',
+                        onPressed: () {
+                          _createChat(doc);
+                        },
+                      ),
                       const SizedBox(width: 5),
                       IconButton(
                         icon: const Icon(Icons.add, color: Colors.white),
