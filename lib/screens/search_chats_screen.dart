@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -18,6 +19,18 @@ class _SearchChatsScreenState extends State<SearchChatsScreen> {
   final _firestore = FirebaseFirestore.instance;
   String _chatFilter = 'Sender';
   int _chatsToLoad = 20;
+
+  // track unread counts and message stream subs
+  final Map<String, int> _unreadCounts = {};
+  final Map<String, StreamSubscription<QuerySnapshot>> _msgSubs = {};
+
+  @override
+  void dispose() {
+    for (var sub in _msgSubs.values) {
+      sub.cancel();
+    }
+    super.dispose();
+  }
 
   String _descriptionPreview(String description) {
     if (description.isEmpty) return 'No description';
@@ -46,57 +59,53 @@ class _SearchChatsScreenState extends State<SearchChatsScreen> {
       await batch.commit();
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text("Chat deleted.")));
+      ).showSnackBar(const SnackBar(content: Text("Chat deleted.")));
     } catch (error) {
       Navigator.of(context).pop();
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text("Failed to delete chat.")));
+      ).showSnackBar(const SnackBar(content: Text("Failed to delete chat.")));
     }
   }
 
-  Widget _buildChatList(List<QueryDocumentSnapshot> chats) {
-    return ListView.builder(
-      itemCount: chats.length,
-      itemBuilder: (context, index) {
-        final chat = chats[index];
-        final data = chat.data() as Map<String, dynamic>;
-        final itemId = data['itemID'];
-        final isSenderView = _chatFilter == 'Sender';
+  Widget _buildChatCard(QueryDocumentSnapshot chat, BuildContext context) {
+    final data = chat.data() as Map<String, dynamic>;
+    final itemId = data['itemID'];
+    final isSenderView = _chatFilter == 'Sender';
+    final unreadCount = _unreadCounts[chat.id] ?? 0;
 
-        final itemFuture = _firestore.collection('items').doc(itemId).get();
-        final userFuture =
-            _firestore
-                .collection('users')
-                .doc(isSenderView ? data['senderID'] : data['receiverID'])
-                .get();
+    return FutureBuilder<List<DocumentSnapshot>>(
+      future: Future.wait([
+        _firestore.collection('items').doc(itemId).get(),
+        _firestore
+            .collection('users')
+            .doc(isSenderView ? data['senderID'] : data['receiverID'])
+            .get(),
+      ]),
+      builder: (context, snap) {
+        if (!snap.hasData) return const SizedBox();
+        final itemSnap = snap.data![0];
+        final userSnap = snap.data![1];
+        if (!itemSnap.exists || !userSnap.exists) return const SizedBox();
 
-        return FutureBuilder<List<DocumentSnapshot>>(
-          future: Future.wait([itemFuture, userFuture]),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) return const SizedBox();
-            final itemSnap = snapshot.data![0];
-            final userSnap = snapshot.data![1];
-            if (!itemSnap.exists || !userSnap.exists) return const SizedBox();
+        final item = itemSnap.data() as Map<String, dynamic>;
+        final user = userSnap.data() as Map<String, dynamic>;
 
-            final item = itemSnap.data() as Map<String, dynamic>;
-            final user = userSnap.data() as Map<String, dynamic>;
+        Widget itemImg =
+            item['imageUrl'] != null
+                ? _getImageFromBase64(item['imageUrl'], size: 50)
+                : const Icon(Icons.image_not_supported, size: 50);
+        Widget profilePic =
+            user['image'] != null
+                ? ClipOval(child: _getImageFromBase64(user['image'], size: 30))
+                : const CircleAvatar(
+                  radius: 15,
+                  child: Icon(Icons.person, size: 15),
+                );
 
-            Widget itemImg =
-                item['imageUrl'] != null
-                    ? _getImageFromBase64(item['imageUrl'], size: 50)
-                    : const Icon(Icons.image_not_supported, size: 50);
-            Widget profilePic =
-                user['image'] != null
-                    ? ClipOval(
-                      child: _getImageFromBase64(user['image'], size: 30),
-                    )
-                    : const CircleAvatar(
-                      radius: 15,
-                      child: Icon(Icons.person, size: 15),
-                    );
-
-            return Card(
+        return Stack(
+          children: [
+            Card(
               color: const Color.fromARGB(255, 52, 83, 130),
               margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
               shape: RoundedRectangleBorder(
@@ -154,7 +163,7 @@ class _SearchChatsScreenState extends State<SearchChatsScreen> {
                                     130,
                                   ),
                                   title: const Text(
-                                    'Delete chat?\nAttention:\nThis action will delete the chat irreversibly!',
+                                    'Delete chat? This action is irreversible.',
                                     style: TextStyle(color: Colors.white),
                                   ),
                                   actionsAlignment:
@@ -212,7 +221,6 @@ class _SearchChatsScreenState extends State<SearchChatsScreen> {
                       icon: const Icon(Icons.add, color: Colors.white),
                       tooltip: 'More Details',
                       onPressed: () async {
-                        // Fetch as QueryDocumentSnapshot for ItemScreen
                         final query =
                             await _firestore
                                 .collection('items')
@@ -232,8 +240,27 @@ class _SearchChatsScreenState extends State<SearchChatsScreen> {
                   ],
                 ),
               ),
-            );
-          },
+            ),
+            if (unreadCount > 0)
+              Positioned(
+                right: 24,
+                top: 4,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.redAccent,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    '$unreadCount',
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                  ),
+                ),
+              ),
+          ],
         );
       },
     );
@@ -243,7 +270,7 @@ class _SearchChatsScreenState extends State<SearchChatsScreen> {
   Widget build(BuildContext context) {
     final currentUser = _auth.currentUser;
     return AppShell(
-      currentIndex: 3,
+      currentIndex: 0,
       child: Container(
         color: const Color.fromARGB(255, 21, 45, 80),
         child: Column(
@@ -293,15 +320,51 @@ class _SearchChatsScreenState extends State<SearchChatsScreen> {
                       ),
                     );
                   }
-                  final allChats = snapshot.data!.docs;
-                  final filtered =
-                      allChats.where((doc) {
+
+                  final chats =
+                      snapshot.data!.docs.where((doc) {
                         final d = doc.data() as Map<String, dynamic>;
                         return _chatFilter == 'Sender'
                             ? d['receiverID'] == currentUser.uid
                             : d['senderID'] == currentUser.uid;
                       }).toList();
-                  if (filtered.isEmpty) {
+
+                  for (var chat in chats) {
+                    if (!_msgSubs.containsKey(chat.id)) {
+                      final sub = _firestore
+                          .collection('chats')
+                          .doc(chat.id)
+                          .collection('messages')
+                          .snapshots()
+                          .listen((snapMsgs) {
+                            final count =
+                                snapMsgs.docs.where((m) {
+                                  final md = m.data() as Map<String, dynamic>;
+                                  return md['read'] == false &&
+                                      md['senderID'] != currentUser.uid;
+                                }).length;
+                            setState(() {
+                              _unreadCounts[chat.id] = count;
+                            });
+                          });
+                      _msgSubs[chat.id] = sub;
+                    }
+                  }
+
+                  chats.sort((a, b) {
+                    final ua = _unreadCounts[a.id] ?? 0;
+                    final ub = _unreadCounts[b.id] ?? 0;
+                    if (ub != ua) return ub.compareTo(ua);
+                    final da =
+                        (a.data() as Map<String, dynamic>)['timestamp']
+                            as Timestamp?;
+                    final db =
+                        (b.data() as Map<String, dynamic>)['timestamp']
+                            as Timestamp?;
+                    return (db?.compareTo(da ?? Timestamp(0, 0))) ?? 0;
+                  });
+
+                  if (chats.isEmpty) {
                     return const Center(
                       child: Text(
                         'No chats found.',
@@ -309,7 +372,14 @@ class _SearchChatsScreenState extends State<SearchChatsScreen> {
                       ),
                     );
                   }
-                  return _buildChatList(filtered.take(_chatsToLoad).toList());
+
+                  final visible = chats.take(_chatsToLoad).toList();
+                  return ListView.builder(
+                    itemCount: visible.length,
+                    itemBuilder: (context, i) {
+                      return _buildChatCard(visible[i], context);
+                    },
+                  );
                 },
               ),
             ),

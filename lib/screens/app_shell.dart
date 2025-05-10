@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'search_screen.dart';
 import 'search_chats_screen.dart';
-// import 'notifications_screen.dart';
 
 class AppShell extends StatelessWidget {
   final Widget child;
@@ -17,12 +16,10 @@ class AppShell extends StatelessWidget {
     if (idx == currentIndex) return;
     switch (idx) {
       case 0:
-        /*
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+          MaterialPageRoute(builder: (_) => const SearchChatsScreen()),
         );
-        */
         break;
       case 1:
         Navigator.pushReplacement(
@@ -34,12 +31,6 @@ class AppShell extends StatelessWidget {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => const SearchScreen()),
-        );
-        break;
-      case 3:
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const SearchChatsScreen()),
         );
         break;
     }
@@ -57,13 +48,12 @@ class AppShell extends StatelessWidget {
         type: BottomNavigationBarType.fixed,
         onTap: (i) => _onTap(context, i),
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.notifications), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: ''),
           BottomNavigationBarItem(
             icon: Icon(Icons.chat_bubble_outline),
             label: '',
           ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
+          BottomNavigationBarItem(icon: Icon(Icons.search), label: ''),
         ],
       ),
     );

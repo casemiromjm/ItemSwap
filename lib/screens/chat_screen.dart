@@ -1,7 +1,8 @@
 import 'dart:convert';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 import 'item_deletion_handler.dart';
 import 'image_handler.dart';
 
@@ -19,8 +20,11 @@ class _ChatScreenState extends State<ChatScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final TextEditingController _messageController = TextEditingController();
   final User? currentUser = FirebaseAuth.instance.currentUser;
-
   String? _imageBase64;
+
+  String _formatDate(Timestamp ts) {
+    return DateFormat.yMMMd().add_jm().format(ts.toDate());
+  }
 
   Widget _getImageFromBase64(String base64String) {
     final decodedBytes = base64Decode(base64String);
@@ -32,52 +36,46 @@ class _ChatScreenState extends State<ChatScreen> {
         .collection('chats')
         .doc(widget.chatId)
         .collection('messages')
-        .orderBy('timestamp', descending: false)
+        .orderBy('timestamp', descending: true)
         .snapshots();
   }
 
   Future<void> _sendMessage() async {
     if (currentUser == null) return;
+    final col = _firestore
+        .collection('chats')
+        .doc(widget.chatId)
+        .collection('messages');
+    final now = FieldValue.serverTimestamp();
 
     if (_imageBase64 != null) {
-      _firestore
-          .collection('chats')
-          .doc(widget.chatId)
-          .collection('messages')
-          .add({
-            'chatId': widget.chatId,
-            'senderID': currentUser!.uid,
-            'text': _imageBase64,
-            'isText': false,
-            'timestamp': FieldValue.serverTimestamp(),
-          });
-      setState(() {
-        _imageBase64 = null;
+      await col.add({
+        'chatId': widget.chatId,
+        'senderID': currentUser!.uid,
+        'text': _imageBase64,
+        'isText': false,
+        'timestamp': now,
+        'read': false,
       });
+      setState(() => _imageBase64 = null);
     } else {
-      String text = _messageController.text.trim();
-      if (text.isNotEmpty) {
-        _firestore
-            .collection('chats')
-            .doc(widget.chatId)
-            .collection('messages')
-            .add({
-              'chatId': widget.chatId,
-              'senderID': currentUser!.uid,
-              'text': text,
-              'isText': true,
-              'timestamp': FieldValue.serverTimestamp(),
-            });
-        _messageController.clear();
-      }
+      final text = _messageController.text.trim();
+      if (text.isEmpty) return;
+      await col.add({
+        'chatId': widget.chatId,
+        'senderID': currentUser!.uid,
+        'text': text,
+        'isText': true,
+        'timestamp': now,
+        'read': false,
+      });
+      _messageController.clear();
     }
   }
 
   Future<void> _pickImage() async {
     await pickImage((compressedImageBase64) {
-      setState(() {
-        _imageBase64 = compressedImageBase64;
-      });
+      setState(() => _imageBase64 = compressedImageBase64);
     });
   }
 
@@ -161,7 +159,6 @@ class _ChatScreenState extends State<ChatScreen> {
             body: Center(child: CircularProgressIndicator()),
           );
         }
-
         if (chatSnap.hasData && !chatSnap.data!.exists) {
           return Scaffold(
             backgroundColor: const Color(0xFF152D50),
@@ -179,12 +176,11 @@ class _ChatScreenState extends State<ChatScreen> {
         }
 
         final chatData = chatSnap.data!.data() as Map<String, dynamic>;
-
-        final String senderId = chatData['senderID'] as String;
-        final String receiverId = chatData['receiverID'] as String;
-        final bool requestSwap = chatData['request_swap'] ?? false;
-        final bool isReceiver = receiverId == currentUser?.uid;
-        final bool isSender = senderId == currentUser?.uid;
+        final senderId = chatData['senderID'] as String;
+        final receiverId = chatData['receiverID'] as String;
+        final requestSwap = chatData['request_swap'] ?? false;
+        final isReceiver = receiverId == currentUser?.uid;
+        final isSender = senderId == currentUser?.uid;
 
         return Scaffold(
           backgroundColor: const Color(0xFF152D50),
@@ -248,17 +244,31 @@ class _ChatScreenState extends State<ChatScreen> {
                       );
                     }
                     final messages = msgSnap.data!.docs;
+                    // mark incoming unread messages as read
+                    for (var mdoc in messages) {
+                      final m = mdoc.data() as Map<String, dynamic>;
+                      if (m['senderID'] != currentUser?.uid &&
+                          m['read'] == false) {
+                        mdoc.reference.update({'read': true});
+                      }
+                    }
+
                     return ListView.builder(
                       itemCount: messages.length,
+                      reverse: true,
                       itemBuilder: (context, index) {
                         final msg =
                             messages[index].data() as Map<String, dynamic>;
-                        final bool isCurrentUser =
-                            msg['senderID'] == currentUser?.uid;
+                        final isMe = msg['senderID'] == currentUser?.uid;
+                        final bgColor =
+                            isMe
+                                ? const Color.fromARGB(255, 21, 111, 176)
+                                : const Color.fromARGB(255, 67, 100, 150);
+                        final timestamp = msg['timestamp'] as Timestamp?;
 
                         return Align(
                           alignment:
-                              isCurrentUser
+                              isMe
                                   ? Alignment.centerRight
                                   : Alignment.centerLeft,
                           child: Container(
@@ -268,18 +278,46 @@ class _ChatScreenState extends State<ChatScreen> {
                             ),
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: bgColor,
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child:
-                                msg['isText'] == true
-                                    ? Text(
+                            child: Column(
+                              crossAxisAlignment:
+                                  isMe
+                                      ? CrossAxisAlignment.end
+                                      : CrossAxisAlignment.start,
+                              children: [
+                                // Text or Image
+                                if (msg['isText'] == true)
+                                  Text(
+                                    msg['text'] ?? '',
+                                    style: const TextStyle(color: Colors.white),
+                                  )
+                                else
+                                  Container(
+                                    constraints: const BoxConstraints(
+                                      maxWidth: 250,
+                                      maxHeight: 250,
+                                    ),
+                                    child: _getImageFromBase64(
                                       msg['text'] ?? '',
+                                    ),
+                                  ),
+
+                                // Timestamp inside bubble
+                                if (timestamp != null)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 4),
+                                    child: Text(
+                                      _formatDate(timestamp),
                                       style: const TextStyle(
-                                        color: Color(0xFF152D50),
+                                        fontSize: 10,
+                                        color: Colors.white70,
                                       ),
-                                    )
-                                    : _getImageFromBase64(msg['text'] ?? ''),
+                                    ),
+                                  ),
+                              ],
+                            ),
                           ),
                         );
                       },
@@ -287,6 +325,8 @@ class _ChatScreenState extends State<ChatScreen> {
                   },
                 ),
               ),
+
+              // Image-preview before sending
               if (_imageBase64 != null)
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -298,7 +338,13 @@ class _ChatScreenState extends State<ChatScreen> {
                           border: Border.all(color: Colors.white70),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: _getImageFromBase64(_imageBase64!),
+                        child: Container(
+                          constraints: const BoxConstraints(
+                            maxWidth: 150,
+                            maxHeight: 150,
+                          ),
+                          child: _getImageFromBase64(_imageBase64!),
+                        ),
                       ),
                       Positioned(
                         top: 0,
@@ -311,6 +357,8 @@ class _ChatScreenState extends State<ChatScreen> {
                     ],
                   ),
                 ),
+
+              // Message input
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Container(
