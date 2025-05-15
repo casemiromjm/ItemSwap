@@ -24,7 +24,6 @@ class _UserScreenState extends State<UserScreen> {
   int _itemsGiven = 0;
   int _itemsReceived = 0;
   Timestamp? _createdAt;
-
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -39,10 +38,8 @@ class _UserScreenState extends State<UserScreen> {
     bool isOwn = currentUser != null && widget.userId == currentUser.uid;
     DocumentSnapshot userDoc =
         await _firestore.collection('users').doc(widget.userId).get();
-
     setState(() {
       _isOwnProfile = isOwn;
-
       if (userDoc.exists) {
         _isEditing = true;
         _usernameController.text = userDoc['username'] ?? '';
@@ -64,7 +61,6 @@ class _UserScreenState extends State<UserScreen> {
   Future<void> _saveUserData() async {
     User? user = _auth.currentUser;
     if (user == null) return;
-
     Map<String, dynamic> data = {
       'username': _usernameController.text.trim(),
       'image': _imageBase64,
@@ -75,17 +71,14 @@ class _UserScreenState extends State<UserScreen> {
     if (!_isEditing) {
       data['created_at'] = FieldValue.serverTimestamp();
     }
-
     await _firestore
         .collection('users')
         .doc(user.uid)
         .set(data, SetOptions(merge: true));
-
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const HomeScreen()),
     );
-
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(_isEditing ? 'Profile updated!' : 'Profile created!'),

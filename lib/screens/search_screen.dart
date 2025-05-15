@@ -7,8 +7,12 @@ import 'package:latlong2/latlong.dart';
 import 'package:diacritic/diacritic.dart';
 import 'item_screen.dart';
 import 'chat_screen.dart';
+import 'app_shell.dart';
 
 class SearchScreen extends StatefulWidget {
+<<<<<<< HEAD
+  const SearchScreen({super.key});
+=======
   final bool isMyItems;
   final bool isChatsMode;
   final FirebaseFirestore? firestore;
@@ -19,6 +23,7 @@ class SearchScreen extends StatefulWidget {
     this.isChatsMode = false,
     this.firestore,
   });
+>>>>>>> main
 
   @override
   _SearchScreenState createState() => _SearchScreenState();
@@ -107,54 +112,6 @@ class _SearchScreenState extends State<SearchScreen> {
         : '$firstLine (...)';
   }
 
-  void _showDeleteConfirmation(DocumentSnapshot doc) {
-    final String itemName = doc['name'] ?? 'this item';
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: const Color.fromARGB(255, 52, 83, 130),
-          title: Text(
-            "Delete '$itemName'?",
-            style: const TextStyle(color: Colors.white),
-          ),
-          actionsAlignment: MainAxisAlignment.spaceBetween,
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text(
-                '✗',
-                style: TextStyle(color: Colors.red, fontSize: 20),
-              ),
-            ),
-            TextButton(
-              onPressed: () async {
-                try {
-                  await _firestore.collection('items').doc(doc.id).delete();
-                  Navigator.of(context).pop();
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text("$itemName deleted.")));
-                } catch (error) {
-                  Navigator.of(context).pop();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Failed to delete $itemName.")),
-                  );
-                }
-              },
-              child: const Text(
-                '✓',
-                style: TextStyle(color: Colors.green, fontSize: 20),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   Future<void> _createChat(DocumentSnapshot doc) async {
     final currentUser = FirebaseAuth.instance.currentUser;
     final ownerId = doc['ownerId'];
@@ -167,12 +124,16 @@ class _SearchScreenState extends State<SearchScreen> {
     }
 
     QuerySnapshot chatQuery =
-    await _firestore.collection('chats').where('itemID', isEqualTo: doc.id).get();
+        await _firestore
+            .collection('chats')
+            .where('itemID', isEqualTo: doc.id)
+            .get();
 
     String chatId = '';
     for (var chatDoc in chatQuery.docs) {
       final data = chatDoc.data() as Map<String, dynamic>;
-      if (data['senderID'] == currentUser.uid || data['receiverID'] == currentUser.uid) {
+      if (data['senderID'] == currentUser.uid ||
+          data['receiverID'] == currentUser.uid) {
         chatId = chatDoc.id;
         break;
       }
@@ -188,14 +149,15 @@ class _SearchScreenState extends State<SearchScreen> {
     } else {
       DocumentReference newChatRef = await _firestore.collection('chats').add({
         'itemID': doc.id,
-        'senderID': currentUser.uid,
-        'receiverID': ownerId,
+        'senderID': ownerId,
+        'receiverID': currentUser.uid,
         'timestamp': FieldValue.serverTimestamp(),
       });
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => ChatScreen(chatId: newChatRef.id, itemId: doc.id),
+          builder:
+              (context) => ChatScreen(chatId: newChatRef.id, itemId: doc.id),
         ),
       );
     }
@@ -203,48 +165,34 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final String appBarTitle =
-    widget.isChatsMode ? 'Chats' : (widget.isMyItems ? 'My Items' : 'Search Items');
-
-    return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 21, 45, 80),
-      appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 63, 133, 190),
-        title: Center(
-          child: Text(
-            appBarTitle,
-            style: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              fontFamily: 'Roboto',
-            ),
-          ),
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            // USER STORY:
-            // As a user, I want to search items by name so that I can quickly find what I'm looking for.
-            // I also want to load more items on demand, so I don't get overwhelmed by too many at once.
-
-            if (!widget.isMyItems)
+    return AppShell(
+      currentIndex: 2,
+      child: Container(
+        color: const Color.fromARGB(255, 21, 45, 80),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
               Column(
                 children: [
                   Row(
                     children: [
                       Expanded(
                         child: DropdownButton<String>(
-                          key: const Key('typeDropdown'), // Add a unique key
+                          key: const Key('typeDropdown'),
                           value: _selectedType,
                           isExpanded: true,
                           dropdownColor: const Color.fromARGB(255, 52, 83, 130),
                           style: const TextStyle(color: Colors.white),
-                          items: _itemTypes
-                              .map((type) => DropdownMenuItem(value: type, child: Text(type)))
-                              .toList(),
+                          items:
+                              _itemTypes
+                                  .map(
+                                    (type) => DropdownMenuItem(
+                                      value: type,
+                                      child: Text(type),
+                                    ),
+                                  )
+                                  .toList(),
                           onChanged: (value) {
                             setState(() {
                               _selectedType = value;
@@ -261,12 +209,22 @@ class _SearchScreenState extends State<SearchScreen> {
                           dropdownColor: const Color.fromARGB(255, 52, 83, 130),
                           style: const TextStyle(color: Colors.white),
                           items: const [
-                            DropdownMenuItem(value: "time", child: Text("Time")),
-                            DropdownMenuItem(value: "location", child: Text("Location")),
-                            DropdownMenuItem(value: "name", child: Text("Name")),
+                            DropdownMenuItem(
+                              value: "time",
+                              child: Text("Time"),
+                            ),
+                            DropdownMenuItem(
+                              value: "location",
+                              child: Text("Location"),
+                            ),
+                            DropdownMenuItem(
+                              value: "name",
+                              child: Text("Name"),
+                            ),
                           ],
                           onChanged: (value) async {
-                            if (value == "location" && _selectedLocation == null) {
+                            if (value == "location" &&
+                                _selectedLocation == null) {
                               await _pickLocation();
                             }
                             setState(() {
@@ -275,7 +233,8 @@ class _SearchScreenState extends State<SearchScreen> {
                           },
                         ),
                       ),
-                      if (_sortOption == "location" && _selectedLocation != null)
+                      if (_sortOption == "location" &&
+                          _selectedLocation != null)
                         TextButton(
                           onPressed: _pickLocation,
                           child: const Text(
@@ -307,89 +266,107 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                 ],
               ),
-            const SizedBox(height: 20),
-            if (widget.isMyItems)
-              ElevatedButton(
-                onPressed: () async {
-                  final result = await Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const ItemScreen()),
-                  );
-                  if (result == 'submitted') {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Item submitted successfully!'),
-                      ),
-                    );
-                  }
-                },
-                child: const Text("New Item"),
-              ),
-            const SizedBox(height: 10),
-            Expanded(
-              child: StreamBuilder<QuerySnapshot>(
-                stream: _firestore.collection('items').snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}', style: const TextStyle(color: Colors.white)));
-                  }
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (!snapshot.hasData) {
-                    return const Center(child: Text('No items found.', style: TextStyle(color: Colors.white)));
-                  }
-
-                  final currentUser = _auth.currentUser;
-                  List<QueryDocumentSnapshot> items = snapshot.data!.docs;
-
-                  if (_selectedType != "All") {
-                    items = items.where((doc) => doc['type'] == _selectedType).toList();
-                  }
-
-                  items = items.where((doc) {
-                    final ownerId = doc['ownerId'];
-                    return widget.isMyItems ? ownerId == currentUser!.uid : ownerId != currentUser!.uid;
-                  }).toList();
-
-                  if (_searchQuery.isNotEmpty) {
-                    items = items.where((doc) {
-                      final name = _normalizeName(doc['name'] ?? '');
-                      final query = _normalizeName(_searchQuery);
-                      return name.contains(query);
-                    }).toList();
-                  }
-
-                  if (_sortOption == "location" && _selectedLocation != null) {
-                    items.sort((a, b) {
-                      final aLoc = LatLng(a['location']['latitude'], a['location']['longitude']);
-                      final bLoc = LatLng(b['location']['latitude'], b['location']['longitude']);
-                      return _calculateDistance(aLoc, _selectedLocation!).compareTo(
-                        _calculateDistance(bLoc, _selectedLocation!),
+              const SizedBox(height: 20),
+              Expanded(
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: _firestore.collection('items').snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Text(
+                          'Error: ${snapshot.error}',
+                          style: const TextStyle(color: Colors.white),
+                        ),
                       );
-                    });
-                  } else if (_sortOption == "time") {
-                    items.sort((a, b) => (b['timestamp'] ?? 0).compareTo(a['timestamp'] ?? 0));
-                  } else if (_sortOption == "name") {
-                    items.sort((a, b) {
-                      final nameA = _normalizeName(a['name'] ?? '');
-                      final nameB = _normalizeName(b['name'] ?? '');
-                      return nameA.compareTo(nameB);
-                    });
-                  }
+                    }
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (!snapshot.hasData) {
+                      return const Center(
+                        child: Text(
+                          'No items found.',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      );
+                    }
 
-                  final visibleItems = items.take(_itemsToLoad).toList();
-                  return _buildItemList(visibleItems);
-                },
+                    final currentUser = _auth.currentUser;
+                    List<QueryDocumentSnapshot> items = snapshot.data!.docs;
+
+                    if (_selectedType != "All") {
+                      items =
+                          items
+                              .where((doc) => doc['type'] == _selectedType)
+                              .toList();
+                    }
+
+                    items =
+                        items.where((doc) {
+                          final ownerId = doc['ownerId'];
+                          return ownerId != currentUser!.uid;
+                        }).toList();
+
+                    if (_searchQuery.isNotEmpty) {
+                      items =
+                          items.where((doc) {
+                            final name = _normalizeName(doc['name'] ?? '');
+                            final query = _normalizeName(_searchQuery);
+                            return name.contains(query);
+                          }).toList();
+                    }
+
+                    if (_sortOption == "location" &&
+                        _selectedLocation != null) {
+                      items.sort((a, b) {
+                        final aLoc = LatLng(
+                          a['location']['latitude'],
+                          a['location']['longitude'],
+                        );
+                        final bLoc = LatLng(
+                          b['location']['latitude'],
+                          b['location']['longitude'],
+                        );
+                        return _calculateDistance(
+                          aLoc,
+                          _selectedLocation!,
+                        ).compareTo(
+                          _calculateDistance(bLoc, _selectedLocation!),
+                        );
+                      });
+                    } else if (_sortOption == "time") {
+                      items.sort(
+                        (a, b) => (b['timestamp'] ?? 0).compareTo(
+                          a['timestamp'] ?? 0,
+                        ),
+                      );
+                    } else if (_sortOption == "name") {
+                      items.sort((a, b) {
+                        final nameA = _normalizeName(a['name'] ?? '');
+                        final nameB = _normalizeName(b['name'] ?? '');
+                        return nameA.compareTo(nameB);
+                      });
+                    }
+
+                    final visibleItems = items.take(_itemsToLoad).toList();
+                    return _buildItemList(visibleItems);
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildItemList(List<QueryDocumentSnapshot> visibleItems) {
+    if (visibleItems.isEmpty) {
+      return const Center(
+        child: Text('No items found.', style: TextStyle(color: Colors.white)),
+      );
+    }
+
     return Column(
       children: [
         Expanded(
@@ -399,27 +376,52 @@ class _SearchScreenState extends State<SearchScreen> {
               final doc = visibleItems[index];
               final item = doc.data() as Map<String, dynamic>;
               return Card(
-                margin: const EdgeInsets.symmetric(vertical: 7.0),
+                color: const Color.fromARGB(255, 52, 83, 130),
+                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 child: ListTile(
-                  leading: item['imageUrl'] != null
-                      ? _getImageFromBase64(item['imageUrl'])
-                      : const Icon(Icons.image_not_supported, size: 50),
-                  title: Text(item['name'] ?? 'Unknown'),
+                  leading:
+                      item['imageUrl'] != null
+                          ? _getImageFromBase64(item['imageUrl'])
+                          : const Icon(Icons.image_not_supported, size: 50),
+                  title: Text(
+                    item['name'] ?? 'Unnamed Item',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(_descriptionPreview(item)),
+                      Text(
+                        _descriptionPreview(item),
+                        style: const TextStyle(color: Colors.white70),
+                      ),
+                      const SizedBox(height: 5),
                       FutureBuilder<DocumentSnapshot>(
-                        future: _firestore.collection('users').doc(item['ownerId']).get(),
+                        future:
+                            _firestore
+                                .collection('users')
+                                .doc(item['ownerId'])
+                                .get(),
                         builder: (context, userSnapshot) {
                           String username = '';
                           Widget? profilePic;
-                          if (userSnapshot.hasData && userSnapshot.data!.exists) {
-                            final userData = userSnapshot.data!.data() as Map<String, dynamic>;
+                          if (userSnapshot.hasData &&
+                              userSnapshot.data!.exists) {
+                            final userData =
+                                userSnapshot.data!.data()
+                                    as Map<String, dynamic>;
                             username = userData['username'] ?? '';
                             if (userData['image'] != null) {
                               profilePic = ClipOval(
-                                child: _getImageFromBase64(userData['image'], size: 30),
+                                child: _getImageFromBase64(
+                                  userData['image'],
+                                  size: 30,
+                                ),
                               );
                             }
                           }
@@ -427,7 +429,14 @@ class _SearchScreenState extends State<SearchScreen> {
                             children: [
                               if (profilePic != null) profilePic,
                               const SizedBox(width: 5),
-                              Text(username, style: const TextStyle(fontWeight: FontWeight.bold)),
+                              Text(
+                                username,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                             ],
                           );
                         },
@@ -437,24 +446,19 @@ class _SearchScreenState extends State<SearchScreen> {
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      if (!widget.isMyItems)
-                        ElevatedButton(
-                          onPressed: () {
-                            _createChat(doc);
-                          },
-                          child: const Text("Chat"),
+                      IconButton(
+                        icon: const Icon(
+                          Icons.chat_bubble_outline,
+                          color: Colors.white,
                         ),
-                      if (widget.isMyItems)
-                        IconButton(
-                          icon: const Icon(Icons.delete),
-                          tooltip: "Delete",
-                          onPressed: () {
-                            _showDeleteConfirmation(doc);
-                          },
-                        ),
+                        tooltip: 'Open Chat',
+                        onPressed: () {
+                          _createChat(doc);
+                        },
+                      ),
                       const SizedBox(width: 5),
                       IconButton(
-                        icon: const Icon(Icons.add),
+                        icon: const Icon(Icons.add, color: Colors.white),
                         tooltip: "More details",
                         onPressed: () {
                           Navigator.push(
@@ -473,10 +477,7 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
         ),
         if (visibleItems.length >= _itemsToLoad)
-          ElevatedButton(
-            onPressed: _loadMoreItems,
-            child: const Text("More"),
-          ),
+          ElevatedButton(onPressed: _loadMoreItems, child: const Text("More")),
       ],
     );
   }

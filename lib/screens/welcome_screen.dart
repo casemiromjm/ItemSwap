@@ -21,8 +21,8 @@ class WelcomeScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      width: constraints.maxWidth * 0.6, // 60% of screen width
-                      height: constraints.maxWidth * 0.6, // Keep it square
+                      width: constraints.maxWidth * 0.6,
+                      height: constraints.maxWidth * 0.6,
                       alignment: Alignment.center,
                       child: Image.asset(
                         'images/logo.png',
@@ -38,7 +38,7 @@ class WelcomeScreen extends StatelessWidget {
                     ),
                     const SizedBox(
                       height: 20,
-                    ), // Reduced space between logo and buttons
+                    ),
                     ElevatedButton(
                       onPressed: () {
                         Navigator.push(

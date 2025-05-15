@@ -1,9 +1,9 @@
 import 'dart:convert';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 import 'item_deletion_handler.dart';
-// Import your image handler package that provides the pickImage function.
 import 'image_handler.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -20,9 +20,16 @@ class _ChatScreenState extends State<ChatScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final TextEditingController _messageController = TextEditingController();
   final User? currentUser = FirebaseAuth.instance.currentUser;
+<<<<<<< HEAD
+=======
   final FocusNode _messageFocusNode = FocusNode();
 
+>>>>>>> main
   String? _imageBase64;
+
+  String _formatDate(Timestamp ts) {
+    return DateFormat.yMMMd().add_jm().format(ts.toDate());
+  }
 
   Widget _getImageFromBase64(String base64String) {
     final decodedBytes = base64Decode(base64String);
@@ -34,52 +41,46 @@ class _ChatScreenState extends State<ChatScreen> {
         .collection('chats')
         .doc(widget.chatId)
         .collection('messages')
-        .orderBy('timestamp', descending: false)
+        .orderBy('timestamp', descending: true)
         .snapshots();
   }
 
-  void _sendMessage() {
+  Future<void> _sendMessage() async {
     if (currentUser == null) return;
+    final col = _firestore
+        .collection('chats')
+        .doc(widget.chatId)
+        .collection('messages');
+    final now = FieldValue.serverTimestamp();
 
     if (_imageBase64 != null) {
-      _firestore
-          .collection('chats')
-          .doc(widget.chatId)
-          .collection('messages')
-          .add({
+      await col.add({
         'chatId': widget.chatId,
         'senderID': currentUser!.uid,
         'text': _imageBase64,
         'isText': false,
-        'timestamp': FieldValue.serverTimestamp(),
+        'timestamp': now,
+        'read': false,
       });
-      setState(() {
-        _imageBase64 = null;
-      });
+      setState(() => _imageBase64 = null);
     } else {
-      String text = _messageController.text.trim();
-      if (text.isNotEmpty) {
-        _firestore
-            .collection('chats')
-            .doc(widget.chatId)
-            .collection('messages')
-            .add({
-          'chatId': widget.chatId,
-          'senderID': currentUser!.uid,
-          'text': text,
-          'isText': true,
-          'timestamp': FieldValue.serverTimestamp(),
-        });
-        _messageController.clear();
-      }
+      final text = _messageController.text.trim();
+      if (text.isEmpty) return;
+      await col.add({
+        'chatId': widget.chatId,
+        'senderID': currentUser!.uid,
+        'text': text,
+        'isText': true,
+        'timestamp': now,
+        'read': false,
+      });
+      _messageController.clear();
     }
   }
 
   Future<void> _pickImage() async {
     await pickImage((compressedImageBase64) {
-      setState(() {
-        _imageBase64 = compressedImageBase64;
-      });
+      setState(() => _imageBase64 = compressedImageBase64);
     });
   }
 
@@ -109,19 +110,24 @@ class _ChatScreenState extends State<ChatScreen> {
         return AlertDialog(
           backgroundColor: const Color.fromARGB(255, 52, 83, 130),
           title: Text(
-            "Finish swap negotiation for '$itemName'?",
+            "Finish swap negotiation for '$itemName'?\nAttention:\nThis action will delete the chat and the item!",
             style: const TextStyle(color: Colors.white),
           ),
           actionsAlignment: MainAxisAlignment.spaceBetween,
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('✗', style: TextStyle(color: Colors.red, fontSize: 20)),
+              child: const Text(
+                '✗',
+                style: TextStyle(color: Colors.red, fontSize: 20),
+              ),
             ),
             TextButton(
               onPressed: () async {
                 Navigator.of(context).pop();
-                await ItemDeletionHandler.deleteItemAndRelatedChats(widget.itemId);
+                await ItemDeletionHandler.deleteItemAndRelatedChats(
+                  widget.itemId,
+                );
                 final senderId = chatData['senderID'] as String;
                 final receiverId = chatData['receiverID'] as String;
                 await _firestore.collection('users').doc(senderId).update({
@@ -134,7 +140,10 @@ class _ChatScreenState extends State<ChatScreen> {
                   SnackBar(content: Text('$itemName successfully swapped!')),
                 );
               },
-              child: const Text('✓', style: TextStyle(color: Colors.green, fontSize: 20)),
+              child: const Text(
+                '✓',
+                style: TextStyle(color: Colors.green, fontSize: 20),
+              ),
             ),
           ],
         );
@@ -155,7 +164,6 @@ class _ChatScreenState extends State<ChatScreen> {
             body: Center(child: CircularProgressIndicator()),
           );
         }
-
         if (chatSnap.hasData && !chatSnap.data!.exists) {
           return Scaffold(
             backgroundColor: const Color(0xFF152D50),
@@ -174,19 +182,20 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ),
             body: const Center(
-              child: Text('This chat has been deleted.',
-                  style: TextStyle(color: Colors.white70)),
+              child: Text(
+                'This chat has been deleted.',
+                style: TextStyle(color: Colors.white70),
+              ),
             ),
           );
         }
 
         final chatData = chatSnap.data!.data() as Map<String, dynamic>;
-
-        final String senderId = chatData['senderID'] as String;
-        final String receiverId = chatData['receiverID'] as String;
-        final bool requestSwap = chatData['request_swap'] ?? false;
-        final bool isReceiver = receiverId == currentUser?.uid;
-        final bool isSender = senderId == currentUser?.uid;
+        final senderId = chatData['senderID'] as String;
+        final receiverId = chatData['receiverID'] as String;
+        final requestSwap = chatData['request_swap'] ?? false;
+        final isReceiver = receiverId == currentUser?.uid;
+        final isSender = senderId == currentUser?.uid;
 
         return Scaffold(
           backgroundColor: const Color(0xFF152D50),
@@ -195,12 +204,13 @@ class _ChatScreenState extends State<ChatScreen> {
             title: FutureBuilder<String>(
               future: Future.wait([
                 _fetchItemName(),
-                _fetchReceiverName(isReceiver ? senderId : receiverId)
+                _fetchReceiverName(isReceiver ? senderId : receiverId),
               ]).then((values) => 'Chat for ${values[0]} with ${values[1]}'),
               builder: (context, titleSnap) {
-                final title = titleSnap.connectionState == ConnectionState.waiting
-                    ? 'Loading...'
-                    : titleSnap.data!;
+                final title =
+                    titleSnap.connectionState == ConnectionState.waiting
+                        ? 'Loading...'
+                        : titleSnap.data!;
                 return Text(
                   title,
                   textAlign: TextAlign.center,
@@ -220,7 +230,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: ElevatedButton(
-                    onPressed: () => chatRef.update({'request_swap': !requestSwap}),
+                    onPressed:
+                        () => chatRef.update({'request_swap': !requestSwap}),
                     child: Text(requestSwap ? 'Undo request' : 'Request swap'),
                   ),
                 ),
@@ -248,30 +259,76 @@ class _ChatScreenState extends State<ChatScreen> {
                       );
                     }
                     final messages = msgSnap.data!.docs;
+                    for (var mdoc in messages) {
+                      final m = mdoc.data() as Map<String, dynamic>;
+                      if (m['senderID'] != currentUser?.uid &&
+                          m['read'] == false) {
+                        mdoc.reference.update({'read': true});
+                      }
+                    }
+
                     return ListView.builder(
                       itemCount: messages.length,
+                      reverse: true,
                       itemBuilder: (context, index) {
-                        final msg = messages[index].data() as Map<String, dynamic>;
-                        final bool isCurrentUser = msg['senderID'] == currentUser?.uid;
+                        final msg =
+                            messages[index].data() as Map<String, dynamic>;
+                        final isMe = msg['senderID'] == currentUser?.uid;
+                        final bgColor =
+                            isMe
+                                ? const Color.fromARGB(255, 21, 111, 176)
+                                : const Color.fromARGB(255, 67, 100, 150);
+                        final timestamp = msg['timestamp'] as Timestamp?;
 
                         return Align(
                           alignment:
-                          isCurrentUser ? Alignment.centerRight : Alignment.centerLeft,
+                              isMe
+                                  ? Alignment.centerRight
+                                  : Alignment.centerLeft,
                           child: Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            margin: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: bgColor,
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: msg['isText'] == true
-                                ? Text(
-                              msg['text'] ?? '',
-                              style: const TextStyle(
-                                color: Color(0xFF152D50),
-                              ),
-                            )
-                                : _getImageFromBase64(msg['text'] ?? ''),
+                            child: Column(
+                              crossAxisAlignment:
+                                  isMe
+                                      ? CrossAxisAlignment.end
+                                      : CrossAxisAlignment.start,
+                              children: [
+                                if (msg['isText'] == true)
+                                  Text(
+                                    msg['text'] ?? '',
+                                    style: const TextStyle(color: Colors.white),
+                                  )
+                                else
+                                  Container(
+                                    constraints: const BoxConstraints(
+                                      maxWidth: 250,
+                                      maxHeight: 250,
+                                    ),
+                                    child: _getImageFromBase64(
+                                      msg['text'] ?? '',
+                                    ),
+                                  ),
+                                if (timestamp != null)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 4),
+                                    child: Text(
+                                      _formatDate(timestamp),
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        color: Colors.white70,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
                           ),
                         );
                       },
@@ -290,7 +347,13 @@ class _ChatScreenState extends State<ChatScreen> {
                           border: Border.all(color: Colors.white70),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: _getImageFromBase64(_imageBase64!),
+                        child: Container(
+                          constraints: const BoxConstraints(
+                            maxWidth: 150,
+                            maxHeight: 150,
+                          ),
+                          child: _getImageFromBase64(_imageBase64!),
+                        ),
                       ),
                       Positioned(
                         top: 0,

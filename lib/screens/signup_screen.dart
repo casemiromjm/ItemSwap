@@ -18,7 +18,6 @@ class _SignupScreenState extends State<SignupScreen> {
   bool _isPasswordVisible = false;
   bool _isLoading = false;
   String _errorMessage = '';
-
   late final FirebaseAuth _auth;
 
   @override
@@ -34,31 +33,25 @@ class _SignupScreenState extends State<SignupScreen> {
       );
       return;
     }
-
     setState(() {
       _isLoading = true;
       _errorMessage = '';
     });
-
     try {
       UserCredential userCredential = await _auth
           .createUserWithEmailAndPassword(
             email: _emailController.text,
             password: _passwordController.text,
           );
-
       await userCredential.user!.sendEmailVerification();
-
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Verification email sent. Please verify your email.'),
         ),
       );
-
       setState(() {
         _isLoading = false;
       });
-
       _showVerificationDialog(userCredential.user!);
     } on FirebaseAuthException catch (e) {
       setState(() {
@@ -83,11 +76,8 @@ class _SignupScreenState extends State<SignupScreen> {
                 onPressed: () async {
                   await user.reload();
                   User? updatedUser = _auth.currentUser;
-
                   if (updatedUser != null && updatedUser.emailVerified) {
                     Navigator.of(context).pop();
-                    // Proceed with profile creation or other logic
-                    // Redirect user to login screen for further steps
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
@@ -144,7 +134,6 @@ class _SignupScreenState extends State<SignupScreen> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const SizedBox(height: 16),
                       SizedBox(
                         width: 300,
                         child: TextField(

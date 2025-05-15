@@ -1,4 +1,3 @@
-// image_handler.dart
 import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -14,7 +13,7 @@ Future<void> pickImage(Function(String) onImagePicked) async {
     if (result != null) {
       final file = result.files.single;
       final compressedImageBase64 = await _compressImageFile(file.bytes!);
-      onImagePicked(compressedImageBase64); // Callback with the image data
+      onImagePicked(compressedImageBase64);
     }
   } else {
     final picker = ImagePicker();
@@ -23,7 +22,7 @@ Future<void> pickImage(Function(String) onImagePicked) async {
     if (pickedFile != null) {
       final bytes = await pickedFile.readAsBytes();
       final compressedImageBase64 = await _compressImageFile(bytes);
-      onImagePicked(compressedImageBase64); // Callback with the image data
+      onImagePicked(compressedImageBase64);
     }
   }
 }

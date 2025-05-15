@@ -10,7 +10,6 @@ import 'user_screen.dart';
 import 'image_handler.dart';
 
 class ItemScreen extends StatefulWidget {
-  /// When [itemDoc] is null, we assume a new item is being created.
   final QueryDocumentSnapshot? itemDoc;
   const ItemScreen({super.key, this.itemDoc});
 
@@ -29,11 +28,8 @@ class _ItemScreenState extends State<ItemScreen> {
   LatLng? _location;
   bool _isOwnItem = false;
   bool _isLoading = false;
-  bool _isNewItem = false; // Flag to indicate new item creation.
-
-  // New variable for item type.
+  bool _isNewItem = false;
   String? _selectedType;
-  // A list of possible item types.
   final List<String> _itemTypes = [
     'Art & Decor',
     'Baby Products',
@@ -66,7 +62,7 @@ class _ItemScreenState extends State<ItemScreen> {
         borderSide: BorderSide(color: Colors.grey),
       ),
       focusedBorder: const OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.grey), // Use desired focused color
+        borderSide: BorderSide(color: Colors.grey),
       ),
       disabledBorder: const OutlineInputBorder(
         borderSide: BorderSide(color: Colors.grey),
@@ -80,20 +76,15 @@ class _ItemScreenState extends State<ItemScreen> {
   @override
   void initState() {
     super.initState();
-    // If no itemDoc is provided, we are creating a new item.
     _isNewItem = widget.itemDoc == null;
     final currentUser = _auth.currentUser;
-    _isOwnItem = currentUser != null; // For new items the user is the owner.
+    _isOwnItem = currentUser != null;
     if (_isNewItem) {
-      // Start with empty fields.
       _nameController.text = '';
       _descriptionController.text = '';
       _selectedType = null;
       _imageBase64 = null;
-      _location = LatLng(
-        41.1579,
-        -8.6291,
-      ); // Default location (Porto, Portugal).
+      _location = LatLng(41.1579, -8.6291);
     } else {
       item = widget.itemDoc!.data() as Map<String, dynamic>;
       _loadItemData();
@@ -106,7 +97,7 @@ class _ItemScreenState extends State<ItemScreen> {
 
     _nameController.text = item['name'] ?? '';
     _descriptionController.text = item['description'] ?? '';
-    _selectedType = item['type']; // Load item type from the document.
+    _selectedType = item['type'];
     _imageBase64 = item['imageUrl'];
     _location = LatLng(
       item['location']['latitude'],
@@ -125,7 +116,6 @@ class _ItemScreenState extends State<ItemScreen> {
 
   Future<void> _pickLocation() async {
     if (!_isOwnItem) return;
-    // Use _location if available; for new items, _location is set to a default.
     final selected = await Navigator.push<LatLng>(
       context,
       MaterialPageRoute(
@@ -144,10 +134,7 @@ class _ItemScreenState extends State<ItemScreen> {
   }
 
   Future<void> _saveItemChanges() async {
-    // Define the valid name regex.
     final RegExp validNameRegExp = RegExp(r'[A-Za-zÀ-ÖØ-öø-ÿ]');
-
-    // Validate that required fields are not empty.
     if (_nameController.text.trim().isEmpty ||
         !validNameRegExp.hasMatch(_nameController.text) ||
         _descriptionController.text.trim().isEmpty ||
@@ -161,19 +148,16 @@ class _ItemScreenState extends State<ItemScreen> {
       );
       return;
     }
-
     setState(() {
       _isLoading = true;
     });
-
     try {
       final currentUser = _auth.currentUser;
       if (_isNewItem) {
-        // Create a new item document.
         await _firestore.collection('items').add({
           'name': _nameController.text,
           'description': _descriptionController.text,
-          'type': _selectedType, // Save the item type.
+          'type': _selectedType,
           'imageUrl': _imageBase64,
           'location': {
             'latitude': _location!.latitude,
@@ -182,14 +166,12 @@ class _ItemScreenState extends State<ItemScreen> {
           'ownerId': currentUser!.uid,
           'timestamp': FieldValue.serverTimestamp(),
         });
-        // Pop with a flag to indicate successful submission.
         Navigator.pop(context, 'submitted');
       } else {
-        // Update the existing item document.
         await _firestore.collection('items').doc(widget.itemDoc!.id).update({
           'name': _nameController.text,
           'description': _descriptionController.text,
-          'type': _selectedType, // Save the item type.
+          'type': _selectedType,
           'imageUrl': _imageBase64,
           'location': {
             'latitude': _location!.latitude,
@@ -269,7 +251,6 @@ class _ItemScreenState extends State<ItemScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // If editing an existing item, show its timestamp.
     final timestamp =
         !_isNewItem && item['timestamp'] is Timestamp
             ? item['timestamp'] as Timestamp
@@ -323,16 +304,14 @@ class _ItemScreenState extends State<ItemScreen> {
                   style: const TextStyle(color: Colors.white, fontSize: 14),
                 ),
               const SizedBox(height: 20),
-              // Item Name Field with text length restriction.
               TextField(
                 controller: _nameController,
                 readOnly: !_isOwnItem,
                 style: const TextStyle(color: Colors.white),
-                maxLength: 20, // Restrict name to 20 characters.
+                maxLength: 20,
                 decoration: buildTextFieldDecoration('Item Name'),
               ),
               const SizedBox(height: 5),
-              // Item Type Field.
               _isOwnItem
                   ? DropdownButtonFormField<String>(
                     value: _selectedType,
@@ -362,7 +341,6 @@ class _ItemScreenState extends State<ItemScreen> {
                     ),
                   ),
               const SizedBox(height: 30),
-              // Description Field with text length restriction.
               TextField(
                 controller: _descriptionController,
                 readOnly: !_isOwnItem,

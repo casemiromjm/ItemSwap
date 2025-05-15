@@ -18,6 +18,9 @@ class _LoginScreenState extends State<LoginScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   bool _isPasswordVisible = false;
+<<<<<<< HEAD
+  bool _isLoading = false;
+=======
   bool _isLoading = false; // For loading state
   final FocusNode _passwordFocusNode = FocusNode();
 
@@ -28,6 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   // Function to handle the login logic
+>>>>>>> main
   Future<void> _login() async {
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -35,19 +39,14 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       return;
     }
-
     setState(() {
       _isLoading = true;
     });
-
     try {
-      // Sign in with email and password
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
-
-      // Check if email is verified
       if (!userCredential.user!.emailVerified) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -59,8 +58,6 @@ class _LoginScreenState extends State<LoginScreen> {
         });
         return;
       }
-
-      // Check if user profile exists in Firestore
       DocumentSnapshot userDoc =
           await _firestore
               .collection('users')
@@ -68,7 +65,6 @@ class _LoginScreenState extends State<LoginScreen> {
               .get();
 
       if (!userDoc.exists) {
-        // If profile does not exist, redirect to user creation screen
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -79,7 +75,6 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         );
       } else {
-        // Navigate to HomeScreen if profile exists
         Navigator.pushReplacement(
           context,
           //MaterialPageRoute(builder: (context) => const HomeScreen()),  // useful for debug reasons
@@ -90,7 +85,6 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() {
         _isLoading = false;
       });
-
       String message;
       if (e.code == 'user-not-found') {
         message = 'No user found for that email.';
@@ -98,11 +92,9 @@ class _LoginScreenState extends State<LoginScreen> {
         message = 'Incorrect password.';
       } else if (e.code == 'invalid-email') {
         message = 'Invalid email format.';
-      }
-      else {
+      } else {
         message = 'Something went wrong';
       }
-
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(message)));
@@ -139,7 +131,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      // Email input field
                       SizedBox(
                         width: 300,
                         child: TextField(
@@ -160,7 +151,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      // Password input field with visibility toggle
                       SizedBox(
                         width: 300,
                         child: TextField(
@@ -192,7 +182,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       const SizedBox(height: 30),
-                      // Login button
                       ElevatedButton(
                         onPressed: _isLoading ? null : _login,
                         child:
