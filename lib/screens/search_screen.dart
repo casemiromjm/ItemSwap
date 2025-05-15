@@ -10,7 +10,20 @@ import 'chat_screen.dart';
 import 'app_shell.dart';
 
 class SearchScreen extends StatefulWidget {
+<<<<<<< HEAD
   const SearchScreen({super.key});
+=======
+  final bool isMyItems;
+  final bool isChatsMode;
+  final FirebaseFirestore? firestore;
+
+  const SearchScreen({
+    super.key,
+    this.isMyItems = false,
+    this.isChatsMode = false,
+    this.firestore,
+  });
+>>>>>>> main
 
   @override
   _SearchScreenState createState() => _SearchScreenState();
@@ -23,7 +36,7 @@ class _SearchScreenState extends State<SearchScreen> {
   int _itemsToLoad = 10;
   String _searchQuery = '';
   final _auth = FirebaseAuth.instance;
-  final _firestore = FirebaseFirestore.instance;
+  FirebaseFirestore get _firestore => widget.firestore ?? FirebaseFirestore.instance;
 
   final List<String> _itemTypes = [
     "All",

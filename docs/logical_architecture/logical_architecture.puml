@@ -1,0 +1,16 @@
+@startuml Logical Architecture
+
+title "Logical Architecture"
+
+package "App" {
+    [User Interface] ..> [Business Logic]
+}
+
+package "External Services" {
+
+    component "Firebase"
+}
+
+[Business Logic] .right.> Firebase
+
+@enduml

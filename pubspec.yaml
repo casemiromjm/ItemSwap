@@ -1,5 +1,5 @@
-name: test1
-description: "A new Flutter project."
+name: itemswap
+description: "App developed during ESOF 24/25 course."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -64,6 +64,7 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
 
+  #test1: any
   cloud_firestore_platform_interface: any
   firebase_auth_platform_interface: any
 flutter_icons:
