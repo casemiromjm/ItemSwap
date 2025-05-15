@@ -20,11 +20,8 @@ class _ChatScreenState extends State<ChatScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final TextEditingController _messageController = TextEditingController();
   final User? currentUser = FirebaseAuth.instance.currentUser;
-<<<<<<< HEAD
-=======
   final FocusNode _messageFocusNode = FocusNode();
 
->>>>>>> main
   String? _imageBase64;
 
   String _formatDate(Timestamp ts) {

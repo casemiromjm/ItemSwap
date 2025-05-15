@@ -18,10 +18,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   bool _isPasswordVisible = false;
-<<<<<<< HEAD
   bool _isLoading = false;
-=======
-  bool _isLoading = false; // For loading state
   final FocusNode _passwordFocusNode = FocusNode();
 
   @override
@@ -31,7 +28,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   // Function to handle the login logic
->>>>>>> main
   Future<void> _login() async {
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
