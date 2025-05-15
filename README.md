@@ -333,13 +333,43 @@ You can find below information and references related with the project managemen
 
 ### Sprint 1
 
+Beginning Dashboard
 <p align="center" justify="center">
-  <img src=docs/sprints/sprint1.png>
+  <img src=docs/sprints/sprint1_ini.png>
 </p>
+
+Ending Dashboard
+<p align="center" justify="center">
+  <img src=docs/sprints/sprint1_fin.png>
+</p>
+
+During this first sprint, we successfully used the GitHub dashboard and implemented the features themselves. However, our main challenge was writing tests for the features.
+We also learned a lot about Flutter/Dart functionalities, particularly how to handle common Flutter issues. Additionally, we improved our work planning and realized the importance of allocating enough time for testing.
+In the next sprint, we expect testing to remain a challenge for us
 
 ### Sprint 2
 
+Beginning Dashboard
+<p align="center" justify="center">
+  <img src=docs/sprints/sprint2_ini.png>
+</p>
+
+Ending Dashboard
+<p align="center" justify="center">
+  <img src=docs/sprints/sprint2_fin.png>
+</p>
+
+During the second sprint, we successfully used the GitHub dashboard once again and implemented some features we left behind on the first sprint. We also managed to implemented brand new features.
+However, our main challenge still was writing tests for the features, specially the ones that interact with the Firebase.
+We also learned more about Flutter/Dart and how to handle important feature, like a chat. Additionally, we feel that we improved our work planning a little more.
+In the next sprint, we feel that testing Firebase interaction will still be an obstacle, but we hope (and will work for it) to manage to overcome this problem. 
+
 ### Sprint 3
+
+Beginning Dashboard
+<p align="center" justify="center">
+  <img src=docs/sprints/sprint3_ini.png>
+</p>
 
 ### Sprint 4
 
