@@ -5,7 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:test1/screens/signup_screen.dart';
 import 'auth_mock.dart';
 import 'package:mockito/mockito.dart';
-import 'auth_mock.mocks.dart'; // <-- IMPORTANTE
+import 'auth_mock.mocks.dart';
 
 void main() {
   setupFirebaseAuthMocks();
