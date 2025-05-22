@@ -18,6 +18,15 @@ class _LoginScreenState extends State<LoginScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   bool _isPasswordVisible = false;
   bool _isLoading = false;
+  final FocusNode _passwordFocusNode = FocusNode();
+
+  @override
+  void dispose() {
+    _passwordFocusNode.dispose();
+    super.dispose();
+  }
+
+  // Function to handle the login logic
   Future<void> _login() async {
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -122,6 +131,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           maxLength: 300,
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
+                          textInputAction: TextInputAction.next,
+                          onSubmitted: (_) {
+                            FocusScope.of(context)
+                                .requestFocus(_passwordFocusNode);
+                          },
                           decoration: const InputDecoration(
                             labelText: 'Email',
                             labelStyle: TextStyle(color: Colors.white),
@@ -136,7 +150,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: TextField(
                           maxLength: 15,
                           controller: _passwordController,
+                          focusNode: _passwordFocusNode,
                           obscureText: !_isPasswordVisible,
+                          textInputAction: TextInputAction.done,
+                          onSubmitted: (_) => _login(),
                           decoration: InputDecoration(
                             labelText: 'Password',
                             labelStyle: const TextStyle(color: Colors.white),

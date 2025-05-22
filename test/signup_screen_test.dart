@@ -1,8 +1,7 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:test1/screens/signup_screen.dart';
+import 'package:itemswap/screens/signup_screen.dart';
 import 'auth_mock.dart';
 import 'package:mockito/mockito.dart';
 import 'auth_mock.mocks.dart';
