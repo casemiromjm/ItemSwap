@@ -6,7 +6,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'chat_screen.dart';
 import 'item_screen.dart';
 import 'app_shell.dart';
-import 'package:intl/intl.dart';
 
 class SearchChatsScreen extends StatefulWidget {
   const SearchChatsScreen({super.key});
@@ -264,19 +263,6 @@ class _SearchChatsScreenState extends State<SearchChatsScreen> {
         );
       },
     );
-  }
-
-  String _formatTimestamp(dynamic timestamp) {
-    if (timestamp == null) return 'Unknown time';
-
-    try {
-      if (timestamp is Timestamp) {
-        return DateFormat('MMM d, h:mm a').format(timestamp.toDate());
-      }
-      return 'Invalid time';
-    } catch (e) {
-      return 'Time error';
-    }
   }
 
   @override
