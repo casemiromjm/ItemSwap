@@ -371,6 +371,13 @@ Beginning Dashboard
   <img src=docs/sprints/sprint3_ini.png>
 </p>
 
+Ending Dashboard
+<p align="center" justify="center">
+  <img src=docs/sprints/sprint3_fin.png>
+</p>
+
+In this last sprint, we considered new ideas for features for our app, such as keeping track of each user's swap stats. We successfully implemented new features, highlighting notifications, ability to manage app settings, ability to manage your own items and improved the chat to be fully functional. Otherwise, we unfortunately were not able to implement the feature of reseting the search filters, which we had planned to do. Also, we had problems with tests, because we had difficulties managing time with other classes and exams and because we had to deal with older tests that were not working anymore and required some refactoring.
+
 ### Sprint 4
 
 ### Final Release
