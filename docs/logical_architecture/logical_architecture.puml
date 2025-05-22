@@ -1,12 +1,14 @@
 @startuml Logical Architecture
 
+title "Logical Architecture"
+
 package "App" {
     [User Interface] ..> [Business Logic]
 }
 
 package "External Services" {
 
-    database "Firebase"
+    component "Firebase"
 }
 
 [Business Logic] .right.> Firebase

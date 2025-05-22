@@ -20,6 +20,8 @@ class _ChatScreenState extends State<ChatScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final TextEditingController _messageController = TextEditingController();
   final User? currentUser = FirebaseAuth.instance.currentUser;
+  final FocusNode _messageFocusNode = FocusNode();
+
   String? _imageBase64;
 
   String _formatDate(Timestamp ts) {
@@ -365,12 +367,14 @@ class _ChatScreenState extends State<ChatScreen> {
                       Expanded(
                         child: TextField(
                           controller: _messageController,
+                          focusNode: _messageFocusNode,
                           style: const TextStyle(color: Colors.white),
                           decoration: const InputDecoration(
                             hintText: 'Tap to write',
                             hintStyle: TextStyle(color: Colors.white70),
                             border: InputBorder.none,
                           ),
+                          onSubmitted: (text) => _sendMessage(),
                         ),
                       ),
                       IconButton(
