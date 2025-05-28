@@ -68,9 +68,7 @@ class HomeScreen extends StatelessWidget {
     final secondary = const Color.fromARGB(255, 63, 133, 190);
     final cardColor = const Color.fromARGB(255, 52, 83, 130);
 
-    return AppShell(
-      currentIndex: 1,
-      child: Container(
+    return Container(
         color: primary,
         child: SafeArea(
           child: Padding(
@@ -299,7 +297,6 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 }
