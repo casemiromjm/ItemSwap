@@ -6,7 +6,7 @@ import 'package:itemswap/screens/change_password_screen.dart';
 import 'package:itemswap/screens/delete_count_screen.dart';
 import 'package:itemswap/screens/credits_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'auth_mock.dart';
+import 'mocks/auth_mock.dart';
 
 void main() {
   // IMPORTANT: Set up the Firebase Core mocks at the very beginning.
@@ -69,4 +69,6 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(CreditsScreen), findsOneWidget);
   });
+
+
 }
