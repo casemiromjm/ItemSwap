@@ -5,11 +5,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:itemswap/screens/home_screen.dart';
 import 'package:itemswap/screens/search_chats_screen.dart';
 import 'package:itemswap/screens/app_shell.dart';
-import 'package:itemswap/screens/search_chats_screen.dart';
 import 'package:itemswap/screens/search_screen.dart';
-import 'package:mockito/mockito.dart';
 import 'mocks/auth_mock.dart';
-import 'mocks/auth_mock.mocks.dart';
 
 void main() {
 
@@ -20,16 +17,22 @@ void main() {
   });
 
   group('AppShell Navigation Tests', () {
+    testWidgets('Starts on HomeScreenContent', (WidgetTester tester) async {
+      await tester.pumpWidget(const MaterialApp(home: AppShell()));
+
+      expect(find.byType(HomeScreen), findsOneWidget);
+    });
+
     testWidgets('Navigates to SearchScreen when "Search" icon is tapped', (WidgetTester tester) async {
       await tester.pumpWidget(
-        const MaterialApp(home: HomeScreen()),
+        const MaterialApp(home: AppShell()),
       );
 
       expect(find.byType(HomeScreen), findsOneWidget);
       expect(find.byIcon(Icons.search), findsOneWidget);
 
       await tester.tap(find.byIcon(Icons.search));
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       expect(find.byType(SearchScreen), findsOneWidget);
       expect(find.byType(HomeScreen), findsNothing);
@@ -39,8 +42,8 @@ void main() {
         WidgetTester tester,
         ) async {
 
-      await tester.pumpWidget(MaterialApp(
-        home: HomeScreen(),
+      await tester.pumpWidget(const MaterialApp(
+        home: AppShell(),
       ));
 
       expect(find.byType(HomeScreen), findsOneWidget);
@@ -49,7 +52,7 @@ void main() {
       expect(find.byIcon(chatIcon), findsOneWidget);
 
       await tester.tap(find.byIcon(chatIcon));
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       expect(find.byType(SearchChatsScreen), findsOneWidget);
       expect(find.byType(HomeScreen), findsNothing);
@@ -57,19 +60,16 @@ void main() {
 
     testWidgets('Does not navigate when tapping home icon', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
-          home: HomeScreen(), // HomeScreen already contains AppShell
+        const MaterialApp(
+          home: AppShell(),
         ),
       );
 
-      // Verify we're starting at home
       expect(find.byType(HomeScreen), findsOneWidget);
 
-      // Tap home icon (current index)
       await tester.tap(find.byIcon(Icons.home));
-      await tester.pumpAndSettle();
+      await tester.pump();
 
-      // Should still be on HomeScreen
       expect(find.byType(HomeScreen), findsOneWidget);
     });
 
