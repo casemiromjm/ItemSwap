@@ -4,16 +4,18 @@ import 'package:firebase_core_platform_interface/test.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 
-// 👇 Gera mocks para estas classes
-@GenerateNiceMocks([
-  MockSpec<FirebaseAuth>(),
-  MockSpec<User>(),
-  MockSpec<UserCredential>(),
-  MockSpec<FirebaseFirestore>(),
-  MockSpec<CollectionReference<Map<String, dynamic>>>(),
-  MockSpec<DocumentReference<Map<String, dynamic>>>(),
-  MockSpec<DocumentSnapshot<Map<String, dynamic>>>(),
+//Gera mocks para estas classes
+@GenerateMocks([
+  FirebaseAuth,
+  User,
+  FirebaseFirestore,
+  CollectionReference,
+  DocumentReference,
+  DocumentSnapshot,
+  Query,
+  QuerySnapshot,
 ])
 
 typedef Callback = void Function(MethodCall call);

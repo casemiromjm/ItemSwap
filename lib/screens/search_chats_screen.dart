@@ -268,9 +268,7 @@ class _SearchChatsScreenState extends State<SearchChatsScreen> {
   @override
   Widget build(BuildContext context) {
     final currentUser = _auth.currentUser;
-    return AppShell(
-      currentIndex: 0,
-      child: Container(
+    return Container(
         color: const Color.fromARGB(255, 21, 45, 80),
         child: Column(
           children: [
@@ -384,7 +382,6 @@ class _SearchChatsScreenState extends State<SearchChatsScreen> {
             ),
           ],
         ),
-      ),
-    );
+      );
   }
 }

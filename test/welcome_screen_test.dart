@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:test1/screens/welcome_screen.dart';
-import 'package:test1/screens/login_screen.dart';
-import 'package:test1/screens/signup_screen.dart';
+import 'package:itemswap/screens/welcome_screen.dart';
+import 'package:itemswap/screens/login_screen.dart';
+import 'package:itemswap/screens/signup_screen.dart';
 
 void main() {
   testWidgets('WelcomeScreen renders correctly and navigates', (WidgetTester tester) async {
