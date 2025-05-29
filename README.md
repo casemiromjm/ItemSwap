@@ -185,6 +185,10 @@ Take a look at the following links to learn some techniques:
 * [Top 7 Killer Elevator Pitch Examples, by toggl.com](https://blog.toggl.com/elevator-pitch-examples/)
 -->
 
+## Tests
+
+![Follow this steps](integration_test/README.md)
+
 ## Requirements
 
 ### User Stories

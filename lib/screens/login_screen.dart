@@ -128,13 +128,15 @@ class _LoginScreenState extends State<LoginScreen> {
                       SizedBox(
                         width: 300,
                         child: TextField(
+                          key: const ValueKey('login_email'),
                           maxLength: 300,
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
                           textInputAction: TextInputAction.next,
                           onSubmitted: (_) {
-                            FocusScope.of(context)
-                                .requestFocus(_passwordFocusNode);
+                            FocusScope.of(
+                              context,
+                            ).requestFocus(_passwordFocusNode);
                           },
                           decoration: const InputDecoration(
                             labelText: 'Email',
@@ -148,6 +150,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       SizedBox(
                         width: 300,
                         child: TextField(
+                          key: const ValueKey('login_password'),
                           maxLength: 15,
                           controller: _passwordController,
                           focusNode: _passwordFocusNode,
@@ -177,6 +180,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 30),
                       ElevatedButton(
+                        key: const ValueKey('login_button'),
                         onPressed: _isLoading ? null : _login,
                         child:
                             _isLoading

@@ -137,6 +137,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       SizedBox(
                         width: 300,
                         child: TextField(
+                          key: const ValueKey('signup_email'),
                           controller: _emailController,
                           maxLength: 300,
                           decoration: const InputDecoration(
@@ -152,6 +153,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         width: 300,
                         child: TextField(
                           maxLength: 15,
+                          key: const ValueKey('signup_password'),
                           controller: _passwordController,
                           obscureText: !_isPasswordVisible,
                           decoration: InputDecoration(
@@ -177,6 +179,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       ),
                       const SizedBox(height: 30),
                       ElevatedButton(
+                        key: const ValueKey('signup_button'),
                         onPressed: _isLoading ? null : _signUp,
                         child:
                             _isLoading

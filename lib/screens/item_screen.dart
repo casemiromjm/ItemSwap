@@ -413,6 +413,7 @@ class _ItemScreenState extends State<ItemScreen> {
               const SizedBox(height: 30),
               if (_isOwnItem)
                 ElevatedButton(
+                  key: const Key('submit_button'),
                   onPressed: _isLoading ? null : _saveItemChanges,
                   child:
                       _isLoading
