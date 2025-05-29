@@ -152,9 +152,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return AppShell(
-      currentIndex: 2,
-      child: Container(
+    return Container(
         color: const Color.fromARGB(255, 21, 45, 80),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -343,8 +341,7 @@ class _SearchScreenState extends State<SearchScreen> {
             ],
           ),
         ),
-      ),
-    );
+      );
   }
 
   Widget _buildItemList(List<QueryDocumentSnapshot> visibleItems) {

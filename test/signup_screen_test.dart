@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:itemswap/screens/signup_screen.dart';
-import 'auth_mock.dart';
+import 'mocks/auth_mock.dart';
 import 'package:mockito/mockito.dart';
-import 'auth_mock.mocks.dart'; // <-- IMPORTANTE
+import 'mocks/auth_mock.mocks.dart';
 
 void main() {
   setupFirebaseAuthMocks();

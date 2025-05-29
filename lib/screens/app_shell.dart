@@ -3,54 +3,50 @@ import 'home_screen.dart';
 import 'search_screen.dart';
 import 'search_chats_screen.dart';
 
-class AppShell extends StatelessWidget {
-  final Widget child;
+class AppShell extends StatefulWidget {
+  final int initialIndex;
+  final List<Widget>? screens;
 
-  final int currentIndex;
+  const AppShell({Key? key, this.initialIndex = 1, this.screens}) : super(key: key);
 
-  const AppShell({Key? key, required this.child, required this.currentIndex})
-    : super(key: key);
+  @override
+  State<AppShell> createState() => _AppShellState();
+}
 
-  void _onTap(BuildContext context, int idx) {
-    if (idx == currentIndex) return;
-    switch (idx) {
-      case 0:
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const SearchChatsScreen()),
-        );
-        break;
-      case 1:
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
-        );
-        break;
-      case 2:
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const SearchScreen()),
-        );
-        break;
-    }
+class _AppShellState extends State<AppShell> {
+  late int _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
   }
 
   @override
   Widget build(BuildContext context) {
+    final screens = widget.screens ?? const [
+      SearchChatsScreen(),
+      HomeScreen(),
+      SearchScreen(),
+    ];
+
     return Scaffold(
-      body: child,
+      body: screens[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: const Color(0xFF152D50),
         selectedItemColor: const Color(0xFF3F85BE),
         unselectedItemColor: Colors.white70,
-        currentIndex: currentIndex,
+        currentIndex: _currentIndex,
         type: BottomNavigationBarType.fixed,
-        onTap: (i) => _onTap(context, i),
+        onTap: (index) {
+          if (index != _currentIndex) {
+            setState(() {
+              _currentIndex = index;
+            });
+          }
+        },
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat_bubble_outline),
-            label: '',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: ''),
           BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
           BottomNavigationBarItem(icon: Icon(Icons.search), label: ''),
         ],
